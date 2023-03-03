@@ -7,8 +7,31 @@
 import { EntryPoints } from "N/types";
 import url = require("N/url");
 import currentRecord = require("N/currentRecord");
-import { TRAN_SELECT_SUITELET } from "./constants";
-// export function fieldChanged(context: EntryPoints.Client.fieldChangedContext): void {}
+import {
+    SUITELET_FIELD_IDS,
+    TRAN_SELECT_SUITELET
+} from "./constants";
+
+export function fieldChanged(
+    context: EntryPoints.Client.fieldChangedContext
+): void {
+    const changedField = context.fieldId;
+    const cr = currentRecord.get();
+    console.log(`changed field ${changedField}`);
+
+    // switch through fields
+    switch (changedField) {
+        case SUITELET_FIELD_IDS.ALL_TRAN_TYPES: {
+            //    const allTranTypes
+            break;
+        }
+        default: {
+            console.log(
+                `no action for field ${changedField} - continuing`
+            );
+        }
+    }
+}
 
 // export function lineinit(context: EntryPoints.Client.lineInitContext): void {}
 
@@ -17,22 +40,28 @@ export function pageInit(
 ): void {
     console.log(`page init start for ${context}`);
     const CR = currentRecord.get();
-    console.log(CR);
-    const startdate = CR.getValue({
-        fieldId: "custpage_include_tran_pdf"
-    });
-    console.log(`start ${startdate}`);
 
     // disable transaction type field if all is selected
     const selectAllTransField = CR.getField({
-        fieldId: "custpage_tran_type_all"
+        fieldId: SUITELET_FIELD_IDS.ALL_TRAN_TYPES
     });
-    if (selectAllTransField) {
-        const tranTypeField = CR.getField({
-            fieldId: "custpage_tran_type"
-        });
+    const tranTypeField = CR.getField({
+        fieldId: SUITELET_FIELD_IDS.TRAN_TYPES
+    });
+    if (selectAllTransField)
         tranTypeField.isDisabled = true;
-    }
+    else tranTypeField.isDisabled = false;
+
+    // disable transaction status field if all is selected
+    const selectAllStatusField = CR.getField({
+        fieldId: SUITELET_FIELD_IDS.ALL_STATUSES
+    });
+    const tranStatusField = CR.getField({
+        fieldId: SUITELET_FIELD_IDS.TRAN_STATUS
+    });
+    if (selectAllStatusField)
+        tranStatusField.isDisabled = true;
+    else tranStatusField.isDisabled = false;
 }
 
 // export function postSourcing(context: EntryPoints.Client.postSourcingContext): void {}

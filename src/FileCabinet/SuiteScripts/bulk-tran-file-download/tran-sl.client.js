@@ -11,21 +11,28 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants"], functi
     function pageInit(context) {
         console.log(`page init start for ${context}`);
         const CR = currentRecord.get();
-        console.log(CR);
-        const startdate = CR.getValue({
-            fieldId: "custpage_include_tran_pdf"
-        });
-        console.log(`start ${startdate}`);
         // disable transaction type field if all is selected
         const selectAllTransField = CR.getField({
-            fieldId: "custpage_tran_type_all"
+            fieldId: constants_1.SUITELET_FIELD_IDS.ALL_TRAN_TYPES
         });
-        if (selectAllTransField) {
-            const tranTypeField = CR.getField({
-                fieldId: "custpage_tran_type"
-            });
+        const tranTypeField = CR.getField({
+            fieldId: constants_1.SUITELET_FIELD_IDS.TRAN_TYPES
+        });
+        if (selectAllTransField)
             tranTypeField.isDisabled = true;
-        }
+        else
+            tranTypeField.isDisabled = false;
+        // disable transaction status field if all is selected
+        const selectAllStatusField = CR.getField({
+            fieldId: constants_1.SUITELET_FIELD_IDS.ALL_STATUSES
+        });
+        const tranStatusField = CR.getField({
+            fieldId: constants_1.SUITELET_FIELD_IDS.TRAN_STATUS
+        });
+        if (selectAllStatusField)
+            tranStatusField.isDisabled = true;
+        else
+            tranStatusField.isDisabled = false;
     }
     exports.pageInit = pageInit;
     // export function postSourcing(context: EntryPoints.Client.postSourcingContext): void {}
