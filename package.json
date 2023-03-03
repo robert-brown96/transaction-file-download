@@ -1,0 +1,36 @@
+{
+    "devDependencies": {
+        "eslint": "^8.35.0",
+        "prettier": "^2.8.4",
+        "typescript": "^4.9.5",
+        "eslint-plugin-import": "^2.26.0",
+        "eslint-plugin-suitescript": "^1.2.1",
+        "husky": "^8.0.0",
+        "@commitlint/cli": "^17.3.0",
+        "@commitlint/config-conventional": "^17.3.0",
+        "@hitc/netsuite-types": "^2022.2.14",
+        "@types/node": "^18.11.18",
+        "@typescript-eslint/eslint-plugin": "^5.47.1"
+    },
+    "main": "suitecloud.config.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "format": "npx prettier --write .",
+        "lint": "npx eslint src/TypeScripts/**",
+        "prepare": "husky install",
+        "docs": "npx typedoc",
+        "build": "tsc",
+        "deploy_ns_dev": "npm run build && suitecloud project:deploy",
+        "deploy_only_ns_dev": "suitecloud project:deploy",
+        "mode:dev": "nodemon --watch 'src/**' --ext 'ts,json,xml' --exec 'npm run deploy_ns_dev'"
+    },
+    "prettier": {
+        "trailingComma": "none",
+        "tabWidth": 4,
+        "semi": true,
+        "singleQuote": false,
+        "bracketSpacing": true,
+        "arrowParens": "always",
+        "printWidth": 60
+    }
+}
