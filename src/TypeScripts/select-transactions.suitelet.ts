@@ -8,8 +8,10 @@
 import { EntryPoints } from "N/types";
 import log = require("N/log");
 import serverWidget = require("N/ui/serverWidget");
+
 import { validateSuiteletMethod } from "./utils/util.module";
 import { TransactionStatusService } from "./utils/tran-status-val.service";
+import { SUITELET_FIELD_IDS } from "./constants";
 
 export function onRequest(
     context: EntryPoints.Suitelet.onRequestContext
@@ -27,24 +29,41 @@ export function onRequest(
                 title: "Download Transaction Files in Bulk"
             });
 
+            slForm.clientScriptModulePath =
+                "./tran-sl.client.js";
+
             // Create fields for filtering transactions
+
+            const includePdfField = slForm.addField({
+                type: serverWidget.FieldType.CHECKBOX,
+                id: SUITELET_FIELD_IDS.INCLUDE_PDF,
+                label: "Include Transaction Printout"
+            });
+            includePdfField.defaultValue = "T";
+
+            const includeAllFilesField = slForm.addField({
+                type: serverWidget.FieldType.CHECKBOX,
+                id: SUITELET_FIELD_IDS.INCLUDE_ALL_FILES,
+                label: "Include All Transaction Files"
+            });
+            includeAllFilesField.defaultValue = "F";
 
             // Start Date
             slForm.addField({
-                id: "custpage_tran_start_date",
+                id: SUITELET_FIELD_IDS.START_DATE,
                 type: serverWidget.FieldType.DATE,
                 label: "Earliest Tran Date"
             });
             // End Date
             slForm.addField({
-                id: "custpage_tran_end_date",
+                id: SUITELET_FIELD_IDS.END_DATE,
                 type: serverWidget.FieldType.DATE,
                 label: "Latest Tran Date"
             });
 
             // customer
             const customerField = slForm.addField({
-                id: "custpage_customer",
+                id: SUITELET_FIELD_IDS.CUSTOMER,
                 type: serverWidget.FieldType.SELECT,
                 label: "Customer",
                 source: "customer"
@@ -54,7 +73,7 @@ export function onRequest(
             // Subsidiary
             //const subsidiaryField =
             slForm.addField({
-                id: "custpage_subsidiary",
+                id: SUITELET_FIELD_IDS.SUBSIDIARY,
                 type: serverWidget.FieldType.SELECT,
                 label: "Subsidiary",
                 source: "subsidiary"
@@ -66,7 +85,7 @@ export function onRequest(
 
             const selectAllTransField = slForm.addField({
                 type: serverWidget.FieldType.CHECKBOX,
-                id: "custpage_tran_type_all",
+                id: SUITELET_FIELD_IDS.ALL_TRAN_TYPES,
                 label: "All Types"
             });
             selectAllTransField.updateBreakType({
@@ -75,7 +94,7 @@ export function onRequest(
             });
             selectAllTransField.defaultValue = "T";
             const tranTypeField = slForm.addField({
-                id: "custpage_tran_type",
+                id: SUITELET_FIELD_IDS.TRAN_TYPES,
                 type: serverWidget.FieldType.MULTISELECT,
                 label: "Transaction Type"
             });
@@ -88,13 +107,13 @@ export function onRequest(
 
             const selectAllStatuses = slForm.addField({
                 type: serverWidget.FieldType.CHECKBOX,
-                id: "custpage_tran_statis_all",
+                id: SUITELET_FIELD_IDS.ALL_STATUSES,
                 label: "All Transaction Statuses"
             });
             selectAllStatuses.defaultValue = "T";
 
             const statusField = slForm.addField({
-                id: "custpage_status",
+                id: SUITELET_FIELD_IDS.TRAN_STATUS,
                 type: serverWidget.FieldType.MULTISELECT,
                 label: "Status"
             });
