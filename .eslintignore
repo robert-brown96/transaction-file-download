@@ -1,0 +1,7 @@
+src/FileCabinet/SuiteScripts/
+
+.eslintrc.js
+commitlint.config.js
+
+
+suitecloud.config.js
