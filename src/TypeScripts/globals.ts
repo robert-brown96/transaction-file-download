@@ -15,8 +15,17 @@ export type TMap = {
     [id: string]: string;
 };
 
-export enum ESupportedTranType {
-    INVOICE = "invoice",
-    CREDIT = "creditmemo",
-    VENDOR_BILL = "vendorbill"
+export type TSupportedTranType =
+    | "invoice"
+    | "creditmemo"
+    | "vendorbill";
+
+export interface ITranPicklistOption {
+    value: TSupportedTranType;
+    text: string;
+}
+
+export interface ISCRIPT_RUN {
+    scriptId: string;
+    deploymentId: string;
 }

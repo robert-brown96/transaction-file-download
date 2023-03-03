@@ -4,7 +4,7 @@
  * @NModuleScope Public
  * @NScriptType Suitelet
  */
-define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module"], function (require, exports, log, serverWidget, util_module_1) {
+define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module", "./utils/tran-status-val.service"], function (require, exports, log, serverWidget, util_module_1, tran_status_val_service_1) {
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.onRequest = void 0;
     function onRequest(context) {
@@ -48,6 +48,39 @@ define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module
                 subsidiaryField.updateBreakType({
                     breakType: serverWidget.FieldBreakType.STARTCOL
                 });
+                // transaction type and status fields
+                const tranStatusService = new tran_status_val_service_1.TransactionStatusService([]);
+                const selectAllTransField = slForm.addField({
+                    type: serverWidget.FieldType.CHECKBOX,
+                    id: "custpage_tran_type_all",
+                    label: "All Types"
+                });
+                selectAllTransField.updateBreakType({
+                    breakType: serverWidget.FieldBreakType.STARTCOL
+                });
+                selectAllTransField.defaultValue = "T";
+                const tranTypeField = slForm.addField({
+                    id: "custpage_tran_type",
+                    type: serverWidget.FieldType.MULTISELECT,
+                    label: "Transaction Type"
+                });
+                tranStatusService
+                    .supportedTransValues()
+                    .forEach((e) => tranTypeField.addSelectOption(e));
+                const selectAllStatuses = slForm.addField({
+                    type: serverWidget.FieldType.CHECKBOX,
+                    id: "custpage_tran_statis_all",
+                    label: "All Transaction Statuses"
+                });
+                selectAllStatuses.defaultValue = "T";
+                const statusField = slForm.addField({
+                    id: "custpage_status",
+                    type: serverWidget.FieldType.MULTISELECT,
+                    label: "Status"
+                });
+                tranStatusService
+                    .getUniqueValues()
+                    .forEach((e) => statusField.addSelectOption(e));
                 response.writePage(slForm);
             }
             catch (e) {
