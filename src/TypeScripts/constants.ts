@@ -16,6 +16,7 @@ export const SUITELET_FIELD_IDS = {
     ALL_STATUSES: "custpage_tran_status_all",
     INCLUDE_PDF: "custpage_include_tran_pdf",
     INCLUDE_ALL_FILES: "custpage_include_all_files",
+    JOIN_PDFS: "custpage_join_pdfs",
     START_DATE: "custpage_tran_start_date",
     END_DATE: "custpage_tran_end_date",
     CUSTOMER: "custpage_customer",

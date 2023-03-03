@@ -22,7 +22,14 @@ export function fieldChanged(
     // switch through fields
     switch (changedField) {
         case SUITELET_FIELD_IDS.ALL_TRAN_TYPES: {
-            //    const allTranTypes
+            const allTranTypes = cr.getValue({
+                fieldId: SUITELET_FIELD_IDS.ALL_TRAN_TYPES
+            });
+            if (allTranTypes) {
+                // disable transaction select
+            } else {
+                // enable transaction select
+            }
             break;
         }
         default: {

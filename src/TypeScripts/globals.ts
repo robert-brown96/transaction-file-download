@@ -29,3 +29,9 @@ export interface ISCRIPT_RUN {
     scriptId: string;
     deploymentId: string;
 }
+
+export interface IMrError {
+    asset: string;
+    message: string;
+    stage: "map" | "reduce";
+}

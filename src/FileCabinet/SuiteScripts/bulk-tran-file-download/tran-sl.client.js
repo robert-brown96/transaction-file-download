@@ -5,8 +5,31 @@
  */
 define(["require", "exports", "N/url", "N/currentRecord", "./constants"], function (require, exports, url, currentRecord, constants_1) {
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.resetFilterParams = exports.pageInit = void 0;
-    // export function fieldChanged(context: EntryPoints.Client.fieldChangedContext): void {}
+    exports.resetFilterParams = exports.pageInit = exports.fieldChanged = void 0;
+    function fieldChanged(context) {
+        const changedField = context.fieldId;
+        const cr = currentRecord.get();
+        console.log(`changed field ${changedField}`);
+        // switch through fields
+        switch (changedField) {
+            case constants_1.SUITELET_FIELD_IDS.ALL_TRAN_TYPES: {
+                const allTranTypes = cr.getValue({
+                    fieldId: constants_1.SUITELET_FIELD_IDS.ALL_TRAN_TYPES
+                });
+                if (allTranTypes) {
+                    // disable transaction select
+                }
+                else {
+                    // enable transaction select
+                }
+                break;
+            }
+            default: {
+                console.log(`no action for field ${changedField} - continuing`);
+            }
+        }
+    }
+    exports.fieldChanged = fieldChanged;
     // export function lineinit(context: EntryPoints.Client.lineInitContext): void {}
     function pageInit(context) {
         console.log(`page init start for ${context}`);

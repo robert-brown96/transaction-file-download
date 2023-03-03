@@ -11,15 +11,16 @@ define(["require", "exports"], function (require, exports) {
         deploymentId: "customdeploy_scgtfd_select_suitelet"
     };
     exports.SUITELET_FIELD_IDS = {
+        ALL_TRAN_TYPES: "custpage_tran_type_all",
+        ALL_STATUSES: "custpage_tran_status_all",
         INCLUDE_PDF: "custpage_include_tran_pdf",
         INCLUDE_ALL_FILES: "custpage_include_all_files",
+        JOIN_PDFS: "custpage_join_pdfs",
         START_DATE: "custpage_tran_start_date",
         END_DATE: "custpage_tran_end_date",
         CUSTOMER: "custpage_customer",
         SUBSIDIARY: "custpage_subsidiary",
-        ALL_TRAN_TYPES: "custpage_tran_type_all",
         TRAN_TYPES: "custpage_tran_type",
-        ALL_STATUSES: "custpage_tran_status_all",
         TRAN_STATUS: "custpage_status"
     };
 });
