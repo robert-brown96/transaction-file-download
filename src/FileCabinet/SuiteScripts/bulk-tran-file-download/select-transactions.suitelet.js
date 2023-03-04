@@ -270,6 +270,12 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             type: serverWidget.FieldType.SELECT,
             container: "navigation_group"
         });
+        slForm.addField({
+            id: "custpage_page_num_html",
+            type: serverWidget.FieldType.INLINEHTML,
+            label: " ",
+            container: "navigation_group"
+        }).defaultValue = `<p style='font-size:14px'>Viewing Page ${pageId + 1} of ${pageCount}</p><br><br>`;
         const resultCountField = slForm.addField({
             id: constants_1.SUITELET_FIELD_IDS.TRAN_COUNT,
             label: "Total Transaction Count",

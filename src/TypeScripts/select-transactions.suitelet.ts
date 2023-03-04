@@ -68,6 +68,8 @@ const _get = ({
         title: "Download Transaction Files in Bulk"
     });
 
+    slForm.addSubmitButton({ label: "Download Selected" });
+
     slForm.clientScriptModulePath = "./tran-sl.client.js";
 
     // field groups
@@ -334,6 +336,15 @@ const _get = ({
         type: serverWidget.FieldType.SELECT,
         container: "navigation_group"
     });
+
+    slForm.addField({
+        id: "custpage_page_num_html",
+        type: serverWidget.FieldType.INLINEHTML,
+        label: " ",
+        container: "navigation_group"
+    }).defaultValue = `<p style='font-size:14px'>Viewing Page ${
+        pageId + 1
+    } of ${pageCount}</p><br><br>`;
 
     const resultCountField = slForm.addField({
         id: SUITELET_FIELD_IDS.TRAN_COUNT,
