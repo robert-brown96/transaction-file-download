@@ -3,24 +3,58 @@
  * @NModuleScope Public
  * @NScriptType ClientScript
  */
-define(["require", "exports", "N/url", "N/currentRecord", "./constants"], function (require, exports, url, currentRecord, constants_1) {
+define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./utils/util.module"], function (require, exports, url, currentRecord, constants_1, util_module_1) {
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.resetFilterParams = exports.pageInit = exports.fieldChanged = void 0;
+    exports.getSuiteletPage = exports.resetFilterParams = exports.pageInit = exports.fieldChanged = void 0;
     function fieldChanged(context) {
         const changedField = context.fieldId;
         const cr = currentRecord.get();
         console.log(`changed field ${changedField}`);
         // switch through fields
         switch (changedField) {
+            case "custpage_page_id": {
+                const pageIdVal = context.currentRecord.getValue({
+                    fieldId: "custpage_page_id"
+                });
+                const pageId = parseInt(pageIdVal.split("_")[1]);
+                document.location = url.resolveScript({
+                    scriptId: (0, util_module_1.getParameterFromURL)("script"),
+                    deploymentId: (0, util_module_1.getParameterFromURL)("deploy"),
+                    params: { page: pageId }
+                });
+                break;
+            }
             case constants_1.SUITELET_FIELD_IDS.ALL_TRAN_TYPES: {
                 const allTranTypes = cr.getValue({
                     fieldId: constants_1.SUITELET_FIELD_IDS.ALL_TRAN_TYPES
                 });
+                const tranTypeField = cr.getField({
+                    fieldId: constants_1.SUITELET_FIELD_IDS.TRAN_TYPES
+                });
                 if (allTranTypes) {
                     // disable transaction select
+                    tranTypeField.isDisabled = true;
                 }
                 else {
                     // enable transaction select
+                    tranTypeField.isDisabled = false;
+                }
+                break;
+            }
+            case constants_1.SUITELET_FIELD_IDS.ALL_STATUSES: {
+                const allTranStatus = cr.getValue({
+                    fieldId: constants_1.SUITELET_FIELD_IDS.ALL_STATUSES
+                });
+                const tranStatusField = cr.getField({
+                    fieldId: constants_1.SUITELET_FIELD_IDS.TRAN_STATUS
+                });
+                if (allTranStatus) {
+                    // disable transaction select
+                    tranStatusField.isDisabled = true;
+                }
+                else {
+                    // enable transaction select
+                    tranStatusField.isDisabled = false;
                 }
                 break;
             }
@@ -80,4 +114,13 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants"], functi
         });
     }
     exports.resetFilterParams = resetFilterParams;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    function getSuiteletPage(suiteletScriptId, suiteletDeploymentId, pageId) {
+        document.location = url.resolveScript({
+            scriptId: suiteletScriptId,
+            deploymentId: suiteletDeploymentId,
+            params: { page: pageId }
+        });
+    }
+    exports.getSuiteletPage = getSuiteletPage;
 });

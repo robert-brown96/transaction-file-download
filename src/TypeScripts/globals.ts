@@ -35,3 +35,29 @@ export interface IMrError {
     message: string;
     stage: "map" | "reduce";
 }
+
+export interface ISearchParameters {
+    ALL_TRAN_TYPES: boolean;
+    ALL_STATUSES: boolean;
+    START_DATE: Date;
+    END_DATE?: Date;
+    CUSTOMER?: number;
+    SUBSIDIARY?: number;
+    TRAN_TYPES: TSupportedTranType[];
+    TRAN_STATUS: string[];
+}
+
+export interface ITransactionResult {
+    id: number;
+    type: string;
+    status: string;
+    subsidiary: number;
+    entity: number;
+    trannumber: string;
+    date: Date;
+    amount: string;
+}
+
+export interface IGetParams {
+    pageId: number;
+}

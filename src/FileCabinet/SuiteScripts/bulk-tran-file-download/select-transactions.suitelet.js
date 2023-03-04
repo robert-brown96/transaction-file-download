@@ -4,9 +4,10 @@
  * @NModuleScope Public
  * @NScriptType Suitelet
  */
-define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module", "./utils/tran-status-val.service", "./constants"], function (require, exports, log, serverWidget, util_module_1, tran_status_val_service_1, constants_1) {
+define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module", "./utils/tran-status-val.service", "./constants", "./utils/transaction-search.service"], function (require, exports, log, serverWidget, util_module_1, tran_status_val_service_1, constants_1, transaction_search_service_1) {
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.onRequest = void 0;
+    const PAGE_SIZE = 50;
     function onRequest(context) {
         log.debug("start suitelet", context);
         // destructure context
@@ -14,7 +15,9 @@ define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module
         const method = (0, util_module_1.validateSuiteletMethod)(request.method);
         if (method === "GET") {
             try {
-                const formRes = _get();
+                // page id parameter
+                const pageId = parseInt(request.parameters.page);
+                const formRes = _get({ pageId });
                 response.writePage(formRes);
             }
             catch (e) {
@@ -26,7 +29,7 @@ define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module
         }
     }
     exports.onRequest = onRequest;
-    const _get = () => {
+    const _get = ({ pageId }) => {
         const slForm = serverWidget.createForm({
             title: "Download Transaction Files in Bulk"
         });
@@ -136,6 +139,107 @@ define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module
         tranStatusService
             .getUniqueValues()
             .forEach((e) => statusField.addSelectOption(e));
+        // create sublist for transactions
+        const tranSublist = slForm.addSublist({
+            id: "custpage_tran_list",
+            label: "Transaction Sublist",
+            type: serverWidget.SublistType.LIST
+        });
+        tranSublist.addMarkAllButtons();
+        // sublist fields
+        tranSublist.addField({
+            id: "process",
+            label: "Process",
+            type: serverWidget.FieldType.CHECKBOX
+        });
+        tranSublist
+            .addField({
+            id: "custpage_sublist_internal_id",
+            label: "Internal ID",
+            type: serverWidget.FieldType.TEXT
+        })
+            .updateDisplayType({
+            displayType: serverWidget.FieldDisplayType.HIDDEN
+        });
+        tranSublist.addField({
+            id: "type",
+            label: "Type",
+            type: serverWidget.FieldType.TEXT
+        });
+        const sublistStatusField = tranSublist.addField({
+            id: "status",
+            label: "Status",
+            type: serverWidget.FieldType.SELECT
+        });
+        tranStatusService
+            .getUniqueValues()
+            .forEach((e) => sublistStatusField.addSelectOption(e));
+        tranSublist.addField({
+            id: "subsidiary",
+            label: "Subsidiary",
+            type: serverWidget.FieldType.SELECT,
+            source: "subsidiary"
+        });
+        tranSublist.addField({
+            id: "entity",
+            label: "entity",
+            type: serverWidget.FieldType.TEXT
+        });
+        tranSublist.addField({
+            id: "trannumber",
+            label: "Document Number",
+            type: serverWidget.FieldType.TEXT
+        });
+        tranSublist.addField({
+            id: "date",
+            label: "Date",
+            type: serverWidget.FieldType.DATE
+        });
+        tranSublist.addField({
+            id: "amount",
+            label: "Amount",
+            type: serverWidget.FieldType.CURRENCY
+        });
+        const tranSearchService = new transaction_search_service_1.TransactionSearchService({
+            START_DATE: new Date(),
+            ALL_STATUSES: true,
+            ALL_TRAN_TYPES: true,
+            TRAN_TYPES: [],
+            TRAN_STATUS: []
+        });
+        const transactionSearchService = tranSearchService.runSearch(PAGE_SIZE);
+        const pageCount = Math.ceil(transactionSearchService.count / PAGE_SIZE);
+        log.debug("search pageCount", pageCount);
+        // Set pageId to correct value if out of index
+        if (!pageId || pageId < 0)
+            pageId = 0;
+        else if (pageId >= pageCount)
+            pageId = pageCount - 1;
+        // Add drop-down and options to navigate to specific page
+        const selectOptions = slForm.addField({
+            id: "custpage_page_id",
+            label: "Page Index",
+            type: serverWidget.FieldType.SELECT
+        });
+        for (let i = 0; i < pageCount; i++) {
+            if (i == pageId)
+                selectOptions.addSelectOption({
+                    value: "pageid_" + i,
+                    text: i * PAGE_SIZE +
+                        1 +
+                        " - " +
+                        (i + 1) * PAGE_SIZE,
+                    isSelected: true
+                });
+            else
+                selectOptions.addSelectOption({
+                    value: "pageid_" + i,
+                    text: i * PAGE_SIZE +
+                        1 +
+                        " - " +
+                        (i + 1) * PAGE_SIZE
+                });
+        }
         return slForm;
     };
 });

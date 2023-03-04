@@ -11,6 +11,7 @@ import {
     SUITELET_FIELD_IDS,
     TRAN_SELECT_SUITELET
 } from "./constants";
+import { getParameterFromURL } from "./utils/util.module";
 
 export function fieldChanged(
     context: EntryPoints.Client.fieldChangedContext
@@ -21,14 +22,51 @@ export function fieldChanged(
 
     // switch through fields
     switch (changedField) {
+        case "custpage_page_id": {
+            const pageIdVal =
+                context.currentRecord.getValue({
+                    fieldId: "custpage_page_id"
+                }) as string;
+            const pageId = parseInt(
+                pageIdVal.split("_")[1]
+            );
+
+            document.location = url.resolveScript({
+                scriptId: getParameterFromURL("script"),
+                deploymentId: getParameterFromURL("deploy"),
+                params: { page: pageId }
+            });
+            break;
+        }
         case SUITELET_FIELD_IDS.ALL_TRAN_TYPES: {
             const allTranTypes = cr.getValue({
                 fieldId: SUITELET_FIELD_IDS.ALL_TRAN_TYPES
             });
+            const tranTypeField = cr.getField({
+                fieldId: SUITELET_FIELD_IDS.TRAN_TYPES
+            });
             if (allTranTypes) {
                 // disable transaction select
+                tranTypeField.isDisabled = true;
             } else {
                 // enable transaction select
+                tranTypeField.isDisabled = false;
+            }
+            break;
+        }
+        case SUITELET_FIELD_IDS.ALL_STATUSES: {
+            const allTranStatus = cr.getValue({
+                fieldId: SUITELET_FIELD_IDS.ALL_STATUSES
+            });
+            const tranStatusField = cr.getField({
+                fieldId: SUITELET_FIELD_IDS.TRAN_STATUS
+            });
+            if (allTranStatus) {
+                // disable transaction select
+                tranStatusField.isDisabled = true;
+            } else {
+                // enable transaction select
+                tranStatusField.isDisabled = false;
             }
             break;
         }
@@ -102,4 +140,17 @@ export function resetFilterParams() {
         scriptId: TRAN_SELECT_SUITELET.scriptId,
         deploymentId: TRAN_SELECT_SUITELET.deploymentId
     }) as unknown as Location;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getSuiteletPage(
+    suiteletScriptId: string,
+    suiteletDeploymentId: string,
+    pageId: string
+) {
+    document.location = url.resolveScript({
+        scriptId: suiteletScriptId,
+        deploymentId: suiteletDeploymentId,
+        params: { page: pageId }
+    });
 }

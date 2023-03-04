@@ -5,7 +5,7 @@
  */
 define(["require", "exports", "N/log", "N/query", "N/error"], function (require, exports, log, query, error) {
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.summarizeLogger = exports.queryReturn = exports.validateSuiteletMethod = void 0;
+    exports.getParameterFromURL = exports.summarizeLogger = exports.queryReturn = exports.validateSuiteletMethod = void 0;
     /**
      *
      * @param tempMethod
@@ -124,4 +124,20 @@ define(["require", "exports", "N/log", "N/query", "N/error"], function (require,
         };
     }
     exports.summarizeLogger = summarizeLogger;
+    function getParameterFromURL(param) {
+        const query = window.location.search.substring(1);
+        const vars = query.split("&");
+        for (let i = 0; i < vars.length; i++) {
+            const pair = vars[i].split("=");
+            if (pair[0] == param) {
+                return decodeURIComponent(pair[1]);
+            }
+        }
+        throw error.create({
+            name: "PARAMETER NOT FOUND",
+            message: `param ${param} was not found in url`,
+            notifyOff: true
+        });
+    }
+    exports.getParameterFromURL = getParameterFromURL;
 });

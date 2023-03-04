@@ -7,6 +7,7 @@
 import log = require("N/log");
 import query = require("N/query");
 import error = require("N/error");
+
 import { EntryPoints } from "N/types";
 import { IMrError, TSUITELET_METHOD } from "../globals";
 
@@ -149,4 +150,20 @@ export function summarizeLogger(opts: {
         mapErrors,
         reduceErrors
     };
+}
+
+export function getParameterFromURL(param: string): string {
+    const query = window.location.search.substring(1);
+    const vars = query.split("&");
+    for (let i = 0; i < vars.length; i++) {
+        const pair = vars[i].split("=");
+        if (pair[0] == param) {
+            return decodeURIComponent(pair[1]);
+        }
+    }
+    throw error.create({
+        name: "PARAMETER NOT FOUND",
+        message: `param ${param} was not found in url`,
+        notifyOff: true
+    });
 }
