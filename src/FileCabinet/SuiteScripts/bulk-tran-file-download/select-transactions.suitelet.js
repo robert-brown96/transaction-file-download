@@ -4,7 +4,7 @@
  * @NModuleScope Public
  * @NScriptType Suitelet
  */
-define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module", "./utils/tran-status-val.service", "./constants", "./utils/transaction-search.service"], function (require, exports, log, serverWidget, util_module_1, tran_status_val_service_1, constants_1, transaction_search_service_1) {
+define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget", "./utils/util.module", "./utils/tran-status-val.service", "./constants", "./utils/transaction-search.service"], function (require, exports, log, format, url, serverWidget, util_module_1, tran_status_val_service_1, constants_1, transaction_search_service_1) {
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.onRequest = void 0;
     const PAGE_SIZE = 50;
@@ -181,8 +181,7 @@ define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module
         const subsidiarySublistField = tranSublist.addField({
             id: constants_1.SUITELET_SUBLIST_FIELD_IDS.subsidiary,
             label: "Subsidiary",
-            type: serverWidget.FieldType.SELECT,
-            source: "subsidiary"
+            type: serverWidget.FieldType.TEXT
         });
         subsidiarySublistField.updateDisplayType({
             displayType: serverWidget.FieldDisplayType.INLINE
@@ -210,6 +209,11 @@ define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module
             id: constants_1.SUITELET_SUBLIST_FIELD_IDS.amount,
             label: "Amount",
             type: serverWidget.FieldType.CURRENCY
+        });
+        tranSublist.addField({
+            id: constants_1.SUITELET_SUBLIST_FIELD_IDS.tran_link,
+            label: "Transaction",
+            type: serverWidget.FieldType.TEXT
         });
         const tranSearchService = new transaction_search_service_1.TransactionSearchService({
             START_DATE: new Date(),
@@ -314,12 +318,24 @@ define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module
             });
             tranSublist.setSublistValue({
                 id: constants_1.SUITELET_SUBLIST_FIELD_IDS.date,
-                value: new Date(res.date).toDateString(),
+                value: format.format({
+                    value: new Date(res.date),
+                    type: format.Type.DATE
+                }),
                 line
             });
             tranSublist.setSublistValue({
                 id: constants_1.SUITELET_SUBLIST_FIELD_IDS.amount,
                 value: res.amount,
+                line
+            });
+            const tranUrl = url.resolveRecord({
+                recordId: res.id,
+                recordType: res.raw_type
+            });
+            tranSublist.setSublistValue({
+                id: constants_1.SUITELET_SUBLIST_FIELD_IDS.tran_link,
+                value: `<a href="${tranUrl}">Link</a>`,
                 line
             });
             line++;

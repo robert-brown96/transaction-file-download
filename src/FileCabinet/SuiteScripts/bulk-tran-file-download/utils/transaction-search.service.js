@@ -16,7 +16,11 @@ define(["require", "exports", "N/log", "N/search"], function (require, exports, 
             });
             this.transactionSearchColStatus = search.createColumn({ name: "status" });
             this.transactionSearchColSubsidiary = search.createColumn({
-                name: "subsidiarynohierarchy"
+                name: "subsidiary"
+            });
+            this.transactionSearchColNameNoHierarchy = search.createColumn({
+                name: "namenohierarchy",
+                join: "subsidiary"
             });
             this.transactionSearchColName = search.createColumn({
                 name: "entity"
@@ -31,6 +35,7 @@ define(["require", "exports", "N/log", "N/search"], function (require, exports, 
                 this.transactionSearchColType,
                 this.transactionSearchColStatus,
                 this.transactionSearchColSubsidiary,
+                this.transactionSearchColNameNoHierarchy,
                 this.transactionSearchColName,
                 this.transactionSearchColDocumentNumber,
                 this.transactionSearchColDate,
@@ -83,7 +88,7 @@ define(["require", "exports", "N/log", "N/search"], function (require, exports, 
                 });
                 const results = [];
                 searchPage.data.forEach((res) => {
-                    const subsidiaryVal = res.getValue(this.transactionSearchColSubsidiary);
+                    const subsidiaryVal = res.getValue(this.transactionSearchColNameNoHierarchy);
                     const entityVal = res.getValue(this.transactionSearchColName);
                     const dateVal = res.getValue(this.transactionSearchColDate);
                     results.push({
@@ -91,10 +96,11 @@ define(["require", "exports", "N/log", "N/search"], function (require, exports, 
                         type: res.getValue(this.transactionSearchColType) === "CustInvc"
                             ? "Invoice"
                             : "Credit Memo",
+                        raw_type: res.getValue(this.transactionSearchColType) === "CustInvc"
+                            ? "invoice"
+                            : "creditmemo",
                         status: res.getText(this.transactionSearchColStatus),
-                        subsidiary: typeof subsidiaryVal === "number"
-                            ? subsidiaryVal
-                            : parseInt(subsidiaryVal),
+                        subsidiary: subsidiaryVal,
                         entity: typeof entityVal === "number"
                             ? entityVal
                             : parseInt(entityVal),

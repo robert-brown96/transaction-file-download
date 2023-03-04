@@ -7,6 +7,8 @@
 
 import { EntryPoints } from "N/types";
 import log = require("N/log");
+import format = require("N/format");
+import url = require("N/url");
 import serverWidget = require("N/ui/serverWidget");
 //import search = require("N/search");
 import { validateSuiteletMethod } from "./utils/util.module";
@@ -227,8 +229,7 @@ const _get = ({
     const subsidiarySublistField = tranSublist.addField({
         id: SUITELET_SUBLIST_FIELD_IDS.subsidiary,
         label: "Subsidiary",
-        type: serverWidget.FieldType.SELECT,
-        source: "subsidiary"
+        type: serverWidget.FieldType.TEXT
     });
     subsidiarySublistField.updateDisplayType({
         displayType: serverWidget.FieldDisplayType.INLINE
@@ -258,6 +259,11 @@ const _get = ({
         id: SUITELET_SUBLIST_FIELD_IDS.amount,
         label: "Amount",
         type: serverWidget.FieldType.CURRENCY
+    });
+    tranSublist.addField({
+        id: SUITELET_SUBLIST_FIELD_IDS.tran_link,
+        label: "Transaction",
+        type: serverWidget.FieldType.TEXT
     });
 
     const tranSearchService = new TransactionSearchService({
@@ -376,14 +382,25 @@ const _get = ({
         });
         tranSublist.setSublistValue({
             id: SUITELET_SUBLIST_FIELD_IDS.date,
-            value: new Date(
-                res.date
-            ).toDateString() as unknown as string,
+            value: format.format({
+                value: new Date(res.date),
+                type: format.Type.DATE
+            }),
             line
         });
         tranSublist.setSublistValue({
             id: SUITELET_SUBLIST_FIELD_IDS.amount,
             value: res.amount as unknown as string,
+            line
+        });
+
+        const tranUrl = url.resolveRecord({
+            recordId: res.id,
+            recordType: res.raw_type
+        });
+        tranSublist.setSublistValue({
+            id: SUITELET_SUBLIST_FIELD_IDS.tran_link,
+            value: `<a href="${tranUrl}">Link</a>`,
             line
         });
 
