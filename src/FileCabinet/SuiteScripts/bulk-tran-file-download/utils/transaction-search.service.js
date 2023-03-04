@@ -81,7 +81,7 @@ define(["require", "exports", "N/log", "N/search"], function (require, exports, 
                 const results = [];
                 searchPage.data.forEach((res) => {
                     const subsidiaryVal = res.getValue(this.transactionSearchColSubsidiary);
-                    const entityVal = res.getValue(this.transactionSearchColName);
+                    const entityVal = res.getText(this.transactionSearchColName);
                     const dateVal = res.getValue(this.transactionSearchColDate);
                     results.push({
                         id: parseInt(res.id),

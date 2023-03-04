@@ -121,7 +121,7 @@ export class TransactionSearchService {
                 const subsidiaryVal = res.getValue(
                     this.transactionSearchColSubsidiary
                 );
-                const entityVal = res.getValue(
+                const entityVal = res.getText(
                     this.transactionSearchColName
                 );
                 const dateVal = res.getValue(

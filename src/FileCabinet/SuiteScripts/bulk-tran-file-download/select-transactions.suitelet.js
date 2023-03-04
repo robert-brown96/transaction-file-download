@@ -36,6 +36,10 @@ define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module
         slForm.clientScriptModulePath = "./tran-sl.client.js";
         // field groups
         slForm.addFieldGroup({
+            id: "navigation_group",
+            label: "Select"
+        });
+        slForm.addFieldGroup({
             id: "filters_group",
             label: "Transaction Filters"
         });
@@ -148,13 +152,13 @@ define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module
         tranSublist.addMarkAllButtons();
         // sublist fields
         tranSublist.addField({
-            id: "process",
+            id: constants_1.SUITELET_SUBLIST_FIELD_IDS.process,
             label: "Process",
             type: serverWidget.FieldType.CHECKBOX
         });
         tranSublist
             .addField({
-            id: "custpage_sublist_internal_id",
+            id: constants_1.SUITELET_SUBLIST_FIELD_IDS.id,
             label: "Internal ID",
             type: serverWidget.FieldType.TEXT
         })
@@ -162,41 +166,47 @@ define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module
             displayType: serverWidget.FieldDisplayType.HIDDEN
         });
         tranSublist.addField({
-            id: "type",
+            id: constants_1.SUITELET_SUBLIST_FIELD_IDS.type,
             label: "Type",
             type: serverWidget.FieldType.TEXT
         });
         const sublistStatusField = tranSublist.addField({
-            id: "status",
+            id: constants_1.SUITELET_SUBLIST_FIELD_IDS.status,
             label: "Status",
             type: serverWidget.FieldType.SELECT
         });
         tranStatusService
             .getUniqueValues()
             .forEach((e) => sublistStatusField.addSelectOption(e));
-        tranSublist.addField({
-            id: "subsidiary",
+        const subsidiarySublistField = tranSublist.addField({
+            id: constants_1.SUITELET_SUBLIST_FIELD_IDS.subsidiary,
             label: "Subsidiary",
             type: serverWidget.FieldType.SELECT,
             source: "subsidiary"
         });
-        tranSublist.addField({
-            id: "entity",
-            label: "entity",
+        subsidiarySublistField.updateDisplayType({
+            displayType: serverWidget.FieldDisplayType.INLINE
+        });
+        const entityField = tranSublist.addField({
+            id: constants_1.SUITELET_SUBLIST_FIELD_IDS.entity,
+            label: "Entity",
             type: serverWidget.FieldType.TEXT
         });
+        entityField.updateDisplayType({
+            displayType: serverWidget.FieldDisplayType.INLINE
+        });
         tranSublist.addField({
-            id: "trannumber",
+            id: constants_1.SUITELET_SUBLIST_FIELD_IDS.trannumber,
             label: "Document Number",
             type: serverWidget.FieldType.TEXT
         });
         tranSublist.addField({
-            id: "date",
+            id: constants_1.SUITELET_SUBLIST_FIELD_IDS.date,
             label: "Date",
-            type: serverWidget.FieldType.DATE
+            type: serverWidget.FieldType.TEXT
         });
         tranSublist.addField({
-            id: "amount",
+            id: constants_1.SUITELET_SUBLIST_FIELD_IDS.amount,
             label: "Amount",
             type: serverWidget.FieldType.CURRENCY
         });
@@ -207,8 +217,8 @@ define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module
             TRAN_TYPES: [],
             TRAN_STATUS: []
         });
-        const transactionSearchService = tranSearchService.runSearch(PAGE_SIZE);
-        const pageCount = Math.ceil(transactionSearchService.count / PAGE_SIZE);
+        const transactionSearchPageData = tranSearchService.runSearch(PAGE_SIZE);
+        const pageCount = Math.ceil(transactionSearchPageData.count / PAGE_SIZE);
         log.debug("search pageCount", pageCount);
         // Set pageId to correct value if out of index
         if (!pageId || pageId < 0)
@@ -217,9 +227,24 @@ define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module
             pageId = pageCount - 1;
         // Add drop-down and options to navigate to specific page
         const selectOptions = slForm.addField({
-            id: "custpage_page_id",
+            id: constants_1.SUITELET_FIELD_IDS.PAGE_ID,
             label: "Page Index",
-            type: serverWidget.FieldType.SELECT
+            type: serverWidget.FieldType.SELECT,
+            container: "navigation_group"
+        });
+        const resultCountField = slForm.addField({
+            id: constants_1.SUITELET_FIELD_IDS.TRAN_COUNT,
+            label: "Total Transaction Count",
+            type: serverWidget.FieldType.INTEGER,
+            container: "navigation_group"
+        });
+        resultCountField.defaultValue = (pageCount *
+            PAGE_SIZE);
+        resultCountField.updateDisplayType({
+            displayType: serverWidget.FieldDisplayType.INLINE
+        });
+        resultCountField.updateBreakType({
+            breakType: serverWidget.FieldBreakType.STARTCOL
         });
         for (let i = 0; i < pageCount; i++) {
             if (i == pageId)
@@ -240,6 +265,64 @@ define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module
                         (i + 1) * PAGE_SIZE
                 });
         }
+        // get page of data that will be shown
+        const pageResults = tranSearchService.fetchSearchResult({
+            pagedData: transactionSearchPageData,
+            pageIndex: pageId
+        });
+        let line = 0;
+        pageResults.forEach((res) => {
+            log.debug({
+                title: `result ${line}`,
+                details: res
+            });
+            tranSublist.setSublistValue({
+                id: constants_1.SUITELET_SUBLIST_FIELD_IDS.process,
+                value: "F",
+                line
+            });
+            tranSublist.setSublistValue({
+                id: constants_1.SUITELET_SUBLIST_FIELD_IDS.id,
+                value: res.id,
+                line
+            });
+            tranSublist.setSublistValue({
+                id: constants_1.SUITELET_SUBLIST_FIELD_IDS.type,
+                value: res.type,
+                line
+            });
+            tranSublist.setSublistValue({
+                id: constants_1.SUITELET_SUBLIST_FIELD_IDS.status,
+                value: res.status,
+                line
+            });
+            tranSublist.setSublistValue({
+                id: constants_1.SUITELET_SUBLIST_FIELD_IDS.subsidiary,
+                value: res.subsidiary,
+                line
+            });
+            tranSublist.setSublistValue({
+                id: constants_1.SUITELET_SUBLIST_FIELD_IDS.entity,
+                value: res.entity,
+                line
+            });
+            tranSublist.setSublistValue({
+                id: constants_1.SUITELET_SUBLIST_FIELD_IDS.trannumber,
+                value: res.trannumber,
+                line
+            });
+            tranSublist.setSublistValue({
+                id: constants_1.SUITELET_SUBLIST_FIELD_IDS.date,
+                value: new Date(res.date),
+                line
+            });
+            tranSublist.setSublistValue({
+                id: constants_1.SUITELET_SUBLIST_FIELD_IDS.amount,
+                value: res.amount,
+                line
+            });
+            line++;
+        });
         return slForm;
     };
 });

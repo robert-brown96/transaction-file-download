@@ -22,5 +22,19 @@ export const SUITELET_FIELD_IDS = {
     CUSTOMER: "custpage_customer",
     SUBSIDIARY: "custpage_subsidiary",
     TRAN_TYPES: "custpage_tran_type",
-    TRAN_STATUS: "custpage_status"
+    TRAN_STATUS: "custpage_status",
+    PAGE_ID: "custpage_page_id",
+    TRAN_COUNT: "custpage_count"
+};
+
+export const SUITELET_SUBLIST_FIELD_IDS = {
+    process: "process",
+    id: "custpage_sublist_internal_id",
+    type: "type",
+    status: "status",
+    subsidiary: "subsidiary",
+    entity: "entity",
+    trannumber: "trannumber",
+    date: "date",
+    amount: "amount"
 };

@@ -11,7 +11,10 @@ import serverWidget = require("N/ui/serverWidget");
 //import search = require("N/search");
 import { validateSuiteletMethod } from "./utils/util.module";
 import { TransactionStatusService } from "./utils/tran-status-val.service";
-import { SUITELET_FIELD_IDS } from "./constants";
+import {
+    SUITELET_FIELD_IDS,
+    SUITELET_SUBLIST_FIELD_IDS
+} from "./constants";
 import { TransactionSearchService } from "./utils/transaction-search.service";
 import { IGetParams } from "./globals";
 
@@ -54,6 +57,10 @@ const _get = ({
     slForm.clientScriptModulePath = "./tran-sl.client.js";
 
     // field groups
+    slForm.addFieldGroup({
+        id: "navigation_group",
+        label: "Select"
+    });
     slForm.addFieldGroup({
         id: "filters_group",
         label: "Transaction Filters"
@@ -186,14 +193,14 @@ const _get = ({
 
     // sublist fields
     tranSublist.addField({
-        id: "process",
+        id: SUITELET_SUBLIST_FIELD_IDS.process,
         label: "Process",
         type: serverWidget.FieldType.CHECKBOX
     });
 
     tranSublist
         .addField({
-            id: "custpage_sublist_internal_id",
+            id: SUITELET_SUBLIST_FIELD_IDS.id,
             label: "Internal ID",
             type: serverWidget.FieldType.TEXT
         })
@@ -203,13 +210,13 @@ const _get = ({
         });
 
     tranSublist.addField({
-        id: "type",
+        id: SUITELET_SUBLIST_FIELD_IDS.type,
         label: "Type",
         type: serverWidget.FieldType.TEXT
     });
 
     const sublistStatusField = tranSublist.addField({
-        id: "status",
+        id: SUITELET_SUBLIST_FIELD_IDS.status,
         label: "Status",
         type: serverWidget.FieldType.SELECT
     });
@@ -220,31 +227,37 @@ const _get = ({
             sublistStatusField.addSelectOption(e)
         );
 
-    tranSublist.addField({
-        id: "subsidiary",
+    const subsidiarySublistField = tranSublist.addField({
+        id: SUITELET_SUBLIST_FIELD_IDS.subsidiary,
         label: "Subsidiary",
         type: serverWidget.FieldType.SELECT,
         source: "subsidiary"
     });
+    subsidiarySublistField.updateDisplayType({
+        displayType: serverWidget.FieldDisplayType.INLINE
+    });
 
-    tranSublist.addField({
-        id: "entity",
-        label: "entity",
+    const entityField = tranSublist.addField({
+        id: SUITELET_SUBLIST_FIELD_IDS.entity,
+        label: "Entity",
         type: serverWidget.FieldType.TEXT
+    });
+    entityField.updateDisplayType({
+        displayType: serverWidget.FieldDisplayType.INLINE
     });
 
     tranSublist.addField({
-        id: "trannumber",
+        id: SUITELET_SUBLIST_FIELD_IDS.trannumber,
         label: "Document Number",
         type: serverWidget.FieldType.TEXT
     });
     tranSublist.addField({
-        id: "date",
+        id: SUITELET_SUBLIST_FIELD_IDS.date,
         label: "Date",
-        type: serverWidget.FieldType.DATE
+        type: serverWidget.FieldType.TEXT
     });
     tranSublist.addField({
-        id: "amount",
+        id: SUITELET_SUBLIST_FIELD_IDS.amount,
         label: "Amount",
         type: serverWidget.FieldType.CURRENCY
     });
@@ -256,11 +269,11 @@ const _get = ({
         TRAN_TYPES: [],
         TRAN_STATUS: []
     });
-    const transactionSearchService =
+    const transactionSearchPageData =
         tranSearchService.runSearch(PAGE_SIZE);
 
     const pageCount = Math.ceil(
-        transactionSearchService.count / PAGE_SIZE
+        transactionSearchPageData.count / PAGE_SIZE
     );
     log.debug("search pageCount", pageCount);
 
@@ -270,9 +283,26 @@ const _get = ({
 
     // Add drop-down and options to navigate to specific page
     const selectOptions = slForm.addField({
-        id: "custpage_page_id",
+        id: SUITELET_FIELD_IDS.PAGE_ID,
         label: "Page Index",
-        type: serverWidget.FieldType.SELECT
+        type: serverWidget.FieldType.SELECT,
+        container: "navigation_group"
+    });
+
+    const resultCountField = slForm.addField({
+        id: SUITELET_FIELD_IDS.TRAN_COUNT,
+        label: "Total Transaction Count",
+        type: serverWidget.FieldType.INTEGER,
+        container: "navigation_group"
+    });
+
+    resultCountField.defaultValue = (pageCount *
+        PAGE_SIZE) as unknown as string;
+    resultCountField.updateDisplayType({
+        displayType: serverWidget.FieldDisplayType.INLINE
+    });
+    resultCountField.updateBreakType({
+        breakType: serverWidget.FieldBreakType.STARTCOL
     });
 
     for (let i = 0; i < pageCount; i++) {
@@ -296,6 +326,69 @@ const _get = ({
                     (i + 1) * PAGE_SIZE
             });
     }
+
+    // get page of data that will be shown
+    const pageResults = tranSearchService.fetchSearchResult(
+        {
+            pagedData: transactionSearchPageData,
+            pageIndex: pageId
+        }
+    );
+
+    let line = 0;
+    pageResults.forEach((res) => {
+        log.debug({
+            title: `result ${line}`,
+            details: res
+        });
+        tranSublist.setSublistValue({
+            id: SUITELET_SUBLIST_FIELD_IDS.process,
+            value: "F",
+            line
+        });
+        tranSublist.setSublistValue({
+            id: SUITELET_SUBLIST_FIELD_IDS.id,
+            value: res.id as unknown as string,
+            line
+        });
+        tranSublist.setSublistValue({
+            id: SUITELET_SUBLIST_FIELD_IDS.type,
+            value: res.type,
+            line
+        });
+        tranSublist.setSublistValue({
+            id: SUITELET_SUBLIST_FIELD_IDS.status,
+            value: res.status,
+            line
+        });
+        tranSublist.setSublistValue({
+            id: SUITELET_SUBLIST_FIELD_IDS.subsidiary,
+            value: res.subsidiary as unknown as string,
+            line
+        });
+        tranSublist.setSublistValue({
+            id: SUITELET_SUBLIST_FIELD_IDS.entity,
+            value: res.entity as unknown as string,
+            line
+        });
+        tranSublist.setSublistValue({
+            id: SUITELET_SUBLIST_FIELD_IDS.trannumber,
+            value: res.trannumber,
+            line
+        });
+        tranSublist.setSublistValue({
+            id: SUITELET_SUBLIST_FIELD_IDS.date,
+            value: new Date(res.date) as unknown as string,
+            line
+        });
+        tranSublist.setSublistValue({
+            id: SUITELET_SUBLIST_FIELD_IDS.amount,
+            value: res.amount as unknown as string,
+            line
+        });
+
+        line++;
+    });
 
     return slForm;
 };
