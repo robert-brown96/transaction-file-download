@@ -34,11 +34,33 @@ export function onRequest(
 
     if (method === "GET") {
         try {
+            // just for logging
+            // TODO: remove this log
+            log.audit({
+                title: "entry parameters",
+                details: request.parameters
+            });
+
             // page id parameter
             const pageId = parseInt(
                 request.parameters.page
             );
-            const formRes = _get({ pageId });
+
+            // script id params
+            const scriptId =
+                context.request.parameters.script;
+            const deploymentId =
+                context.request.parameters.deploy;
+
+            // form value parameters
+            const start = request.parameters.start;
+
+            const formRes = _get({
+                pageId,
+                scriptId,
+                deploymentId,
+                start
+            });
             response.writePage(formRes);
         } catch (e) {
             log.error({
@@ -50,11 +72,16 @@ export function onRequest(
 }
 
 const _get = ({
-    pageId
+    pageId,
+    scriptId,
+    deploymentId,
+    start
 }: IGetParams): serverWidget.Form => {
     const slForm = serverWidget.createForm({
         title: "Download Transaction Files in Bulk"
     });
+
+    slForm.addSubmitButton({ label: "Download Files" });
 
     slForm.clientScriptModulePath = "./tran-sl.client.js";
 
@@ -106,8 +133,9 @@ const _get = ({
         label: "Earliest Tran Date",
         container: "filters_group"
     });
-    startDateField.defaultValue =
-        new Date() as unknown as string;
+    startDateField.defaultValue = start
+        ? (new Date(start) as unknown as string)
+        : (new Date() as unknown as string);
     // End Date
     slForm.addField({
         id: SUITELET_FIELD_IDS.END_DATE,
@@ -285,6 +313,36 @@ const _get = ({
     if (!pageId || pageId < 0) pageId = 0;
     else if (pageId >= pageCount) pageId = pageCount - 1;
 
+    if (pageId != 0) {
+        tranSublist.addButton({
+            id: "custpage_previous",
+            label: "Previous",
+            functionName:
+                "getSuiteletPage(" +
+                scriptId +
+                ", " +
+                deploymentId +
+                ", " +
+                (pageId - 1) +
+                ")"
+        });
+    }
+
+    if (pageId != pageCount - 1) {
+        tranSublist.addButton({
+            id: "custpage_next",
+            label: "Next",
+            functionName:
+                "getSuiteletPage(" +
+                scriptId +
+                ", " +
+                deploymentId +
+                ", " +
+                (pageId + 1) +
+                ")"
+        });
+    }
+
     // Add drop-down and options to navigate to specific page
     const selectOptions = slForm.addField({
         id: SUITELET_FIELD_IDS.PAGE_ID,
@@ -292,6 +350,15 @@ const _get = ({
         type: serverWidget.FieldType.SELECT,
         container: "navigation_group"
     });
+
+    slForm.addField({
+        id: "custpage_page_num_html",
+        type: serverWidget.FieldType.INLINEHTML,
+        label: " ",
+        container: "navigation_group"
+    }).defaultValue = `<p style='font-size:14px'>Viewing Page ${
+        pageId + 1
+    } of ${pageCount}</p><br><br>`;
 
     const resultCountField = slForm.addField({
         id: SUITELET_FIELD_IDS.TRAN_COUNT,
@@ -307,6 +374,20 @@ const _get = ({
     });
     resultCountField.updateBreakType({
         breakType: serverWidget.FieldBreakType.STARTCOL
+    });
+
+    const includeAllField = slForm.addField({
+        type: serverWidget.FieldType.CHECKBOX,
+        id: SUITELET_FIELD_IDS.INCLUDE_ALL,
+        label: "Include Transactions All that Meet Criteria",
+        container: "navigation_group"
+    });
+    includeAllField.defaultValue = "T";
+    includeAllField.updateBreakType({
+        breakType: serverWidget.FieldBreakType.STARTCOL
+    });
+    includeAllField.setHelpText({
+        help: "Unchecking this box will process only checked transactions"
     });
 
     for (let i = 0; i < pageCount; i++) {

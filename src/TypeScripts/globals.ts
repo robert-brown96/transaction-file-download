@@ -15,6 +15,20 @@ export type TMap = {
     [id: string]: string;
 };
 
+export type TMapAny = {
+    [id: string]:
+        | string
+        | string[]
+        | boolean
+        | number
+        | number[]
+        | Date;
+};
+
+export type TClientUrlParam = {
+    [id: string]: any;
+};
+
 export type TSupportedTranType = "invoice" | "creditmemo";
 
 export interface ITranPicklistOption {
@@ -58,4 +72,7 @@ export interface ITransactionResult {
 
 export interface IGetParams {
     pageId: number;
+    scriptId: string;
+    deploymentId: string;
+    start: Date;
 }

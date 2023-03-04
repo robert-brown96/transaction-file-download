@@ -12,6 +12,7 @@ import {
     TRAN_SELECT_SUITELET
 } from "./constants";
 import { getParameterFromURL } from "./utils/util.module";
+import { TMapAny } from "./globals";
 
 export function fieldChanged(
     context: EntryPoints.Client.fieldChangedContext
@@ -20,21 +21,67 @@ export function fieldChanged(
     const cr = currentRecord.get();
     console.log(`changed field ${changedField}`);
 
+    const params: TMapAny = {};
+
+    let newPageId: number;
+
+    params.startDateParam = cr.getValue({
+        fieldId: SUITELET_FIELD_IDS.START_DATE
+    });
+    params.endDateParam =
+        cr.getValue({
+            fieldId: SUITELET_FIELD_IDS.END_DATE
+        }) || "";
+    params.customerParam =
+        cr.getValue({
+            fieldId: SUITELET_FIELD_IDS.CUSTOMER
+        }) || "";
+    params.subsidParam =
+        cr.getValue({
+            fieldId: SUITELET_FIELD_IDS.SUBSIDIARY
+        }) || "";
+    params.allTypesParam = cr.getValue({
+        fieldId: SUITELET_FIELD_IDS.ALL_TRAN_TYPES
+    });
+    params.allStatusParam = cr.getValue({
+        fieldId: SUITELET_FIELD_IDS.ALL_STATUSES
+    });
+    params.typeArrParam = cr.getValue({
+        fieldId: SUITELET_FIELD_IDS.TRAN_TYPES
+    });
+    params.statusArrParam = cr.getValue({
+        fieldId: SUITELET_FIELD_IDS.TRAN_STATUS
+    });
+    // const filterParams: ISearchParameters = {
+    //     ALL_STATUSES: allStatusParam as boolean,
+    //     ALL_TRAN_TYPES: allTypesParam as boolean,
+    //     START_DATE: new Date(startDateParam as string),
+    //     TRAN_STATUS: [],
+    //     TRAN_TYPES: [],
+    //     ...(endDateParam && {
+    //         END_DATE: new Date(endDateParam as string)
+    //     }),
+    //     ...(customerParam && {
+    //         CUSTOMER: customerParam
+    //     }),
+    //     ...(subsidParam && { SUBSIDIARY: subsidParam })
+    // };
     // switch through fields
+    console.log(
+        `params before switch ${JSON.stringify(params)}`
+    );
     switch (changedField) {
         case "custpage_page_id": {
             const pageIdVal =
                 context.currentRecord.getValue({
                     fieldId: "custpage_page_id"
                 }) as string;
-            const pageId = parseInt(
-                pageIdVal.split("_")[1]
-            );
+            newPageId = parseInt(pageIdVal.split("_")[1]);
 
             document.location = url.resolveScript({
                 scriptId: getParameterFromURL("script"),
                 deploymentId: getParameterFromURL("deploy"),
-                params: { page: pageId }
+                params: { page: newPageId }
             });
             break;
         }
@@ -70,12 +117,28 @@ export function fieldChanged(
             }
             break;
         }
+        case SUITELET_FIELD_IDS.START_DATE: {
+            params.start = cr.getValue({
+                fieldId: SUITELET_FIELD_IDS.START_DATE
+            });
+            break;
+        }
         default: {
             console.log(
                 `no action for field ${changedField} - continuing`
             );
         }
     }
+
+    // base parameters for suitelet refresh retrieve
+    const scriptId = getParameterFromURL("script");
+    const deploymentId = getParameterFromURL("deploy");
+
+    document.location = url.resolveScript({
+        scriptId,
+        deploymentId,
+        params: params
+    });
 }
 
 // export function lineinit(context: EntryPoints.Client.lineInitContext): void {}
