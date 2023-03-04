@@ -220,6 +220,9 @@ const _get = ({
         label: "Status",
         type: serverWidget.FieldType.SELECT
     });
+    sublistStatusField.updateDisplayType({
+        displayType: serverWidget.FieldDisplayType.INLINE
+    });
 
     tranStatusService
         .getUniqueValues()
@@ -240,7 +243,8 @@ const _get = ({
     const entityField = tranSublist.addField({
         id: SUITELET_SUBLIST_FIELD_IDS.entity,
         label: "Entity",
-        type: serverWidget.FieldType.TEXT
+        type: serverWidget.FieldType.SELECT,
+        source: "customer"
     });
     entityField.updateDisplayType({
         displayType: serverWidget.FieldDisplayType.INLINE

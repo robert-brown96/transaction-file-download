@@ -26,8 +26,8 @@ export class TransactionStatusService {
     supportedTransValues(): ITranPicklistOption[] {
         return [
             { text: "Invoice", value: "invoice" },
-            { text: "Credit Memo", value: "creditmemo" },
-            { text: "Bill", value: "vendorbill" }
+            { text: "Credit Memo", value: "creditmemo" }
+            //  { text: "Bill", value: "vendorbill" }
         ];
     }
 
@@ -42,9 +42,9 @@ export class TransactionStatusService {
         if (this.transactionTypes.includes("creditmemo"))
             allStatuses.push(...this.creditStatus());
 
-        //credit status values
-        if (this.transactionTypes.includes("vendorbill"))
-            allStatuses.push(...this.vendorBillStatus());
+        // //credit status values
+        // if (this.transactionTypes.includes("vendorbill"))
+        //     allStatuses.push(...this.vendorBillStatus());
 
         return [...new Set(allStatuses)];
     }

@@ -29,7 +29,9 @@ export class TransactionSearchService {
     private transactionSearchColStatus =
         search.createColumn({ name: "statusref" });
     private transactionSearchColSubsidiary =
-        search.createColumn({ name: "subsidiary" });
+        search.createColumn({
+            name: "subsidiarynohierarchy"
+        });
     private transactionSearchColName = search.createColumn({
         name: "entity"
     });
@@ -63,7 +65,7 @@ export class TransactionSearchService {
         if (options.ALL_TRAN_TYPES) {
             this.transaction_types.push("creditmemo");
             this.transaction_types.push("invoice");
-            this.transaction_types.push("vendorbill");
+            // this.transaction_types.push("vendorbill");
         } else {
             this.transaction_types.push(
                 ...options.TRAN_TYPES
@@ -121,7 +123,7 @@ export class TransactionSearchService {
                 const subsidiaryVal = res.getValue(
                     this.transactionSearchColSubsidiary
                 );
-                const entityVal = res.getText(
+                const entityVal = res.getValue(
                     this.transactionSearchColName
                 );
                 const dateVal = res.getValue(
@@ -176,8 +178,8 @@ export class TransactionSearchService {
             vals.push("CustInvc");
         if (this.transaction_types.includes("creditmemo"))
             vals.push("CustCred");
-        if (this.transaction_types.includes("vendorbill"))
-            vals.push("VendBill");
+        // if (this.transaction_types.includes("vendorbill"))
+        //     vals.push("VendBill");
 
         return search.createFilter({
             name: "type",

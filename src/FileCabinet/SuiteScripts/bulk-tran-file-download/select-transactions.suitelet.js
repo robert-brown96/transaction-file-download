@@ -175,6 +175,9 @@ define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module
             label: "Status",
             type: serverWidget.FieldType.SELECT
         });
+        sublistStatusField.updateDisplayType({
+            displayType: serverWidget.FieldDisplayType.INLINE
+        });
         tranStatusService
             .getUniqueValues()
             .forEach((e) => sublistStatusField.addSelectOption(e));
@@ -190,7 +193,8 @@ define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module
         const entityField = tranSublist.addField({
             id: constants_1.SUITELET_SUBLIST_FIELD_IDS.entity,
             label: "Entity",
-            type: serverWidget.FieldType.TEXT
+            type: serverWidget.FieldType.SELECT,
+            source: "customer"
         });
         entityField.updateDisplayType({
             displayType: serverWidget.FieldDisplayType.INLINE

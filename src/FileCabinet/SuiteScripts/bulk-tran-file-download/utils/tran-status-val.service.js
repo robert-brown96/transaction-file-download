@@ -20,8 +20,8 @@ define(["require", "exports"], function (require, exports) {
         supportedTransValues() {
             return [
                 { text: "Invoice", value: "invoice" },
-                { text: "Credit Memo", value: "creditmemo" },
-                { text: "Bill", value: "vendorbill" }
+                { text: "Credit Memo", value: "creditmemo" }
+                //  { text: "Bill", value: "vendorbill" }
             ];
         }
         getUniqueValues() {
@@ -32,9 +32,9 @@ define(["require", "exports"], function (require, exports) {
             //credit status values
             if (this.transactionTypes.includes("creditmemo"))
                 allStatuses.push(...this.creditStatus());
-            //credit status values
-            if (this.transactionTypes.includes("vendorbill"))
-                allStatuses.push(...this.vendorBillStatus());
+            // //credit status values
+            // if (this.transactionTypes.includes("vendorbill"))
+            //     allStatuses.push(...this.vendorBillStatus());
             return [...new Set(allStatuses)];
         }
         invoiceStatus() {

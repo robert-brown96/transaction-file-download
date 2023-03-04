@@ -15,10 +15,7 @@ export type TMap = {
     [id: string]: string;
 };
 
-export type TSupportedTranType =
-    | "invoice"
-    | "creditmemo"
-    | "vendorbill";
+export type TSupportedTranType = "invoice" | "creditmemo";
 
 export interface ITranPicklistOption {
     value: TSupportedTranType;

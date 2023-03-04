@@ -15,7 +15,9 @@ define(["require", "exports", "N/log", "N/search"], function (require, exports, 
                 name: "type"
             });
             this.transactionSearchColStatus = search.createColumn({ name: "statusref" });
-            this.transactionSearchColSubsidiary = search.createColumn({ name: "subsidiary" });
+            this.transactionSearchColSubsidiary = search.createColumn({
+                name: "subsidiarynohierarchy"
+            });
             this.transactionSearchColName = search.createColumn({
                 name: "entity"
             });
@@ -43,7 +45,7 @@ define(["require", "exports", "N/log", "N/search"], function (require, exports, 
             if (options.ALL_TRAN_TYPES) {
                 this.transaction_types.push("creditmemo");
                 this.transaction_types.push("invoice");
-                this.transaction_types.push("vendorbill");
+                // this.transaction_types.push("vendorbill");
             }
             else {
                 this.transaction_types.push(...options.TRAN_TYPES);
@@ -81,7 +83,7 @@ define(["require", "exports", "N/log", "N/search"], function (require, exports, 
                 const results = [];
                 searchPage.data.forEach((res) => {
                     const subsidiaryVal = res.getValue(this.transactionSearchColSubsidiary);
-                    const entityVal = res.getText(this.transactionSearchColName);
+                    const entityVal = res.getValue(this.transactionSearchColName);
                     const dateVal = res.getValue(this.transactionSearchColDate);
                     results.push({
                         id: parseInt(res.id),
@@ -118,8 +120,8 @@ define(["require", "exports", "N/log", "N/search"], function (require, exports, 
                 vals.push("CustInvc");
             if (this.transaction_types.includes("creditmemo"))
                 vals.push("CustCred");
-            if (this.transaction_types.includes("vendorbill"))
-                vals.push("VendBill");
+            // if (this.transaction_types.includes("vendorbill"))
+            //     vals.push("VendBill");
             return search.createFilter({
                 name: "type",
                 operator: search.Operator.ANYOF,
