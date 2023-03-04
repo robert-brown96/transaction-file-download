@@ -44,6 +44,9 @@ export function onRequest(
                 context.request.parameters.script;
             const deploymentId =
                 context.request.parameters.deploy;
+
+            // form value parameters
+
             const formRes = _get({
                 pageId,
                 scriptId,
@@ -68,7 +71,7 @@ const _get = ({
         title: "Download Transaction Files in Bulk"
     });
 
-    slForm.addSubmitButton({ label: "Download Selected" });
+    slForm.addSubmitButton({ label: "Download Files" });
 
     slForm.clientScriptModulePath = "./tran-sl.client.js";
 
@@ -360,6 +363,20 @@ const _get = ({
     });
     resultCountField.updateBreakType({
         breakType: serverWidget.FieldBreakType.STARTCOL
+    });
+
+    const includeAllField = slForm.addField({
+        type: serverWidget.FieldType.CHECKBOX,
+        id: SUITELET_FIELD_IDS.INCLUDE_ALL,
+        label: "Include Transactions All that Meet Criteria",
+        container: "navigation_group"
+    });
+    includeAllField.defaultValue = "T";
+    includeAllField.updateBreakType({
+        breakType: serverWidget.FieldBreakType.STARTCOL
+    });
+    includeAllField.setHelpText({
+        help: "Unchecking this box will process only checked transactions"
     });
 
     for (let i = 0; i < pageCount; i++) {
