@@ -34,6 +34,7 @@ define(["require", "exports"], function (require, exports) {
         entity: "entity",
         trannumber: "trannumber",
         date: "date",
-        amount: "amount"
+        amount: "amount",
+        tran_link: "tran_link"
     };
 });

@@ -47,8 +47,9 @@ export interface ISearchParameters {
 export interface ITransactionResult {
     id: number;
     type: string;
+    raw_type: string;
     status: string;
-    subsidiary: number;
+    subsidiary: string;
     entity: number;
     trannumber: string;
     date: Date;

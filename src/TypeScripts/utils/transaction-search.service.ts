@@ -30,7 +30,12 @@ export class TransactionSearchService {
         search.createColumn({ name: "status" });
     private transactionSearchColSubsidiary =
         search.createColumn({
-            name: "subsidiarynohierarchy"
+            name: "subsidiary"
+        });
+    private transactionSearchColNameNoHierarchy =
+        search.createColumn({
+            name: "namenohierarchy",
+            join: "subsidiary"
         });
     private transactionSearchColName = search.createColumn({
         name: "entity"
@@ -48,6 +53,7 @@ export class TransactionSearchService {
         this.transactionSearchColType,
         this.transactionSearchColStatus,
         this.transactionSearchColSubsidiary,
+        this.transactionSearchColNameNoHierarchy,
         this.transactionSearchColName,
         this.transactionSearchColDocumentNumber,
         this.transactionSearchColDate,
@@ -122,7 +128,7 @@ export class TransactionSearchService {
 
             searchPage.data.forEach((res) => {
                 const subsidiaryVal = res.getValue(
-                    this.transactionSearchColSubsidiary
+                    this.transactionSearchColNameNoHierarchy
                 );
                 const entityVal = res.getValue(
                     this.transactionSearchColName
@@ -138,15 +144,16 @@ export class TransactionSearchService {
                         ) === "CustInvc"
                             ? "Invoice"
                             : "Credit Memo",
+                    raw_type:
+                        res.getValue(
+                            this.transactionSearchColType
+                        ) === "CustInvc"
+                            ? "invoice"
+                            : "creditmemo",
                     status: res.getText(
                         this.transactionSearchColStatus
                     ) as string,
-                    subsidiary:
-                        typeof subsidiaryVal === "number"
-                            ? subsidiaryVal
-                            : parseInt(
-                                  subsidiaryVal as string
-                              ),
+                    subsidiary: subsidiaryVal as string,
                     entity:
                         typeof entityVal === "number"
                             ? entityVal
