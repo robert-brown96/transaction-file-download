@@ -173,14 +173,11 @@ define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module
         const sublistStatusField = tranSublist.addField({
             id: constants_1.SUITELET_SUBLIST_FIELD_IDS.status,
             label: "Status",
-            type: serverWidget.FieldType.SELECT
+            type: serverWidget.FieldType.TEXT
         });
         sublistStatusField.updateDisplayType({
             displayType: serverWidget.FieldDisplayType.INLINE
         });
-        tranStatusService
-            .getUniqueValues()
-            .forEach((e) => sublistStatusField.addSelectOption(e));
         const subsidiarySublistField = tranSublist.addField({
             id: constants_1.SUITELET_SUBLIST_FIELD_IDS.subsidiary,
             label: "Subsidiary",
@@ -317,7 +314,7 @@ define(["require", "exports", "N/log", "N/ui/serverWidget", "./utils/util.module
             });
             tranSublist.setSublistValue({
                 id: constants_1.SUITELET_SUBLIST_FIELD_IDS.date,
-                value: new Date(res.date),
+                value: new Date(res.date).toDateString(),
                 line
             });
             tranSublist.setSublistValue({

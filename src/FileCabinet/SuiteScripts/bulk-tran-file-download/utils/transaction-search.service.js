@@ -14,7 +14,7 @@ define(["require", "exports", "N/log", "N/search"], function (require, exports, 
             this.transactionSearchColType = search.createColumn({
                 name: "type"
             });
-            this.transactionSearchColStatus = search.createColumn({ name: "statusref" });
+            this.transactionSearchColStatus = search.createColumn({ name: "status" });
             this.transactionSearchColSubsidiary = search.createColumn({
                 name: "subsidiarynohierarchy"
             });
@@ -23,7 +23,8 @@ define(["require", "exports", "N/log", "N/search"], function (require, exports, 
             });
             this.transactionSearchColDocumentNumber = search.createColumn({ name: "tranid" });
             this.transactionSearchColDate = search.createColumn({
-                name: "trandate"
+                name: "trandate",
+                sort: search.Sort.DESC
             });
             this.transactionSearchColAmount = search.createColumn({ name: "amount" });
             this.searchColumns = [
@@ -87,8 +88,10 @@ define(["require", "exports", "N/log", "N/search"], function (require, exports, 
                     const dateVal = res.getValue(this.transactionSearchColDate);
                     results.push({
                         id: parseInt(res.id),
-                        type: res.getValue(this.transactionSearchColType),
-                        status: res.getValue(this.transactionSearchColStatus),
+                        type: res.getValue(this.transactionSearchColType) === "CustInvc"
+                            ? "Invoice"
+                            : "Credit Memo",
+                        status: res.getText(this.transactionSearchColStatus),
                         subsidiary: typeof subsidiaryVal === "number"
                             ? subsidiaryVal
                             : parseInt(subsidiaryVal),

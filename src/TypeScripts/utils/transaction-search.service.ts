@@ -27,7 +27,7 @@ export class TransactionSearchService {
         name: "type"
     });
     private transactionSearchColStatus =
-        search.createColumn({ name: "statusref" });
+        search.createColumn({ name: "status" });
     private transactionSearchColSubsidiary =
         search.createColumn({
             name: "subsidiarynohierarchy"
@@ -38,7 +38,8 @@ export class TransactionSearchService {
     private transactionSearchColDocumentNumber =
         search.createColumn({ name: "tranid" });
     private transactionSearchColDate = search.createColumn({
-        name: "trandate"
+        name: "trandate",
+        sort: search.Sort.DESC
     });
     private transactionSearchColAmount =
         search.createColumn({ name: "amount" });
@@ -131,10 +132,13 @@ export class TransactionSearchService {
                 );
                 results.push({
                     id: parseInt(res.id),
-                    type: res.getValue(
-                        this.transactionSearchColType
-                    ) as string,
-                    status: res.getValue(
+                    type:
+                        res.getValue(
+                            this.transactionSearchColType
+                        ) === "CustInvc"
+                            ? "Invoice"
+                            : "Credit Memo",
+                    status: res.getText(
                         this.transactionSearchColStatus
                     ) as string,
                     subsidiary:

@@ -218,17 +218,11 @@ const _get = ({
     const sublistStatusField = tranSublist.addField({
         id: SUITELET_SUBLIST_FIELD_IDS.status,
         label: "Status",
-        type: serverWidget.FieldType.SELECT
+        type: serverWidget.FieldType.TEXT
     });
     sublistStatusField.updateDisplayType({
         displayType: serverWidget.FieldDisplayType.INLINE
     });
-
-    tranStatusService
-        .getUniqueValues()
-        .forEach((e) =>
-            sublistStatusField.addSelectOption(e)
-        );
 
     const subsidiarySublistField = tranSublist.addField({
         id: SUITELET_SUBLIST_FIELD_IDS.subsidiary,
@@ -382,7 +376,9 @@ const _get = ({
         });
         tranSublist.setSublistValue({
             id: SUITELET_SUBLIST_FIELD_IDS.date,
-            value: new Date(res.date) as unknown as string,
+            value: new Date(
+                res.date
+            ).toDateString() as unknown as string,
             line
         });
         tranSublist.setSublistValue({
