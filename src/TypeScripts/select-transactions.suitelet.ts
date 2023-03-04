@@ -38,7 +38,17 @@ export function onRequest(
             const pageId = parseInt(
                 request.parameters.page
             );
-            const formRes = _get({ pageId });
+
+            // script id params
+            const scriptId =
+                context.request.parameters.script;
+            const deploymentId =
+                context.request.parameters.deploy;
+            const formRes = _get({
+                pageId,
+                scriptId,
+                deploymentId
+            });
             response.writePage(formRes);
         } catch (e) {
             log.error({
@@ -50,7 +60,9 @@ export function onRequest(
 }
 
 const _get = ({
-    pageId
+    pageId,
+    scriptId,
+    deploymentId
 }: IGetParams): serverWidget.Form => {
     const slForm = serverWidget.createForm({
         title: "Download Transaction Files in Bulk"
@@ -284,6 +296,36 @@ const _get = ({
     // Set pageId to correct value if out of index
     if (!pageId || pageId < 0) pageId = 0;
     else if (pageId >= pageCount) pageId = pageCount - 1;
+
+    if (pageId != 0) {
+        tranSublist.addButton({
+            id: "custpage_previous",
+            label: "Previous",
+            functionName:
+                "getSuiteletPage(" +
+                scriptId +
+                ", " +
+                deploymentId +
+                ", " +
+                (pageId - 1) +
+                ")"
+        });
+    }
+
+    if (pageId != pageCount - 1) {
+        tranSublist.addButton({
+            id: "custpage_next",
+            label: "Next",
+            functionName:
+                "getSuiteletPage(" +
+                scriptId +
+                ", " +
+                deploymentId +
+                ", " +
+                (pageId + 1) +
+                ")"
+        });
+    }
 
     // Add drop-down and options to navigate to specific page
     const selectOptions = slForm.addField({

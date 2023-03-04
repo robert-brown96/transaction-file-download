@@ -17,7 +17,14 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             try {
                 // page id parameter
                 const pageId = parseInt(request.parameters.page);
-                const formRes = _get({ pageId });
+                // script id params
+                const scriptId = context.request.parameters.script;
+                const deploymentId = context.request.parameters.deploy;
+                const formRes = _get({
+                    pageId,
+                    scriptId,
+                    deploymentId
+                });
                 response.writePage(formRes);
             }
             catch (e) {
@@ -29,7 +36,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         }
     }
     exports.onRequest = onRequest;
-    const _get = ({ pageId }) => {
+    const _get = ({ pageId, scriptId, deploymentId }) => {
         const slForm = serverWidget.createForm({
             title: "Download Transaction Files in Bulk"
         });
@@ -230,6 +237,32 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             pageId = 0;
         else if (pageId >= pageCount)
             pageId = pageCount - 1;
+        if (pageId != 0) {
+            tranSublist.addButton({
+                id: "custpage_previous",
+                label: "Previous",
+                functionName: "getSuiteletPage(" +
+                    scriptId +
+                    ", " +
+                    deploymentId +
+                    ", " +
+                    (pageId - 1) +
+                    ")"
+            });
+        }
+        if (pageId != pageCount - 1) {
+            tranSublist.addButton({
+                id: "custpage_next",
+                label: "Next",
+                functionName: "getSuiteletPage(" +
+                    scriptId +
+                    ", " +
+                    deploymentId +
+                    ", " +
+                    (pageId + 1) +
+                    ")"
+            });
+        }
         // Add drop-down and options to navigate to specific page
         const selectOptions = slForm.addField({
             id: constants_1.SUITELET_FIELD_IDS.PAGE_ID,

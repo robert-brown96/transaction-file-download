@@ -58,4 +58,6 @@ export interface ITransactionResult {
 
 export interface IGetParams {
     pageId: number;
+    scriptId: string;
+    deploymentId: string;
 }
