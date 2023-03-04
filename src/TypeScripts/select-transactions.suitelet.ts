@@ -34,6 +34,13 @@ export function onRequest(
 
     if (method === "GET") {
         try {
+            // just for logging
+            // TODO: remove this log
+            log.audit({
+                title: "entry parameters",
+                details: request.parameters
+            });
+
             // page id parameter
             const pageId = parseInt(
                 request.parameters.page
@@ -46,11 +53,13 @@ export function onRequest(
                 context.request.parameters.deploy;
 
             // form value parameters
+            const start = request.parameters.start;
 
             const formRes = _get({
                 pageId,
                 scriptId,
-                deploymentId
+                deploymentId,
+                start
             });
             response.writePage(formRes);
         } catch (e) {
@@ -65,7 +74,8 @@ export function onRequest(
 const _get = ({
     pageId,
     scriptId,
-    deploymentId
+    deploymentId,
+    start
 }: IGetParams): serverWidget.Form => {
     const slForm = serverWidget.createForm({
         title: "Download Transaction Files in Bulk"
@@ -123,8 +133,9 @@ const _get = ({
         label: "Earliest Tran Date",
         container: "filters_group"
     });
-    startDateField.defaultValue =
-        new Date() as unknown as string;
+    startDateField.defaultValue = start
+        ? (new Date(start) as unknown as string)
+        : (new Date() as unknown as string);
     // End Date
     slForm.addField({
         id: SUITELET_FIELD_IDS.END_DATE,

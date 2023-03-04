@@ -10,17 +10,61 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
         const changedField = context.fieldId;
         const cr = currentRecord.get();
         console.log(`changed field ${changedField}`);
+        const params = {};
+        let newPageId;
+        params.startDateParam = cr.getValue({
+            fieldId: constants_1.SUITELET_FIELD_IDS.START_DATE
+        });
+        params.endDateParam =
+            cr.getValue({
+                fieldId: constants_1.SUITELET_FIELD_IDS.END_DATE
+            }) || "";
+        params.customerParam =
+            cr.getValue({
+                fieldId: constants_1.SUITELET_FIELD_IDS.CUSTOMER
+            }) || "";
+        params.subsidParam =
+            cr.getValue({
+                fieldId: constants_1.SUITELET_FIELD_IDS.SUBSIDIARY
+            }) || "";
+        params.allTypesParam = cr.getValue({
+            fieldId: constants_1.SUITELET_FIELD_IDS.ALL_TRAN_TYPES
+        });
+        params.allStatusParam = cr.getValue({
+            fieldId: constants_1.SUITELET_FIELD_IDS.ALL_STATUSES
+        });
+        params.typeArrParam = cr.getValue({
+            fieldId: constants_1.SUITELET_FIELD_IDS.TRAN_TYPES
+        });
+        params.statusArrParam = cr.getValue({
+            fieldId: constants_1.SUITELET_FIELD_IDS.TRAN_STATUS
+        });
+        // const filterParams: ISearchParameters = {
+        //     ALL_STATUSES: allStatusParam as boolean,
+        //     ALL_TRAN_TYPES: allTypesParam as boolean,
+        //     START_DATE: new Date(startDateParam as string),
+        //     TRAN_STATUS: [],
+        //     TRAN_TYPES: [],
+        //     ...(endDateParam && {
+        //         END_DATE: new Date(endDateParam as string)
+        //     }),
+        //     ...(customerParam && {
+        //         CUSTOMER: customerParam
+        //     }),
+        //     ...(subsidParam && { SUBSIDIARY: subsidParam })
+        // };
         // switch through fields
+        console.log(`params before switch ${JSON.stringify(params)}`);
         switch (changedField) {
             case "custpage_page_id": {
                 const pageIdVal = context.currentRecord.getValue({
                     fieldId: "custpage_page_id"
                 });
-                const pageId = parseInt(pageIdVal.split("_")[1]);
+                newPageId = parseInt(pageIdVal.split("_")[1]);
                 document.location = url.resolveScript({
                     scriptId: (0, util_module_1.getParameterFromURL)("script"),
                     deploymentId: (0, util_module_1.getParameterFromURL)("deploy"),
-                    params: { page: pageId }
+                    params: { page: newPageId }
                 });
                 break;
             }
@@ -62,6 +106,14 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
                 console.log(`no action for field ${changedField} - continuing`);
             }
         }
+        // base parameters for suitelet refresh retrieve
+        const scriptId = (0, util_module_1.getParameterFromURL)("script");
+        const deploymentId = (0, util_module_1.getParameterFromURL)("deploy");
+        document.location = url.resolveScript({
+            scriptId,
+            deploymentId,
+            params: params
+        });
     }
     exports.fieldChanged = fieldChanged;
     // export function lineinit(context: EntryPoints.Client.lineInitContext): void {}

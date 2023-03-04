@@ -96,7 +96,37 @@ export class TransactionSearchService {
         );
     }
 
+    private getStartDateFilter(v: Date): search.Filter {
+        return search.createFilter({
+            name: "trandate",
+            operator: search.Operator.ONORAFTER,
+            values: v
+        });
+    }
+
+    private getEndDateFilter(v: Date): search.Filter {
+        return search.createFilter({
+            name: "trandate",
+            operator: search.Operator.ONORBEFORE,
+            values: v
+        });
+    }
+
     public runSearch(pageSize: number) {
+        if (this.start_date) {
+            const f = this.getStartDateFilter(
+                this.start_date
+            );
+            this.searchFilters.push(f);
+        }
+
+        if (this.end_date) {
+            const f = this.getEndDateFilter(
+                this.start_date
+            );
+            this.searchFilters.push(f);
+        }
+
         const searchObj = search.create({
             type: this.searchType,
             filters: this.searchFilters,

@@ -15,11 +15,18 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         const method = (0, util_module_1.validateSuiteletMethod)(request.method);
         if (method === "GET") {
             try {
+                // just for logging
+                // TODO: remove this log
+                log.audit({
+                    title: "entry parameters",
+                    details: request.parameters
+                });
                 // page id parameter
                 const pageId = parseInt(request.parameters.page);
                 // script id params
                 const scriptId = context.request.parameters.script;
                 const deploymentId = context.request.parameters.deploy;
+                // form value parameters
                 const formRes = _get({
                     pageId,
                     scriptId,
@@ -40,7 +47,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         const slForm = serverWidget.createForm({
             title: "Download Transaction Files in Bulk"
         });
-        slForm.addSubmitButton();
+        slForm.addSubmitButton({ label: "Download Files" });
         slForm.clientScriptModulePath = "./tran-sl.client.js";
         // field groups
         slForm.addFieldGroup({
@@ -294,7 +301,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         const includeAllField = slForm.addField({
             type: serverWidget.FieldType.CHECKBOX,
             id: constants_1.SUITELET_FIELD_IDS.INCLUDE_ALL,
-            label: "Include Transactions that Meet Criteria",
+            label: "Include Transactions All that Meet Criteria",
             container: "navigation_group"
         });
         includeAllField.defaultValue = "T";

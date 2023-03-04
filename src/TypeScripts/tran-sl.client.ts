@@ -12,6 +12,7 @@ import {
     TRAN_SELECT_SUITELET
 } from "./constants";
 import { getParameterFromURL } from "./utils/util.module";
+import { TMapAny } from "./globals";
 
 export function fieldChanged(
     context: EntryPoints.Client.fieldChangedContext
@@ -20,33 +21,35 @@ export function fieldChanged(
     const cr = currentRecord.get();
     console.log(`changed field ${changedField}`);
 
+    const params: TMapAny = {};
+
     let newPageId: number;
 
-    const startDateParam = cr.getValue({
+    params.startDateParam = cr.getValue({
         fieldId: SUITELET_FIELD_IDS.START_DATE
     });
-    const endDateParam =
+    params.endDateParam =
         cr.getValue({
             fieldId: SUITELET_FIELD_IDS.END_DATE
         }) || "";
-    const customerParam =
+    params.customerParam =
         cr.getValue({
             fieldId: SUITELET_FIELD_IDS.CUSTOMER
         }) || "";
-    const subsidParam =
+    params.subsidParam =
         cr.getValue({
             fieldId: SUITELET_FIELD_IDS.SUBSIDIARY
         }) || "";
-    const allTypesParam = cr.getValue({
+    params.allTypesParam = cr.getValue({
         fieldId: SUITELET_FIELD_IDS.ALL_TRAN_TYPES
     });
-    const allStatusParam = cr.getValue({
+    params.allStatusParam = cr.getValue({
         fieldId: SUITELET_FIELD_IDS.ALL_STATUSES
     });
-    const typeArrParam = cr.getValue({
+    params.typeArrParam = cr.getValue({
         fieldId: SUITELET_FIELD_IDS.TRAN_TYPES
     });
-    const statusArrParam = cr.getValue({
+    params.statusArrParam = cr.getValue({
         fieldId: SUITELET_FIELD_IDS.TRAN_STATUS
     });
     // const filterParams: ISearchParameters = {
@@ -64,6 +67,9 @@ export function fieldChanged(
     //     ...(subsidParam && { SUBSIDIARY: subsidParam })
     // };
     // switch through fields
+    console.log(
+        `params before switch ${JSON.stringify(params)}`
+    );
     switch (changedField) {
         case "custpage_page_id": {
             const pageIdVal =
@@ -111,53 +117,27 @@ export function fieldChanged(
             }
             break;
         }
+        case SUITELET_FIELD_IDS.START_DATE: {
+            params.start = cr.getValue({
+                fieldId: SUITELET_FIELD_IDS.START_DATE
+            });
+            break;
+        }
         default: {
             console.log(
                 `no action for field ${changedField} - continuing`
             );
         }
     }
-    //const urlParamsObj = {};
-    let urlParams = "";
 
-    startDateParam
-        ? (urlParams += `start=${startDateParam}`)
-        : "";
-
-    endDateParam
-        ? (urlParams += `end=${endDateParam}`)
-        : "";
-
-    customerParam
-        ? (urlParams += `customer=${customerParam}`)
-        : "";
-
-    subsidParam
-        ? (urlParams += `subsidiary=${subsidParam}`)
-        : "";
-
-    allTypesParam
-        ? (urlParams += `alltypes=true`)
-        : "alltypes=false";
-    allStatusParam
-        ? (urlParams += `allstatus=true`)
-        : "allstatus=false";
-
-    typeArrParam
-        ? (urlParams += `types=${typeArrParam}`)
-        : [];
-
-    statusArrParam
-        ? (urlParams += `status=${statusArrParam}`)
-        : [];
-
+    // base parameters for suitelet refresh retrieve
     const scriptId = getParameterFromURL("script");
     const deploymentId = getParameterFromURL("deploy");
 
     document.location = url.resolveScript({
         scriptId,
         deploymentId,
-        params: { page: newPageId }
+        params: params
     });
 }
 
@@ -237,7 +217,3 @@ export function getSuiteletPage(
         params: { page: pageId }
     });
 }
-
-// function returnUrlParams({startDateParam,endDateParam,customerParam,subsidParam,allTypesParam,allStatusParam,typeArrParam,statusArrParam}): void{
-//     const start=startDateParam?`&start=${encodeURIComponent(startDateParam)}`
-// }
