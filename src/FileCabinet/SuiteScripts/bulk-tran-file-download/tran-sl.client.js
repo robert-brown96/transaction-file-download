@@ -104,6 +104,7 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
         const scriptId = (0, util_module_1.getParameterFromURL)("script");
         const deploymentId = (0, util_module_1.getParameterFromURL)("deploy");
         params.typeArr = JSON.stringify(params.typeArr);
+        params.statusArr = JSON.stringify(params.statusArr);
         window.onbeforeunload = null;
         document.location = url.resolveScript({
             scriptId,

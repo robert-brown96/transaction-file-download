@@ -69,8 +69,8 @@ export class TransactionStatusService {
             {
                 value: "CustInvc:B",
                 text: "Invoice:Paid In Full"
-            },
-            { value: "@ALL@", text: "Invoice:All" }
+            }
+            //     { value: "@ALL@", text: "Invoice:All" }
         ];
     }
 
@@ -83,8 +83,8 @@ export class TransactionStatusService {
             {
                 value: "CustCred:B",
                 text: "Credit Memo:Fully Applied"
-            },
-            { value: "@ALL@", text: "Credit Memo:All" }
+            }
+            //        { value: "@ALL@", text: "Credit Memo:All" }
         ];
     }
 
@@ -100,8 +100,8 @@ export class TransactionStatusService {
                 value: "VendBill:D",
                 text: "Bill:Pending Approval"
             },
-            { value: "VendBill:E", text: "Bill:Rejected" },
-            { value: "@ALL@", text: "Bill:All" }
+            { value: "VendBill:E", text: "Bill:Rejected" }
+            //        { value: "@ALL@", text: "Bill:All" }
         ];
     }
 }

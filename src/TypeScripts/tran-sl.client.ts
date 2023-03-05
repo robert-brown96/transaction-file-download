@@ -124,6 +124,7 @@ export function fieldChanged(
     const deploymentId = getParameterFromURL("deploy");
 
     params.typeArr = JSON.stringify(params.typeArr);
+    params.statusArr = JSON.stringify(params.statusArr);
 
     window.onbeforeunload = null;
     document.location = url.resolveScript({

@@ -67,10 +67,21 @@ export function onRequest(
                     ? false
                     : true;
 
+            const allStatusParam =
+                request.parameters.allStatus === "false"
+                    ? false
+                    : true;
+
             let tranTypes = request.parameters.typeArr;
             tranTypes = tranTypes
                 ? JSON.parse(tranTypes)
                 : [];
+
+            let tranStatuses = request.parameters.statusArr;
+            tranStatuses = tranStatuses
+                ? JSON.parse(tranStatuses)
+                : [];
+
             log.debug(
                 `type param is ${tranTypes}`,
                 tranTypes[0]
@@ -81,7 +92,9 @@ export function onRequest(
                 deploymentId,
                 start,
                 allTypesParam,
+                allStatusParam,
                 tranTypes,
+                tranStatuses,
                 ...(end && { end }),
                 ...(customer && { customer }),
                 ...(subsidiary && { subsidiary })
@@ -105,7 +118,9 @@ const _get = ({
     customer,
     subsidiary,
     allTypesParam,
-    tranTypes
+    allStatusParam,
+    tranTypes,
+    tranStatuses
 }: IGetParams): serverWidget.Form => {
     log.debug("start get", scriptId + deploymentId);
 
@@ -241,6 +256,11 @@ const _get = ({
 
     if (tranTypeChecked.length > 0 && !allTypesParam)
         tranTypeField.defaultValue = tranTypeChecked;
+    else if (tranTypeChecked.length === 0 && !allTypesParam)
+        tranTypeField.defaultValue = [
+            "invoice",
+            "creditmemo"
+        ];
     else tranTypeField.defaultValue = [];
 
     const selectAllStatuses = slForm.addField({
@@ -252,7 +272,8 @@ const _get = ({
     selectAllStatuses.updateBreakType({
         breakType: serverWidget.FieldBreakType.STARTCOL
     });
-    selectAllStatuses.defaultValue = "T";
+    selectAllStatuses.defaultValue =
+        allStatusParam === false ? "F" : "T";
 
     const statusField = slForm.addField({
         id: SUITELET_FIELD_IDS.TRAN_STATUS,
@@ -264,6 +285,10 @@ const _get = ({
     tranStatusService
         .getUniqueValues()
         .forEach((e) => statusField.addSelectOption(e));
+
+    if (tranStatuses.length > 0 && !allStatusParam)
+        statusField.defaultValue = tranStatuses;
+    else statusField.defaultValue = [];
 
     // create sublist for transactions
     const tranSublist = slForm.addSublist({

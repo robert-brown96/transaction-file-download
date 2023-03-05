@@ -33,9 +33,16 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
                 const allTypesParam = request.parameters.allTypes === "false"
                     ? false
                     : true;
+                const allStatusParam = request.parameters.allStatus === "false"
+                    ? false
+                    : true;
                 let tranTypes = request.parameters.typeArr;
                 tranTypes = tranTypes
                     ? JSON.parse(tranTypes)
+                    : [];
+                let tranStatuses = request.parameters.statusArr;
+                tranStatuses = tranStatuses
+                    ? JSON.parse(tranStatuses)
                     : [];
                 log.debug(`type param is ${tranTypes}`, tranTypes[0]);
                 const formRes = _get({
@@ -44,7 +51,9 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
                     deploymentId,
                     start,
                     allTypesParam,
+                    allStatusParam,
                     tranTypes,
+                    tranStatuses,
                     ...(end && { end }),
                     ...(customer && { customer }),
                     ...(subsidiary && { subsidiary })
@@ -60,7 +69,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         }
     }
     exports.onRequest = onRequest;
-    const _get = ({ pageId, scriptId, deploymentId, start, end, customer, subsidiary, allTypesParam, tranTypes }) => {
+    const _get = ({ pageId, scriptId, deploymentId, start, end, customer, subsidiary, allTypesParam, allStatusParam, tranTypes, tranStatuses }) => {
         log.debug("start get", scriptId + deploymentId);
         const slForm = serverWidget.createForm({
             title: "Download Transaction Files in Bulk"
@@ -169,6 +178,11 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             .forEach((e) => tranTypeField.addSelectOption(e));
         if (tranTypeChecked.length > 0 && !allTypesParam)
             tranTypeField.defaultValue = tranTypeChecked;
+        else if (tranTypeChecked.length === 0 && !allTypesParam)
+            tranTypeField.defaultValue = [
+                "invoice",
+                "creditmemo"
+            ];
         else
             tranTypeField.defaultValue = [];
         const selectAllStatuses = slForm.addField({
@@ -180,7 +194,8 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         selectAllStatuses.updateBreakType({
             breakType: serverWidget.FieldBreakType.STARTCOL
         });
-        selectAllStatuses.defaultValue = "T";
+        selectAllStatuses.defaultValue =
+            allStatusParam === false ? "F" : "T";
         const statusField = slForm.addField({
             id: constants_1.SUITELET_FIELD_IDS.TRAN_STATUS,
             type: serverWidget.FieldType.MULTISELECT,
@@ -190,6 +205,10 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         tranStatusService
             .getUniqueValues()
             .forEach((e) => statusField.addSelectOption(e));
+        if (tranStatuses.length > 0 && !allStatusParam)
+            statusField.defaultValue = tranStatuses;
+        else
+            statusField.defaultValue = [];
         // create sublist for transactions
         const tranSublist = slForm.addSublist({
             id: "custpage_tran_list",
