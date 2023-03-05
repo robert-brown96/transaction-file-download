@@ -138,6 +138,27 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
             });
             return searchObj.runPaged({ pageSize });
         }
+        searchAllIds() {
+            const ids = [];
+            this.buildSearchFilters();
+            const searchObj = search.create({
+                type: this.searchType,
+                filters: this.searchFilters,
+                columns: [this.transactionSearchColType]
+            });
+            const pagedSearchData = searchObj.runPaged({
+                pageSize: 900
+            });
+            const pageCount = pagedSearchData.count;
+            log.audit("Running paged search", `${pageCount} pages to process`);
+            pagedSearchData.pageRanges.forEach((pageRange) => {
+                const myPage = pagedSearchData.fetch(pageRange);
+                myPage.data.forEach((result) => {
+                    ids.push(parseInt(result.id));
+                });
+            });
+            return ids;
+        }
         fetchSearchResult({ pagedData, pageIndex }) {
             try {
                 const searchPage = pagedData.fetch({

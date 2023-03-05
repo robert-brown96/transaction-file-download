@@ -137,7 +137,7 @@ export class TransactionSearchService {
         });
     }
 
-    private buildSearchFilters() {
+    buildSearchFilters() {
         if (this.start_date) {
             const myNewFilter = this.getStartDateFilter(
                 this.start_date
@@ -183,6 +183,33 @@ export class TransactionSearchService {
             details: JSON.stringify(searchObj)
         });
         return searchObj.runPaged({ pageSize });
+    }
+
+    public searchAllIds(): number[] {
+        const ids: number[] = [];
+        this.buildSearchFilters();
+        const searchObj = search.create({
+            type: this.searchType,
+            filters: this.searchFilters,
+            columns: [this.transactionSearchColType]
+        });
+        const pagedSearchData = searchObj.runPaged({
+            pageSize: 900
+        });
+        const pageCount = pagedSearchData.count;
+
+        log.audit(
+            "Running paged search",
+            `${pageCount} pages to process`
+        );
+
+        pagedSearchData.pageRanges.forEach((pageRange) => {
+            const myPage = pagedSearchData.fetch(pageRange);
+            myPage.data.forEach((result) => {
+                ids.push(parseInt(result.id));
+            });
+        });
+        return ids;
     }
 
     public fetchSearchResult({

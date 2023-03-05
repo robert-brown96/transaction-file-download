@@ -4,7 +4,7 @@
  * @NModuleScope Public
  * @NScriptType Suitelet
  */
-define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget", "./utils/util.module", "./utils/tran-status-val.service", "./constants", "./utils/transaction-search.service"], function (require, exports, log, format, url, serverWidget, util_module_1, tran_status_val_service_1, constants_1, transaction_search_service_1) {
+define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget", "./utils/util.module", "./utils/tran-status-val.service", "./constants", "./utils/transaction-search.service", "./utils/suitelet.service"], function (require, exports, log, format, url, serverWidget, util_module_1, tran_status_val_service_1, constants_1, transaction_search_service_1, suitelet_service_1) {
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.onRequest = void 0;
     const PAGE_SIZE = 50;
@@ -73,6 +73,34 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
                     details: e
                 });
             }
+        }
+        else {
+            log.audit("post sl", context.request);
+            // get download options
+            const includeTranPrintout = context.request.parameters[constants_1.SUITELET_FIELD_IDS.INCLUDE_PDF] === "T"
+                ? true
+                : false;
+            log.debug("includeTranPrintout", includeTranPrintout);
+            const includeAllFiles = context.request.parameters[constants_1.SUITELET_FIELD_IDS.INCLUDE_ALL_FILES] === "T"
+                ? true
+                : false;
+            log.debug("includeAllFiles", includeAllFiles);
+            const concatFiles = context.request.parameters[constants_1.SUITELET_FIELD_IDS.JOIN_PDFS] === "T"
+                ? true
+                : false;
+            log.debug("concatFiles", concatFiles);
+            // check if selected or full search
+            const selectIndividual = context.request.parameters[constants_1.SUITELET_FIELD_IDS.INCLUDE_SELECTED] === "T"
+                ? true
+                : false;
+            log.debug("select individual", selectIndividual);
+            _post({
+                includeAllFiles,
+                includeTranPrintout,
+                selectIndividual,
+                concatFiles,
+                request
+            });
         }
     }
     exports.onRequest = onRequest;
@@ -218,7 +246,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             statusField.defaultValue = [];
         // create sublist for transactions
         const tranSublist = slForm.addSublist({
-            id: "custpage_tran_list",
+            id: constants_1.SUITELET_SUBLIST_ID,
             label: "Transaction Sublist",
             type: serverWidget.SublistType.LIST
         });
@@ -358,6 +386,12 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         onlySelectedField.setHelpText({
             help: "Unchecking this box will process only checked transactions"
         });
+        slForm.addField({
+            id: "custpage_select_help_html",
+            type: serverWidget.FieldType.INLINEHTML,
+            label: " ",
+            container: "navigation_group"
+        }).defaultValue = `<p style='font-size:12px'>Check this box to select individual Transactions</p><br><br>`;
         for (let i = 0; i < pageCount; i++) {
             if (i == pageId)
                 selectOptions.addSelectOption({
@@ -450,5 +484,57 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             });
         }
         return slForm;
+    };
+    const _post = ({ selectIndividual, includeTranPrintout, includeAllFiles, concatFiles, request }) => {
+        const postService = new suitelet_service_1.PostService({
+            selectIndividual,
+            includeAllFiles,
+            includeTranPrintout,
+            concatFiles,
+            request
+        });
+        log.debug("PostService", postService);
+        // submit only selected transactions
+        if (selectIndividual) {
+            // get selected ids
+            const idRes = postService.getSelectedIds();
+            postService.processFileService.setTransactionIds(idRes);
+            log.debug("idRes", idRes);
+            postService.processFileService.writeProcessFile();
+        }
+        else {
+            // run search for ids
+            log.debug("find filters", postService.selectIndividual);
+            const start = request.parameters[constants_1.SUITELET_FIELD_IDS.START_DATE];
+            const end = request.parameters[constants_1.SUITELET_FIELD_IDS.END_DATE];
+            const customer = request.parameters[constants_1.SUITELET_FIELD_IDS.CUSTOMER];
+            const subsidiary = request.parameters[constants_1.SUITELET_FIELD_IDS.SUBSIDIARY];
+            const allTypesParam = request.parameters[constants_1.SUITELET_FIELD_IDS.ALL_TRAN_TYPES] === "false"
+                ? false
+                : true;
+            const allStatusParam = request.parameters[constants_1.SUITELET_FIELD_IDS.ALL_STATUSES] === "false"
+                ? false
+                : true;
+            const tranTypesRaw = request.parameters[constants_1.SUITELET_FIELD_IDS.TRAN_TYPES];
+            const tranStatusRaw = request.parameters[constants_1.SUITELET_FIELD_IDS.TRAN_STATUS];
+            const searchService = new transaction_search_service_1.TransactionSearchService({
+                START_DATE: new Date(start),
+                ALL_STATUSES: allStatusParam,
+                ALL_TRAN_TYPES: allTypesParam,
+                TRAN_TYPES: tranTypesRaw,
+                TRAN_STATUS: tranStatusRaw,
+                ...(end && { END_DATE: new Date(end) }),
+                ...(customer && {
+                    CUSTOMER: parseInt(customer)
+                }),
+                ...(subsidiary && {
+                    SUBSIDIARY: parseInt(subsidiary)
+                })
+            });
+            const idResults = searchService.searchAllIds();
+            postService.processFileService.setTransactionIds(idResults);
+            log.debug("my search service", idResults);
+            postService.processFileService.writeProcessFile();
+        }
     };
 });

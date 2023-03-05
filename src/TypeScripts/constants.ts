@@ -40,3 +40,9 @@ export const SUITELET_SUBLIST_FIELD_IDS = {
     amount: "amount",
     tran_link: "tran_link"
 };
+
+export const SUITELET_SUBLIST_ID = "custpage_tran_list";
+export const OUTPUT_FOLDER_ID = 1264907;
+
+export const PROCESS_FILE_NAME_PREFIX =
+    "download_process_file";
