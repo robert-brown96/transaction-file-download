@@ -58,7 +58,6 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
                 this.transaction_types.push(...options.TRAN_TYPES);
             }
             this.transaction_status.push(...options.TRAN_STATUS);
-            log.debug("status property", this.transaction_status);
             // initial filters
             this.searchFilters.push(...[
                 search.createFilter({

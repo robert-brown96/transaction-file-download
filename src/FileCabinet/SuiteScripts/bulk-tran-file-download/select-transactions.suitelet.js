@@ -317,34 +317,6 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             pageId = 0;
         else if (pageId >= pageCount)
             pageId = pageCount - 1;
-        // if (pageId != 0) {
-        //     tranSublist.addButton({
-        //         id: "custpage_previous",
-        //         label: "Previous",
-        //         functionName:
-        //             "getSuiteletPage(" +
-        //             scriptId +
-        //             ", " +
-        //             deploymentId +
-        //             ", " +
-        //             (pageId - 1) +
-        //             ")"
-        //     });
-        // }
-        // if (pageId != pageCount - 1 && pageCount !== 0) {
-        //     tranSublist.addButton({
-        //         id: "custpage_next",
-        //         label: "Next",
-        //         functionName:
-        //             "getSuiteletPage(" +
-        //             scriptId +
-        //             ", " +
-        //             deploymentId +
-        //             ", " +
-        //             (pageId + 1) +
-        //             ")"
-        //     });
-        // }
         // Add drop-down and options to navigate to specific page
         const selectOptions = slForm.addField({
             id: constants_1.SUITELET_FIELD_IDS.PAGE_ID,

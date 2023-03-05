@@ -85,10 +85,6 @@ export class TransactionSearchService {
         this.transaction_status.push(
             ...options.TRAN_STATUS
         );
-        log.debug(
-            "status property",
-            this.transaction_status
-        );
 
         // initial filters
         this.searchFilters.push(
