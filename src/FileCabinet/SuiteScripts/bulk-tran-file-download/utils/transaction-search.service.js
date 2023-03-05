@@ -68,13 +68,16 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
                 this.getTranTypeFilter()
             ]);
         }
-        // private getStartDateFilter(v: Date): search.Filter {
-        //     return search.createFilter({
-        //         name: "trandate",
-        //         operator: search.Operator.ONORAFTER,
-        //         values: v
-        //     });
-        // }
+        getStartDateFilter(v) {
+            return search.createFilter({
+                name: "trandate",
+                operator: search.Operator.ONORAFTER,
+                values: format.format({
+                    value: new Date(v),
+                    type: format.Type.DATE
+                })
+            });
+        }
         getEndDateFilter(v) {
             return search.createFilter({
                 name: "trandate",
@@ -101,14 +104,7 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
         }
         buildSearchFilters() {
             if (this.start_date) {
-                const myNewFilter = search.createFilter({
-                    name: "trandate",
-                    operator: search.Operator.ONORAFTER,
-                    values: format.format({
-                        value: new Date(this.start_date),
-                        type: format.Type.DATE
-                    })
-                });
+                const myNewFilter = this.getStartDateFilter(this.start_date);
                 this.searchFilters.push(myNewFilter);
             }
             if (this.end_date) {

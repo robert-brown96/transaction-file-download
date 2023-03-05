@@ -99,13 +99,16 @@ export class TransactionSearchService {
         );
     }
 
-    // private getStartDateFilter(v: Date): search.Filter {
-    //     return search.createFilter({
-    //         name: "trandate",
-    //         operator: search.Operator.ONORAFTER,
-    //         values: v
-    //     });
-    // }
+    private getStartDateFilter(v: Date): search.Filter {
+        return search.createFilter({
+            name: "trandate",
+            operator: search.Operator.ONORAFTER,
+            values: format.format({
+                value: new Date(v),
+                type: format.Type.DATE
+            })
+        });
+    }
 
     private getEndDateFilter(v: Date): search.Filter {
         return search.createFilter({
@@ -136,14 +139,9 @@ export class TransactionSearchService {
 
     private buildSearchFilters() {
         if (this.start_date) {
-            const myNewFilter = search.createFilter({
-                name: "trandate",
-                operator: search.Operator.ONORAFTER,
-                values: format.format({
-                    value: new Date(this.start_date),
-                    type: format.Type.DATE
-                })
-            });
+            const myNewFilter = this.getStartDateFilter(
+                this.start_date
+            );
             this.searchFilters.push(myNewFilter);
         }
 
