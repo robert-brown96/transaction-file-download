@@ -91,3 +91,12 @@ export interface IPostServiceInit {
     includeAllFiles: boolean;
     concatFiles: boolean;
 }
+
+export interface IProcessFileData {
+    selectIndividual: boolean;
+    includeTranPrintout: boolean;
+    includeAllFiles: boolean;
+    concatFiles: boolean;
+
+    transaction_ids?: number[];
+}
