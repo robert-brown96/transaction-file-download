@@ -7,11 +7,31 @@
 
 import { EntryPoints } from "N/types";
 import log = require("N/log");
+import runtime = require("N/runtime");
+import file = require("N/file");
+import { FILE_DOWNLOAD_MR_PARAMS } from "./constants";
 
 export function getInputData(
     context: EntryPoints.MapReduce.getInputDataContext
 ): void {
     log.debug(`starting file download`, context);
+
+    const currentScriptRt = runtime.getCurrentScript();
+    const inputFileId = currentScriptRt.getParameter({
+        name: FILE_DOWNLOAD_MR_PARAMS.fileId
+    });
+    if (
+        inputFileId &&
+        (typeof inputFileId === "string" ||
+            typeof inputFileId === "number")
+    ) {
+        const fileObj = file.load({ id: inputFileId });
+
+        let contents = fileObj.getContents();
+        contents = contents ? JSON.parse(contents) : null;
+
+        log.debug(`loaded file contents`, contents);
+    } else return;
 }
 
 export function map(

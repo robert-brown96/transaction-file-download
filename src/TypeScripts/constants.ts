@@ -11,6 +11,15 @@ export const TRAN_SELECT_SUITELET: ISCRIPT_RUN = {
     deploymentId: "customdeploy_scgtfd_select_suitelet"
 };
 
+export const FILE_DOWNLOAD_MR: ISCRIPT_RUN = {
+    scriptId: "customscript_scgtfd_download_files",
+    deploymentId: "customdeploy_scgtfd_download_files"
+};
+
+export const FILE_DOWNLOAD_MR_PARAMS = {
+    fileId: "custscript_scgtfd_mr_process_file_id"
+};
+
 export const SUITELET_FIELD_IDS = {
     ALL_TRAN_TYPES: "custpage_tran_type_all",
     ALL_STATUSES: "custpage_tran_status_all",
