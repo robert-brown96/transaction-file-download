@@ -58,6 +58,7 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
                 this.transaction_types.push(...options.TRAN_TYPES);
             }
             this.transaction_status.push(...options.TRAN_STATUS);
+            log.debug("status property", this.transaction_status);
             // initial filters
             this.searchFilters.push(...[
                 search.createFilter({
@@ -119,6 +120,9 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
                 this.searchFilters.push(this.getCustomerFilter());
             if (this.subsidiary)
                 this.searchFilters.push(this.getSubsidiaryFilter());
+            const statusFilter = this.getStatusFilter();
+            if (statusFilter)
+                this.searchFilters.push(statusFilter);
             const searchObj = search.create({
                 type: this.searchType,
                 filters: this.searchFilters,
@@ -190,6 +194,16 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
                 name: "type",
                 operator: search.Operator.ANYOF,
                 values: vals
+            });
+        }
+        getStatusFilter() {
+            if (!this.transaction_status ||
+                this.transaction_status.length === 0)
+                return false;
+            return search.createFilter({
+                name: "status",
+                operator: search.Operator.ANYOF,
+                values: this.transaction_status
             });
         }
     }

@@ -44,6 +44,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
                 tranStatuses = tranStatuses
                     ? JSON.parse(tranStatuses)
                     : [];
+                tranStatuses = tranStatuses.filter((x) => x && x !== "");
                 log.debug(`status param is ${tranStatuses}`, tranStatuses[0]);
                 const formRes = _get({
                     pageId,
@@ -286,7 +287,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             ALL_STATUSES: true,
             ALL_TRAN_TYPES: allTypesParam,
             TRAN_TYPES: tranTypeChecked,
-            TRAN_STATUS: [],
+            TRAN_STATUS: tranStatuses,
             ...(end && { END_DATE: new Date(end) }),
             ...(customer && { CUSTOMER: parseInt(customer) }),
             ...(subsidiary && {

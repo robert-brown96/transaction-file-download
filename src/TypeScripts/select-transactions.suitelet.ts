@@ -81,7 +81,9 @@ export function onRequest(
             tranStatuses = tranStatuses
                 ? JSON.parse(tranStatuses)
                 : [];
-
+            tranStatuses = tranStatuses.filter(
+                (x: string) => x && x !== ""
+            );
             log.debug(
                 `status param is ${tranStatuses}`,
                 tranStatuses[0]
