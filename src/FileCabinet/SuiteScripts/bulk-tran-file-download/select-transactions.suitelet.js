@@ -222,7 +222,8 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             label: "Transaction Sublist",
             type: serverWidget.SublistType.LIST
         });
-        tranSublist.addMarkAllButtons();
+        if (selectTransactions)
+            tranSublist.addMarkAllButtons();
         // sublist fields
         const processSublistField = tranSublist.addField({
             id: constants_1.SUITELET_SUBLIST_FIELD_IDS.process,

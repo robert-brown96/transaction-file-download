@@ -308,7 +308,7 @@ const _get = ({
         type: serverWidget.SublistType.LIST
     });
 
-    tranSublist.addMarkAllButtons();
+    if (selectTransactions) tranSublist.addMarkAllButtons();
 
     // sublist fields
     const processSublistField = tranSublist.addField({
