@@ -116,6 +116,7 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
         // base parameters for suitelet refresh retrieve
         const scriptId = (0, util_module_1.getParameterFromURL)("script");
         const deploymentId = (0, util_module_1.getParameterFromURL)("deploy");
+        window.onbeforeunload = null;
         document.location = url.resolveScript({
             scriptId,
             deploymentId,

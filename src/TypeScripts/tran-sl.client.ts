@@ -136,6 +136,7 @@ export function fieldChanged(
     const scriptId = getParameterFromURL("script");
     const deploymentId = getParameterFromURL("deploy");
 
+    window.onbeforeunload = null;
     document.location = url.resolveScript({
         scriptId,
         deploymentId,
