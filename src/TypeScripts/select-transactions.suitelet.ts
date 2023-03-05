@@ -83,8 +83,8 @@ export function onRequest(
                 : [];
 
             log.debug(
-                `type param is ${tranTypes}`,
-                tranTypes[0]
+                `status param is ${tranStatuses}`,
+                tranStatuses[0]
             );
             const formRes = _get({
                 pageId,
@@ -377,7 +377,7 @@ const _get = ({
         ALL_STATUSES: true,
         ALL_TRAN_TYPES: allTypesParam,
         TRAN_TYPES: tranTypeChecked,
-        TRAN_STATUS: [],
+        TRAN_STATUS: tranStatuses,
         ...(end && { END_DATE: new Date(end) }),
         ...(customer && { CUSTOMER: parseInt(customer) }),
         ...(subsidiary && {

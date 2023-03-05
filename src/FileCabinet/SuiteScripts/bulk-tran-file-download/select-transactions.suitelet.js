@@ -44,7 +44,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
                 tranStatuses = tranStatuses
                     ? JSON.parse(tranStatuses)
                     : [];
-                log.debug(`type param is ${tranTypes}`, tranTypes[0]);
+                log.debug(`status param is ${tranStatuses}`, tranStatuses[0]);
                 const formRes = _get({
                     pageId,
                     scriptId,
