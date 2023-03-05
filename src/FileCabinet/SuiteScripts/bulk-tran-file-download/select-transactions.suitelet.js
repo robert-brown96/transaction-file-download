@@ -33,17 +33,18 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
                 const allTypesParam = request.parameters.allTypes === "false"
                     ? false
                     : true;
-                const tranTypes = request.parameters.typeArr;
-                const tranTypeParsed = tranTypes
+                let tranTypes = request.parameters.typeArr;
+                tranTypes = tranTypes
                     ? JSON.parse(tranTypes)
                     : [];
-                log.debug(`type param is ${tranTypes}`, tranTypeParsed[0]);
+                log.debug(`type param is ${tranTypes}`, tranTypes[0]);
                 const formRes = _get({
                     pageId,
                     scriptId,
                     deploymentId,
                     start,
                     allTypesParam,
+                    tranTypes,
                     ...(end && { end }),
                     ...(customer && { customer }),
                     ...(subsidiary && { subsidiary })
@@ -59,7 +60,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         }
     }
     exports.onRequest = onRequest;
-    const _get = ({ pageId, scriptId, deploymentId, start, end, customer, subsidiary, allTypesParam }) => {
+    const _get = ({ pageId, scriptId, deploymentId, start, end, customer, subsidiary, allTypesParam, tranTypes }) => {
         log.debug("start get", scriptId + deploymentId);
         const slForm = serverWidget.createForm({
             title: "Download Transaction Files in Bulk"
@@ -143,8 +144,9 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             container: "filters_group"
         });
         subsidiaryField.defaultValue = subsidiary ?? "";
+        const tranTypeChecked = tran_status_val_service_1.TransactionStatusService.stringToTranTypes(tranTypes);
         // transaction type and status fields
-        const tranStatusService = new tran_status_val_service_1.TransactionStatusService([]);
+        const tranStatusService = new tran_status_val_service_1.TransactionStatusService(tranTypeChecked);
         const selectAllTransField = slForm.addField({
             type: serverWidget.FieldType.CHECKBOX,
             id: constants_1.SUITELET_FIELD_IDS.ALL_TRAN_TYPES,
@@ -165,6 +167,10 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         tranStatusService
             .supportedTransValues()
             .forEach((e) => tranTypeField.addSelectOption(e));
+        if (tranTypes.length > 0 && !allTypesParam)
+            tranTypeField.defaultValue = tranTypes;
+        else
+            tranTypeField.defaultValue = [];
         const selectAllStatuses = slForm.addField({
             type: serverWidget.FieldType.CHECKBOX,
             id: constants_1.SUITELET_FIELD_IDS.ALL_STATUSES,

@@ -24,6 +24,12 @@ define(["require", "exports"], function (require, exports) {
                 //  { text: "Bill", value: "vendorbill" }
             ];
         }
+        static stringToTranTypes(vals) {
+            const retVals = [];
+            if (vals.includes("invoice"))
+                retVals.push("invoice");
+            return retVals;
+        }
         getUniqueValues() {
             const allStatuses = [];
             //invoice status values

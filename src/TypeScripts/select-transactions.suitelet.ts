@@ -104,7 +104,8 @@ const _get = ({
     end,
     customer,
     subsidiary,
-    allTypesParam
+    allTypesParam,
+    tranTypes
 }: IGetParams): serverWidget.Form => {
     log.debug("start get", scriptId + deploymentId);
 
@@ -207,9 +208,13 @@ const _get = ({
     });
     subsidiaryField.defaultValue = subsidiary ?? "";
 
+    const tranTypeChecked =
+        TransactionStatusService.stringToTranTypes(
+            tranTypes
+        );
     // transaction type and status fields
     const tranStatusService = new TransactionStatusService(
-        []
+        tranTypeChecked
     );
 
     const selectAllTransField = slForm.addField({
@@ -233,6 +238,10 @@ const _get = ({
     tranStatusService
         .supportedTransValues()
         .forEach((e) => tranTypeField.addSelectOption(e));
+
+    if (tranTypes.length > 0 && !allTypesParam)
+        tranTypeField.defaultValue = tranTypes;
+    else tranTypeField.defaultValue = [];
 
     const selectAllStatuses = slForm.addField({
         type: serverWidget.FieldType.CHECKBOX,
