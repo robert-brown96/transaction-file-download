@@ -196,3 +196,31 @@ export const getScriptInternalId = (scriptId: string) => {
 
     return scriptInternalId ? scriptInternalId : null;
 };
+
+export const getTransactionType = (
+    transactionId: string | number
+) => {
+    if (!transactionId) return "";
+    const tranTypeA = search.lookupFields({
+        type: search.Type.TRANSACTION,
+        id: transactionId,
+        columns: "type"
+    });
+
+    const typeVal = tranTypeA.type as any[];
+
+    log.debug({
+        title: "TranType",
+        details: typeVal[0].value
+    });
+    let tranType;
+    if (typeVal[0].value == "SalesOrd") {
+        tranType = "salesorder";
+    } else if (typeVal[0].value == "CustInvc") {
+        tranType = "invoice";
+    } else {
+        tranType = "creditmemo";
+    }
+
+    return tranType;
+};

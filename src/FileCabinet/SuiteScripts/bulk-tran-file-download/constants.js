@@ -5,7 +5,7 @@
  */
 define(["require", "exports"], function (require, exports) {
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.PROCESS_FILE_NAME_PREFIX = exports.OUTPUT_FOLDER_ID = exports.SUITELET_SUBLIST_ID = exports.SUITELET_SUBLIST_FIELD_IDS = exports.SUITELET_FIELD_IDS = exports.FILE_DOWNLOAD_MR_PARAMS = exports.FILE_DOWNLOAD_MR = exports.TRAN_SELECT_SUITELET = void 0;
+    exports.PROCESS_FILE_NAME_PREFIX = exports.INDVIDUAL_PDF_OUTPUT_FOLDER_ID = exports.OUTPUT_FOLDER_ID = exports.SUITELET_SUBLIST_ID = exports.SUITELET_SUBLIST_FIELD_IDS = exports.SUITELET_FIELD_IDS = exports.FILE_DOWNLOAD_MR_PARAMS = exports.FILE_DOWNLOAD_MR = exports.TRAN_SELECT_SUITELET = void 0;
     exports.TRAN_SELECT_SUITELET = {
         scriptId: "customscript_scgtfd_select_suitelet",
         deploymentId: "customdeploy_scgtfd_select_suitelet"
@@ -48,5 +48,6 @@ define(["require", "exports"], function (require, exports) {
     };
     exports.SUITELET_SUBLIST_ID = "custpage_tran_list";
     exports.OUTPUT_FOLDER_ID = 1264907;
+    exports.INDVIDUAL_PDF_OUTPUT_FOLDER_ID = 1264908;
     exports.PROCESS_FILE_NAME_PREFIX = "download_process_file";
 });

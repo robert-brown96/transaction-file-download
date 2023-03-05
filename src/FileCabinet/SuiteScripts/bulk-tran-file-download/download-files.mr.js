@@ -4,7 +4,7 @@
  * @NModuleScope Public
  * @NScriptType MapReduceScript
  */
-define(["require", "exports", "N/log", "N/runtime", "N/file", "N/error", "./constants"], function (require, exports, log, runtime, file, error, constants_1) {
+define(["require", "exports", "N/log", "N/runtime", "N/file", "N/error", "N/render", "./constants"], function (require, exports, log, runtime, file, error, render, constants_1) {
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.summarize = exports.reduce = exports.map = exports.getInputData = void 0;
     function getInputData(context) {
@@ -36,10 +36,28 @@ define(["require", "exports", "N/log", "N/runtime", "N/file", "N/error", "./cons
     exports.getInputData = getInputData;
     function map(context) {
         log.debug("map", context);
+        const transactionId = context.value;
+        log.debug("map transactionId", transactionId);
+        // v1 only write tran id to reduce
+        context.write({ key: transactionId, value: "" });
     }
     exports.map = map;
     function reduce(context) {
         log.debug("reduce", context);
+        const tranId = context.key;
+        const pdfFile = render.transaction({
+            entityId: parseInt(tranId),
+            printMode: "PDF"
+        });
+        log.debug("created pdfFile", pdfFile);
+        pdfFile.folder = constants_1.INDVIDUAL_PDF_OUTPUT_FOLDER_ID;
+        pdfFile.isOnline = true;
+        const savedFileId = pdfFile.save();
+        log.debug("created pdfFile savedFileId", savedFileId);
+        context.write({
+            key: "new_ids",
+            value: String(savedFileId)
+        });
     }
     exports.reduce = reduce;
     function summarize(context) {

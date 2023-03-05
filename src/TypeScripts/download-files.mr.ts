@@ -10,7 +10,11 @@ import log = require("N/log");
 import runtime = require("N/runtime");
 import file = require("N/file");
 import error = require("N/error");
-import { FILE_DOWNLOAD_MR_PARAMS } from "./constants";
+import render = require("N/render");
+import {
+    FILE_DOWNLOAD_MR_PARAMS,
+    INDVIDUAL_PDF_OUTPUT_FOLDER_ID
+} from "./constants";
 
 export function getInputData(
     context: EntryPoints.MapReduce.getInputDataContext
@@ -51,12 +55,36 @@ export function map(
     context: EntryPoints.MapReduce.mapContext
 ): void {
     log.debug("map", context);
+
+    const transactionId = context.value;
+
+    log.debug("map transactionId", transactionId);
+
+    // v1 only write tran id to reduce
+    context.write({ key: transactionId, value: "" });
 }
 
 export function reduce(
     context: EntryPoints.MapReduce.reduceContext
 ): void {
     log.debug("reduce", context);
+
+    const tranId = context.key;
+
+    const pdfFile = render.transaction({
+        entityId: parseInt(tranId),
+        printMode: "PDF"
+    });
+    log.debug("created pdfFile", pdfFile);
+
+    pdfFile.folder = INDVIDUAL_PDF_OUTPUT_FOLDER_ID;
+    pdfFile.isOnline = true;
+    const savedFileId = pdfFile.save();
+    log.debug("created pdfFile savedFileId", savedFileId);
+    context.write({
+        key: "new_ids",
+        value: String(savedFileId)
+    });
 }
 
 export function summarize(

@@ -5,7 +5,7 @@
  */
 define(["require", "exports", "N/log", "N/query", "N/error", "N/search"], function (require, exports, log, query, error, search) {
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getScriptInternalId = exports.getParameterFromURL = exports.summarizeLogger = exports.queryReturn = exports.validateSuiteletMethod = void 0;
+    exports.getTransactionType = exports.getScriptInternalId = exports.getParameterFromURL = exports.summarizeLogger = exports.queryReturn = exports.validateSuiteletMethod = void 0;
     /**
      *
      * @param tempMethod
@@ -165,4 +165,30 @@ define(["require", "exports", "N/log", "N/query", "N/error", "N/search"], functi
         return scriptInternalId ? scriptInternalId : null;
     };
     exports.getScriptInternalId = getScriptInternalId;
+    const getTransactionType = (transactionId) => {
+        if (!transactionId)
+            return "";
+        const tranTypeA = search.lookupFields({
+            type: search.Type.TRANSACTION,
+            id: transactionId,
+            columns: "type"
+        });
+        const typeVal = tranTypeA.type;
+        log.debug({
+            title: "TranType",
+            details: typeVal[0].value
+        });
+        let tranType;
+        if (typeVal[0].value == "SalesOrd") {
+            tranType = "salesorder";
+        }
+        else if (typeVal[0].value == "CustInvc") {
+            tranType = "invoice";
+        }
+        else {
+            tranType = "creditmemo";
+        }
+        return tranType;
+    };
+    exports.getTransactionType = getTransactionType;
 });
