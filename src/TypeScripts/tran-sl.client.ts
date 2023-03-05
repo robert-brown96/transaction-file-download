@@ -25,31 +25,31 @@ export function fieldChanged(
 
     let newPageId: number;
 
-    params.startDateParam = cr.getValue({
+    params.start = cr.getValue({
         fieldId: SUITELET_FIELD_IDS.START_DATE
     });
-    params.endDateParam =
+    params.end =
         cr.getValue({
             fieldId: SUITELET_FIELD_IDS.END_DATE
         }) || "";
-    params.customerParam =
+    params.customer =
         cr.getValue({
             fieldId: SUITELET_FIELD_IDS.CUSTOMER
         }) || "";
-    params.subsidParam =
+    params.subsid =
         cr.getValue({
             fieldId: SUITELET_FIELD_IDS.SUBSIDIARY
         }) || "";
-    params.allTypesParam = cr.getValue({
+    params.allTypes = cr.getValue({
         fieldId: SUITELET_FIELD_IDS.ALL_TRAN_TYPES
     });
-    params.allStatusParam = cr.getValue({
+    params.allStatus = cr.getValue({
         fieldId: SUITELET_FIELD_IDS.ALL_STATUSES
     });
-    params.typeArrParam = cr.getValue({
+    params.typeArr = cr.getValue({
         fieldId: SUITELET_FIELD_IDS.TRAN_TYPES
     });
-    params.statusArrParam = cr.getValue({
+    params.statusArr = cr.getValue({
         fieldId: SUITELET_FIELD_IDS.TRAN_STATUS
     });
     // const filterParams: ISearchParameters = {

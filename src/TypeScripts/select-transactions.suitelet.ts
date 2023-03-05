@@ -56,11 +56,16 @@ export function onRequest(
             const start =
                 request.parameters.start ?? new Date();
 
+            const end = request.parameters.end;
+
+            log.debug("start param", start);
+
             const formRes = _get({
                 pageId,
                 scriptId,
                 deploymentId,
-                start
+                start,
+                ...(end && { end })
             });
             response.writePage(formRes);
         } catch (e) {
@@ -76,7 +81,8 @@ const _get = ({
     pageId,
     scriptId,
     deploymentId,
-    start
+    start,
+    end
 }: IGetParams): serverWidget.Form => {
     const slForm = serverWidget.createForm({
         title: "Download Transaction Files in Bulk"
@@ -134,16 +140,21 @@ const _get = ({
         label: "Earliest Tran Date",
         container: "filters_group"
     });
-    startDateField.defaultValue = start
-        ? (new Date(start) as unknown as string)
-        : "";
+    startDateField.defaultValue = new Date(
+        start
+    ) as unknown as string;
+    startDateField.isMandatory = true;
     // End Date
-    slForm.addField({
+    const endDateField = slForm.addField({
         id: SUITELET_FIELD_IDS.END_DATE,
         type: serverWidget.FieldType.DATE,
         label: "Latest Tran Date",
         container: "filters_group"
     });
+    if (end)
+        endDateField.defaultValue = new Date(
+            end
+        ) as unknown as string;
 
     // customer
     const customerField = slForm.addField({
@@ -296,7 +307,7 @@ const _get = ({
     });
 
     const tranSearchService = new TransactionSearchService({
-        START_DATE: new Date(),
+        START_DATE: new Date(start),
         ALL_STATUSES: true,
         ALL_TRAN_TYPES: true,
         TRAN_TYPES: [],
@@ -377,18 +388,18 @@ const _get = ({
         breakType: serverWidget.FieldBreakType.STARTCOL
     });
 
-    const includeAllField = slForm.addField({
+    const onlySelectedField = slForm.addField({
         type: serverWidget.FieldType.CHECKBOX,
         id: SUITELET_FIELD_IDS.INCLUDE_ALL,
-        label: "Include Transactions All that Meet Criteria",
+        label: "Only Include Selected Transactions",
         container: "navigation_group"
     });
-    includeAllField.defaultValue = "T";
-    includeAllField.updateBreakType({
+    onlySelectedField.defaultValue = "F";
+    onlySelectedField.updateBreakType({
         breakType: serverWidget.FieldBreakType.STARTCOL
     });
-    includeAllField.setHelpText({
-        help: "Unchecking this box will process only checked transactions"
+    onlySelectedField.setHelpText({
+        help: "Checking this box will process only checked transactions"
     });
 
     for (let i = 0; i < pageCount; i++) {
@@ -423,10 +434,10 @@ const _get = ({
 
     let line = 0;
     pageResults.forEach((res) => {
-        log.debug({
-            title: `result sublist value ${line}`,
-            details: res
-        });
+        // log.debug({
+        //     title: `result sublist value ${line}`,
+        //     details: res
+        // });
         tranSublist.setSublistValue({
             id: SUITELET_SUBLIST_FIELD_IDS.process,
             value: "F",

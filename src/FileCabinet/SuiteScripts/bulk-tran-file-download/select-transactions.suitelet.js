@@ -28,11 +28,14 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
                 const deploymentId = context.request.parameters.deploy;
                 // form value parameters
                 const start = request.parameters.start ?? new Date();
+                const end = request.parameters.end;
+                log.debug("start param", start);
                 const formRes = _get({
                     pageId,
                     scriptId,
                     deploymentId,
-                    start
+                    start,
+                    ...(end && { end })
                 });
                 response.writePage(formRes);
             }
@@ -45,7 +48,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         }
     }
     exports.onRequest = onRequest;
-    const _get = ({ pageId, scriptId, deploymentId, start }) => {
+    const _get = ({ pageId, scriptId, deploymentId, start, end }) => {
         const slForm = serverWidget.createForm({
             title: "Download Transaction Files in Bulk"
         });
@@ -93,16 +96,17 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             label: "Earliest Tran Date",
             container: "filters_group"
         });
-        startDateField.defaultValue = start
-            ? new Date(start)
-            : "";
+        startDateField.defaultValue = new Date(start);
+        startDateField.isMandatory = true;
         // End Date
-        slForm.addField({
+        const endDateField = slForm.addField({
             id: constants_1.SUITELET_FIELD_IDS.END_DATE,
             type: serverWidget.FieldType.DATE,
             label: "Latest Tran Date",
             container: "filters_group"
         });
+        if (end)
+            endDateField.defaultValue = new Date(end);
         // customer
         const customerField = slForm.addField({
             id: constants_1.SUITELET_FIELD_IDS.CUSTOMER,
@@ -234,7 +238,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             type: serverWidget.FieldType.TEXT
         });
         const tranSearchService = new transaction_search_service_1.TransactionSearchService({
-            START_DATE: new Date(),
+            START_DATE: new Date(start),
             ALL_STATUSES: true,
             ALL_TRAN_TYPES: true,
             TRAN_TYPES: [],
@@ -301,18 +305,18 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         resultCountField.updateBreakType({
             breakType: serverWidget.FieldBreakType.STARTCOL
         });
-        const includeAllField = slForm.addField({
+        const onlySelectedField = slForm.addField({
             type: serverWidget.FieldType.CHECKBOX,
             id: constants_1.SUITELET_FIELD_IDS.INCLUDE_ALL,
-            label: "Include Transactions All that Meet Criteria",
+            label: "Only Include Selected Transactions",
             container: "navigation_group"
         });
-        includeAllField.defaultValue = "T";
-        includeAllField.updateBreakType({
+        onlySelectedField.defaultValue = "F";
+        onlySelectedField.updateBreakType({
             breakType: serverWidget.FieldBreakType.STARTCOL
         });
-        includeAllField.setHelpText({
-            help: "Unchecking this box will process only checked transactions"
+        onlySelectedField.setHelpText({
+            help: "Checking this box will process only checked transactions"
         });
         for (let i = 0; i < pageCount; i++) {
             if (i == pageId)
@@ -340,10 +344,10 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         });
         let line = 0;
         pageResults.forEach((res) => {
-            log.debug({
-                title: `result sublist value ${line}`,
-                details: res
-            });
+            // log.debug({
+            //     title: `result sublist value ${line}`,
+            //     details: res
+            // });
             tranSublist.setSublistValue({
                 id: constants_1.SUITELET_SUBLIST_FIELD_IDS.process,
                 value: "F",

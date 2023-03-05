@@ -75,4 +75,5 @@ export interface IGetParams {
     scriptId: string;
     deploymentId: string;
     start: Date;
+    end?: Date;
 }
