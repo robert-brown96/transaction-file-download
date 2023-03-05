@@ -15,8 +15,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         const method = (0, util_module_1.validateSuiteletMethod)(request.method);
         if (method === "GET") {
             try {
-                // just for logging
-                // TODO: remove this log
+                // log entry params
                 log.audit({
                     title: "entry parameters",
                     details: request.parameters
@@ -34,7 +33,11 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
                 const allTypesParam = request.parameters.allTypes === "false"
                     ? false
                     : true;
-                log.debug(`all type param is ${allTypesParam}`, allTypesParam);
+                const tranTypes = request.parameters.typeArr;
+                const tranTypeParsed = tranTypes
+                    ? JSON.parse(tranTypes)
+                    : [];
+                log.debug(`type param is ${tranTypes}`, tranTypeParsed[0]);
                 const formRes = _get({
                     pageId,
                     scriptId,

@@ -34,8 +34,7 @@ export function onRequest(
 
     if (method === "GET") {
         try {
-            // just for logging
-            // TODO: remove this log
+            // log entry params
             log.audit({
                 title: "entry parameters",
                 details: request.parameters
@@ -67,9 +66,14 @@ export function onRequest(
                 request.parameters.allTypes === "false"
                     ? false
                     : true;
+
+            const tranTypes = request.parameters.typeArr;
+            const tranTypeParsed = tranTypes
+                ? JSON.parse(tranTypes)
+                : [];
             log.debug(
-                `all type param is ${allTypesParam}`,
-                allTypesParam
+                `type param is ${tranTypes}`,
+                tranTypeParsed[0]
             );
             const formRes = _get({
                 pageId,

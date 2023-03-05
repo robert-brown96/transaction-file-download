@@ -52,20 +52,7 @@ export function fieldChanged(
     params.statusArr = cr.getValue({
         fieldId: SUITELET_FIELD_IDS.TRAN_STATUS
     });
-    // const filterParams: ISearchParameters = {
-    //     ALL_STATUSES: allStatusParam as boolean,
-    //     ALL_TRAN_TYPES: allTypesParam as boolean,
-    //     START_DATE: new Date(startDateParam as string),
-    //     TRAN_STATUS: [],
-    //     TRAN_TYPES: [],
-    //     ...(endDateParam && {
-    //         END_DATE: new Date(endDateParam as string)
-    //     }),
-    //     ...(customerParam && {
-    //         CUSTOMER: customerParam
-    //     }),
-    //     ...(subsidParam && { SUBSIDIARY: subsidParam })
-    // };
+    console.log(`types arr: ${params.typeArr}`);
     // switch through fields
     console.log(
         `params before switch ${JSON.stringify(params)}`
@@ -136,6 +123,8 @@ export function fieldChanged(
     const scriptId = getParameterFromURL("script");
     const deploymentId = getParameterFromURL("deploy");
 
+    params.typeArr = JSON.stringify(params.typeArr);
+
     window.onbeforeunload = null;
     document.location = url.resolveScript({
         scriptId,
@@ -170,13 +159,13 @@ export function pageInit(
     else tranTypeField.isDisabled = false;
 
     // disable transaction status field if all is selected
-    const selectAllStatusField = CR.getField({
+    const selectAllStatusValue = CR.getValue({
         fieldId: SUITELET_FIELD_IDS.ALL_STATUSES
     });
     const tranStatusField = CR.getField({
         fieldId: SUITELET_FIELD_IDS.TRAN_STATUS
     });
-    if (selectAllStatusField)
+    if (selectAllStatusValue)
         tranStatusField.isDisabled = true;
     else tranStatusField.isDisabled = false;
 }
