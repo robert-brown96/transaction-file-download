@@ -54,5 +54,6 @@ export const SUITELET_SUBLIST_FIELD_IDS = {
 export const SUITELET_SUBLIST_ID = "custpage_tran_list";
 export const OUTPUT_FOLDER_ID = 1264907;
 export const INDVIDUAL_PDF_OUTPUT_FOLDER_ID = 1264908;
+export const CONSOL_PDF_OUTPUT_FOLDER_ID = 1265009;
 export const PROCESS_FILE_NAME_PREFIX =
     "download_process_file";

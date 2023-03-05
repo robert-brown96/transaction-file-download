@@ -15,6 +15,7 @@ import {
     FILE_DOWNLOAD_MR_PARAMS,
     INDVIDUAL_PDF_OUTPUT_FOLDER_ID
 } from "./constants";
+import { summarizeLogger } from "./utils/util.module";
 
 export function getInputData(
     context: EntryPoints.MapReduce.getInputDataContext
@@ -91,4 +92,15 @@ export function summarize(
     context: EntryPoints.MapReduce.summarizeContext
 ): void {
     log.debug("summary", context);
+
+    const { mapErrors, reduceErrors } = summarizeLogger({
+        summary: context,
+        logScriptName: "Download Files MR"
+    });
+
+    log.audit("Count of Map Errors", mapErrors.length);
+    log.audit(
+        "Count of Reduce Errors",
+        reduceErrors.length
+    );
 }
