@@ -67,13 +67,13 @@ export function onRequest(
                     ? false
                     : true;
 
-            const tranTypes = request.parameters.typeArr;
-            const tranTypeParsed = tranTypes
+            let tranTypes = request.parameters.typeArr;
+            tranTypes = tranTypes
                 ? JSON.parse(tranTypes)
                 : [];
             log.debug(
                 `type param is ${tranTypes}`,
-                tranTypeParsed[0]
+                tranTypes[0]
             );
             const formRes = _get({
                 pageId,
@@ -81,6 +81,7 @@ export function onRequest(
                 deploymentId,
                 start,
                 allTypesParam,
+                tranTypes,
                 ...(end && { end }),
                 ...(customer && { customer }),
                 ...(subsidiary && { subsidiary })
