@@ -63,13 +63,20 @@ export function onRequest(
             const subsidiary =
                 request.parameters.subsidiary;
 
-            log.debug("start param", start);
-
+            const allTypesParam =
+                request.parameters.allTypes === "false"
+                    ? false
+                    : true;
+            log.debug(
+                `all type param is ${allTypesParam}`,
+                allTypesParam
+            );
             const formRes = _get({
                 pageId,
                 scriptId,
                 deploymentId,
                 start,
+                allTypesParam,
                 ...(end && { end }),
                 ...(customer && { customer }),
                 ...(subsidiary && { subsidiary })
@@ -91,7 +98,8 @@ const _get = ({
     start,
     end,
     customer,
-    subsidiary
+    subsidiary,
+    allTypesParam
 }: IGetParams): serverWidget.Form => {
     log.debug("start get", scriptId + deploymentId);
 
@@ -208,7 +216,8 @@ const _get = ({
     selectAllTransField.updateBreakType({
         breakType: serverWidget.FieldBreakType.STARTCOL
     });
-    selectAllTransField.defaultValue = "T";
+    selectAllTransField.defaultValue =
+        allTypesParam === false ? "F" : "T";
     const tranTypeField = slForm.addField({
         id: SUITELET_FIELD_IDS.TRAN_TYPES,
         type: serverWidget.FieldType.MULTISELECT,

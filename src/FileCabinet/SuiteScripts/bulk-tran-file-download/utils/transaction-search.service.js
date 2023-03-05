@@ -100,7 +100,6 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
         }
         runSearch(pageSize) {
             if (this.start_date) {
-                log.debug("setting start param", this.start_date);
                 const myNewFilter = search.createFilter({
                     name: "trandate",
                     operator: search.Operator.ONORAFTER,

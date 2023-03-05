@@ -153,14 +153,20 @@ export function pageInit(
     const CR = currentRecord.get();
 
     // disable transaction type field if all is selected
-    const selectAllTransField = CR.getField({
+    // const selectAllTransField = CR.getField({
+    //     fieldId: SUITELET_FIELD_IDS.ALL_TRAN_TYPES
+    // });
+    const selectAllTransVal = CR.getValue({
         fieldId: SUITELET_FIELD_IDS.ALL_TRAN_TYPES
     });
+
     const tranTypeField = CR.getField({
         fieldId: SUITELET_FIELD_IDS.TRAN_TYPES
     });
-    if (selectAllTransField)
-        tranTypeField.isDisabled = true;
+    console.log(
+        `tran type field val: ${selectAllTransVal}`
+    );
+    if (selectAllTransVal) tranTypeField.isDisabled = true;
     else tranTypeField.isDisabled = false;
 
     // disable transaction status field if all is selected

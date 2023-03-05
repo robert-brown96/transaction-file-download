@@ -31,12 +31,16 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
                 const end = request.parameters.end;
                 const customer = request.parameters.customer;
                 const subsidiary = request.parameters.subsidiary;
-                log.debug("start param", start);
+                const allTypesParam = request.parameters.allTypes === "false"
+                    ? false
+                    : true;
+                log.debug(`all type param is ${allTypesParam}`, allTypesParam);
                 const formRes = _get({
                     pageId,
                     scriptId,
                     deploymentId,
                     start,
+                    allTypesParam,
                     ...(end && { end }),
                     ...(customer && { customer }),
                     ...(subsidiary && { subsidiary })
@@ -52,7 +56,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         }
     }
     exports.onRequest = onRequest;
-    const _get = ({ pageId, scriptId, deploymentId, start, end, customer, subsidiary }) => {
+    const _get = ({ pageId, scriptId, deploymentId, start, end, customer, subsidiary, allTypesParam }) => {
         log.debug("start get", scriptId + deploymentId);
         const slForm = serverWidget.createForm({
             title: "Download Transaction Files in Bulk"
@@ -147,7 +151,8 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         selectAllTransField.updateBreakType({
             breakType: serverWidget.FieldBreakType.STARTCOL
         });
-        selectAllTransField.defaultValue = "T";
+        selectAllTransField.defaultValue =
+            allTypesParam === false ? "F" : "T";
         const tranTypeField = slForm.addField({
             id: constants_1.SUITELET_FIELD_IDS.TRAN_TYPES,
             type: serverWidget.FieldType.MULTISELECT,

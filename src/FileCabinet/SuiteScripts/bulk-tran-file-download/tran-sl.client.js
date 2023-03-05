@@ -129,13 +129,17 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
         console.log(`page init start for ${context}`);
         const CR = currentRecord.get();
         // disable transaction type field if all is selected
-        const selectAllTransField = CR.getField({
+        // const selectAllTransField = CR.getField({
+        //     fieldId: SUITELET_FIELD_IDS.ALL_TRAN_TYPES
+        // });
+        const selectAllTransVal = CR.getValue({
             fieldId: constants_1.SUITELET_FIELD_IDS.ALL_TRAN_TYPES
         });
         const tranTypeField = CR.getField({
             fieldId: constants_1.SUITELET_FIELD_IDS.TRAN_TYPES
         });
-        if (selectAllTransField)
+        console.log(`tran type field val: ${selectAllTransVal}`);
+        if (selectAllTransVal)
             tranTypeField.isDisabled = true;
         else
             tranTypeField.isDisabled = false;

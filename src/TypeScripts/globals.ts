@@ -78,4 +78,5 @@ export interface IGetParams {
     end?: Date;
     customer?: string;
     subsidiary?: string;
+    allTypesParam: boolean;
 }
