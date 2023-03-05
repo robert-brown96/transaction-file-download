@@ -76,4 +76,5 @@ export interface IGetParams {
     deploymentId: string;
     start: Date;
     end?: Date;
+    customer?: string;
 }

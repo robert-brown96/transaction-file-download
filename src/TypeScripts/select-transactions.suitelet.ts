@@ -58,6 +58,8 @@ export function onRequest(
 
             const end = request.parameters.end;
 
+            const customer = request.parameters.customer;
+
             log.debug("start param", start);
 
             const formRes = _get({
@@ -65,7 +67,8 @@ export function onRequest(
                 scriptId,
                 deploymentId,
                 start,
-                ...(end && { end })
+                ...(end && { end }),
+                ...(customer && { customer })
             });
             response.writePage(formRes);
         } catch (e) {
@@ -82,7 +85,8 @@ const _get = ({
     scriptId,
     deploymentId,
     start,
-    end
+    end,
+    customer
 }: IGetParams): serverWidget.Form => {
     log.debug("start get", scriptId + deploymentId);
 
@@ -173,7 +177,7 @@ const _get = ({
         source: "customer",
         container: "filters_group"
     });
-    customerField.defaultValue = "";
+    customerField.defaultValue = customer ? customer : "";
 
     // Subsidiary
     //const subsidiaryField =

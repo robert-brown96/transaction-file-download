@@ -29,13 +29,15 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
                 // form value parameters
                 const start = request.parameters.start ?? new Date();
                 const end = request.parameters.end;
+                const customer = request.parameters.customer;
                 log.debug("start param", start);
                 const formRes = _get({
                     pageId,
                     scriptId,
                     deploymentId,
                     start,
-                    ...(end && { end })
+                    ...(end && { end }),
+                    ...(customer && { customer })
                 });
                 response.writePage(formRes);
             }
@@ -48,7 +50,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         }
     }
     exports.onRequest = onRequest;
-    const _get = ({ pageId, scriptId, deploymentId, start, end }) => {
+    const _get = ({ pageId, scriptId, deploymentId, start, end, customer }) => {
         log.debug("start get", scriptId + deploymentId);
         const slForm = serverWidget.createForm({
             title: "Download Transaction Files in Bulk"
@@ -122,7 +124,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             source: "customer",
             container: "filters_group"
         });
-        customerField.defaultValue = "";
+        customerField.defaultValue = customer ? customer : "";
         // Subsidiary
         //const subsidiaryField =
         slForm.addField({
