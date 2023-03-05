@@ -496,6 +496,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         log.debug("PostService", postService);
         // submit only selected transactions
         if (selectIndividual) {
+            // get selected ids
             const idRes = postService.getSelectedIds();
             postService.processFileService.setTransactionIds(idRes);
             log.debug("idRes", idRes);
@@ -504,6 +505,36 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         else {
             // run search for ids
             log.debug("find filters", postService.selectIndividual);
+            const start = request.parameters[constants_1.SUITELET_FIELD_IDS.START_DATE];
+            const end = request.parameters[constants_1.SUITELET_FIELD_IDS.END_DATE];
+            const customer = request.parameters[constants_1.SUITELET_FIELD_IDS.CUSTOMER];
+            const subsidiary = request.parameters[constants_1.SUITELET_FIELD_IDS.SUBSIDIARY];
+            const allTypesParam = request.parameters[constants_1.SUITELET_FIELD_IDS.ALL_TRAN_TYPES] === "false"
+                ? false
+                : true;
+            const allStatusParam = request.parameters[constants_1.SUITELET_FIELD_IDS.ALL_STATUSES] === "false"
+                ? false
+                : true;
+            const tranTypesRaw = request.parameters[constants_1.SUITELET_FIELD_IDS.TRAN_TYPES];
+            const tranStatusRaw = request.parameters[constants_1.SUITELET_FIELD_IDS.TRAN_STATUS];
+            const searchService = new transaction_search_service_1.TransactionSearchService({
+                START_DATE: new Date(start),
+                ALL_STATUSES: allStatusParam,
+                ALL_TRAN_TYPES: allTypesParam,
+                TRAN_TYPES: tranTypesRaw,
+                TRAN_STATUS: tranStatusRaw,
+                ...(end && { END_DATE: new Date(end) }),
+                ...(customer && {
+                    CUSTOMER: parseInt(customer)
+                }),
+                ...(subsidiary && {
+                    SUBSIDIARY: parseInt(subsidiary)
+                })
+            });
+            const idResults = searchService.searchAllIds();
+            postService.processFileService.setTransactionIds(idResults);
+            log.debug("my search service", idResults);
+            postService.processFileService.writeProcessFile();
         }
     };
 });

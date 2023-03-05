@@ -640,6 +640,7 @@ const _post = ({
 
     // submit only selected transactions
     if (selectIndividual) {
+        // get selected ids
         const idRes = postService.getSelectedIds();
         postService.processFileService.setTransactionIds(
             idRes
@@ -653,5 +654,65 @@ const _post = ({
             "find filters",
             postService.selectIndividual
         );
+
+        const start =
+            request.parameters[
+                SUITELET_FIELD_IDS.START_DATE
+            ];
+
+        const end =
+            request.parameters[SUITELET_FIELD_IDS.END_DATE];
+
+        const customer =
+            request.parameters[SUITELET_FIELD_IDS.CUSTOMER];
+
+        const subsidiary =
+            request.parameters[
+                SUITELET_FIELD_IDS.SUBSIDIARY
+            ];
+
+        const allTypesParam =
+            request.parameters[
+                SUITELET_FIELD_IDS.ALL_TRAN_TYPES
+            ] === "false"
+                ? false
+                : true;
+
+        const allStatusParam =
+            request.parameters[
+                SUITELET_FIELD_IDS.ALL_STATUSES
+            ] === "false"
+                ? false
+                : true;
+
+        const tranTypesRaw =
+            request.parameters[
+                SUITELET_FIELD_IDS.TRAN_TYPES
+            ];
+
+        const tranStatusRaw =
+            request.parameters[
+                SUITELET_FIELD_IDS.TRAN_STATUS
+            ];
+        const searchService = new TransactionSearchService({
+            START_DATE: new Date(start),
+            ALL_STATUSES: allStatusParam,
+            ALL_TRAN_TYPES: allTypesParam,
+            TRAN_TYPES: tranTypesRaw,
+            TRAN_STATUS: tranStatusRaw,
+            ...(end && { END_DATE: new Date(end) }),
+            ...(customer && {
+                CUSTOMER: parseInt(customer)
+            }),
+            ...(subsidiary && {
+                SUBSIDIARY: parseInt(subsidiary)
+            })
+        });
+        const idResults = searchService.searchAllIds();
+        postService.processFileService.setTransactionIds(
+            idResults
+        );
+        log.debug("my search service", idResults);
+        postService.processFileService.writeProcessFile();
     }
 };
