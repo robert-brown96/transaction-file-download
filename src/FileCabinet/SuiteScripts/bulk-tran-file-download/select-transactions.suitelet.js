@@ -55,6 +55,12 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         });
         slForm.addSubmitButton({ label: "Download Files" });
         slForm.clientScriptModulePath = "./tran-sl.client.js";
+        // add reset button
+        slForm.addButton({
+            id: "custpage_reset",
+            label: "Reset Filters",
+            functionName: `resetFilterParams`
+        });
         // field groups
         slForm.addFieldGroup({
             id: "navigation_group",
