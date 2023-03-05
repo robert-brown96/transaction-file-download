@@ -70,6 +70,7 @@ export interface ITransactionResult {
     trannumber: string;
     date: Date;
     amount: string;
+    currency: string;
 }
 
 export interface IGetParams {

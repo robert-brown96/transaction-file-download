@@ -48,6 +48,8 @@ export class TransactionSearchService {
     });
     private transactionSearchColAmount =
         search.createColumn({ name: "amount" });
+    private transactionSearchColCurrency =
+        search.createColumn({ name: "currency" });
 
     private readonly searchColumns: search.Column[] = [
         this.transactionSearchColType,
@@ -57,6 +59,7 @@ export class TransactionSearchService {
         this.transactionSearchColName,
         this.transactionSearchColDocumentNumber,
         this.transactionSearchColDate,
+        this.transactionSearchColCurrency,
         this.transactionSearchColAmount
     ];
     private readonly searchType = search.Type.TRANSACTION;
@@ -268,6 +271,9 @@ export class TransactionSearchService {
                             : (dateVal as unknown as Date),
                     amount: res.getValue(
                         this.transactionSearchColAmount
+                    ) as string,
+                    currency: res.getValue(
+                        this.transactionSearchColCurrency
                     ) as string
                 });
                 return true;

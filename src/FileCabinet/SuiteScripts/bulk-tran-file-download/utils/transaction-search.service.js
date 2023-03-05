@@ -31,6 +31,7 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
                 sort: search.Sort.DESC
             });
             this.transactionSearchColAmount = search.createColumn({ name: "amount" });
+            this.transactionSearchColCurrency = search.createColumn({ name: "currency" });
             this.searchColumns = [
                 this.transactionSearchColType,
                 this.transactionSearchColStatus,
@@ -39,6 +40,7 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
                 this.transactionSearchColName,
                 this.transactionSearchColDocumentNumber,
                 this.transactionSearchColDate,
+                this.transactionSearchColCurrency,
                 this.transactionSearchColAmount
             ];
             this.searchType = search.Type.TRANSACTION;
@@ -187,7 +189,8 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
                         date: typeof dateVal === "string"
                             ? new Date(dateVal)
                             : dateVal,
-                        amount: res.getValue(this.transactionSearchColAmount)
+                        amount: res.getValue(this.transactionSearchColAmount),
+                        currency: res.getValue(this.transactionSearchColCurrency)
                     });
                     return true;
                 });

@@ -31,7 +31,7 @@ export class ProcessFileService {
         this.concatFiles = options.concatFiles ?? false;
     }
 
-    writeProcessFile(): void {
+    writeProcessFile(): number {
         const process_options = {
             selectIndividual: this.selectIndividual,
             includeTranPrintout: this.includeTranPrintout,
@@ -51,6 +51,8 @@ export class ProcessFileService {
         newFile.folder = OUTPUT_FOLDER_ID;
         const newFileId = newFile.save();
         log.debug("newFileId", newFileId);
+
+        return newFileId;
     }
 
     setTransactionIds(vals: number[]): void {

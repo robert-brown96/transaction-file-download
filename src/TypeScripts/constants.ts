@@ -46,6 +46,7 @@ export const SUITELET_SUBLIST_FIELD_IDS = {
     entity: "entity",
     trannumber: "trannumber",
     date: "date",
+    currency: "currency",
     amount: "amount",
     tran_link: "tran_link"
 };

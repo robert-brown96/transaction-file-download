@@ -170,6 +170,7 @@ export function onRequest(
             request
         });
 
+        // send to map reduce status page if success
         redirect.toTaskLink({
             id: "LIST_MAPREDUCESCRIPTSTATUS",
             parameters: {
@@ -444,6 +445,16 @@ const _get = ({
         label: "Date",
         type: serverWidget.FieldType.TEXT
     });
+
+    const currencyField = tranSublist.addField({
+        id: SUITELET_SUBLIST_FIELD_IDS.currency,
+        label: "Currency",
+        type: serverWidget.FieldType.SELECT,
+        source: "currency"
+    });
+    currencyField.updateDisplayType({
+        displayType: serverWidget.FieldDisplayType.INLINE
+    });
     tranSublist.addField({
         id: SUITELET_SUBLIST_FIELD_IDS.amount,
         label: "Amount",
@@ -617,6 +628,11 @@ const _get = ({
                 value: res.amount as unknown as string,
                 line
             });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.currency,
+                value: res.currency as unknown as string,
+                line
+            });
 
             const tranUrl = url.resolveRecord({
                 recordId: res.id,
@@ -727,6 +743,11 @@ const _post = ({
             idResults
         );
         log.debug("my search service", idResults);
-        postService.processFileService.writeProcessFile();
+        const resultFile =
+            postService.processFileService.writeProcessFile();
+
+        const submittedTaskId =
+            postService.invokeMapReduce(resultFile);
+        log.debug("my submittedTaskId", submittedTaskId);
     }
 };

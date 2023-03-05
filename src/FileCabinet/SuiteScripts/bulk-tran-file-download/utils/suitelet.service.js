@@ -63,9 +63,11 @@ define(["require", "exports", "N/log", "N/search", "N/task", "../constants", "./
                 scriptId: constants_1.FILE_DOWNLOAD_MR.scriptId,
                 deploymentId: constants_1.FILE_DOWNLOAD_MR.deploymentId
             });
-            mrTask.params[constants_1.FILE_DOWNLOAD_MR_PARAMS.fileId] =
-                fileId;
-            mrTask.submit();
+            // TODO: find out error when using variable object key for params
+            mrTask.params = {
+                custscript_scgtfd_mr_process_file_id: fileId
+            };
+            return mrTask.submit();
         }
     }
     exports.PostService = PostService;

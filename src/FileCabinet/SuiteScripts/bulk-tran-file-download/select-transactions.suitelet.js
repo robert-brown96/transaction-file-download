@@ -101,6 +101,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
                 concatFiles,
                 request
             });
+            // send to map reduce status page if success
             redirect.toTaskLink({
                 id: "LIST_MAPREDUCESCRIPTSTATUS",
                 parameters: {
@@ -321,6 +322,15 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
             label: "Date",
             type: serverWidget.FieldType.TEXT
         });
+        const currencyField = tranSublist.addField({
+            id: constants_1.SUITELET_SUBLIST_FIELD_IDS.currency,
+            label: "Currency",
+            type: serverWidget.FieldType.SELECT,
+            source: "currency"
+        });
+        currencyField.updateDisplayType({
+            displayType: serverWidget.FieldDisplayType.INLINE
+        });
         tranSublist.addField({
             id: constants_1.SUITELET_SUBLIST_FIELD_IDS.amount,
             label: "Amount",
@@ -477,6 +487,11 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
                     value: res.amount,
                     line
                 });
+                tranSublist.setSublistValue({
+                    id: constants_1.SUITELET_SUBLIST_FIELD_IDS.currency,
+                    value: res.currency,
+                    line
+                });
                 const tranUrl = url.resolveRecord({
                     recordId: res.id,
                     recordType: res.raw_type
@@ -540,7 +555,9 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
             const idResults = searchService.searchAllIds();
             postService.processFileService.setTransactionIds(idResults);
             log.debug("my search service", idResults);
-            postService.processFileService.writeProcessFile();
+            const resultFile = postService.processFileService.writeProcessFile();
+            const submittedTaskId = postService.invokeMapReduce(resultFile);
+            log.debug("my submittedTaskId", submittedTaskId);
         }
     };
 });

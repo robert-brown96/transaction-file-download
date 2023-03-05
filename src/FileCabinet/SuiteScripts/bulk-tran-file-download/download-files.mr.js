@@ -22,9 +22,13 @@ define(["require", "exports", "N/log", "N/runtime", "N/file", "N/error", "./cons
             (typeof inputFileId === "string" ||
                 typeof inputFileId === "number")) {
             const fileObj = file.load({ id: inputFileId });
-            let contents = fileObj.getContents();
-            contents = contents ? JSON.parse(contents) : null;
+            const contents = fileObj.getContents();
+            const parsedContent = contents
+                ? JSON.parse(contents)
+                : null;
             log.debug(`loaded file contents`, contents);
+            log.debug(`loaded file tran ids`, parsedContent.transaction_ids);
+            return parsedContent.transaction_ids;
         }
         else
             return;
