@@ -9,6 +9,7 @@ import { EntryPoints } from "N/types";
 import log = require("N/log");
 import runtime = require("N/runtime");
 import file = require("N/file");
+import error = require("N/error");
 import { FILE_DOWNLOAD_MR_PARAMS } from "./constants";
 
 export function getInputData(
@@ -20,6 +21,11 @@ export function getInputData(
     const inputFileId = currentScriptRt.getParameter({
         name: FILE_DOWNLOAD_MR_PARAMS.fileId
     });
+    if (!inputFileId)
+        throw error.create({
+            name: "MISSING_FILE_INPUT",
+            message: `input file id submission of ${inputFileId} is invalid`
+        });
     if (
         inputFileId &&
         (typeof inputFileId === "string" ||

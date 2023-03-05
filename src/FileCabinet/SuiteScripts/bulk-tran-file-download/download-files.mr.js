@@ -4,7 +4,7 @@
  * @NModuleScope Public
  * @NScriptType MapReduceScript
  */
-define(["require", "exports", "N/log", "N/runtime", "N/file", "./constants"], function (require, exports, log, runtime, file, constants_1) {
+define(["require", "exports", "N/log", "N/runtime", "N/file", "N/error", "./constants"], function (require, exports, log, runtime, file, error, constants_1) {
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.summarize = exports.reduce = exports.map = exports.getInputData = void 0;
     function getInputData(context) {
@@ -13,6 +13,11 @@ define(["require", "exports", "N/log", "N/runtime", "N/file", "./constants"], fu
         const inputFileId = currentScriptRt.getParameter({
             name: constants_1.FILE_DOWNLOAD_MR_PARAMS.fileId
         });
+        if (!inputFileId)
+            throw error.create({
+                name: "MISSING_FILE_INPUT",
+                message: `input file id submission of ${inputFileId} is invalid`
+            });
         if (inputFileId &&
             (typeof inputFileId === "string" ||
                 typeof inputFileId === "number")) {
