@@ -17,6 +17,7 @@ import { TMapAny } from "./globals";
 export function fieldChanged(
     context: EntryPoints.Client.fieldChangedContext
 ): void {
+    let refreshSuitelet = false;
     const changedField = context.fieldId;
     const cr = currentRecord.get();
     console.log(`changed field ${changedField}`);
@@ -52,6 +53,10 @@ export function fieldChanged(
     params.statusArr = cr.getValue({
         fieldId: SUITELET_FIELD_IDS.TRAN_STATUS
     });
+
+    params.selectIndividual = cr.getValue({
+        fieldId: SUITELET_FIELD_IDS.INCLUDE_SELECTED
+    });
     console.log(`types arr: ${params.typeArr}`);
     // switch through fields
     console.log(
@@ -66,6 +71,7 @@ export function fieldChanged(
             newPageId = parseInt(pageIdVal.split("_")[1]);
 
             params.page = newPageId;
+            refreshSuitelet = true;
 
             // document.location = url.resolveScript({
             //     scriptId: getParameterFromURL("script"),
@@ -84,10 +90,14 @@ export function fieldChanged(
             if (allTranTypes) {
                 // disable transaction select
                 tranTypeField.isDisabled = true;
+
+                // reset transaction type filter
+                params.typeArr = [];
             } else {
                 // enable transaction select
                 tranTypeField.isDisabled = false;
             }
+            refreshSuitelet = true;
             break;
         }
         case SUITELET_FIELD_IDS.ALL_STATUSES: {
@@ -104,12 +114,38 @@ export function fieldChanged(
                 // enable transaction select
                 tranStatusField.isDisabled = false;
             }
+            refreshSuitelet = true;
             break;
         }
         case SUITELET_FIELD_IDS.START_DATE: {
             params.start = cr.getValue({
                 fieldId: SUITELET_FIELD_IDS.START_DATE
             });
+            refreshSuitelet = true;
+            break;
+        }
+        case SUITELET_FIELD_IDS.END_DATE: {
+            refreshSuitelet = true;
+            break;
+        }
+        case SUITELET_FIELD_IDS.CUSTOMER: {
+            refreshSuitelet = true;
+            break;
+        }
+        case SUITELET_FIELD_IDS.SUBSIDIARY: {
+            refreshSuitelet = true;
+            break;
+        }
+        case SUITELET_FIELD_IDS.TRAN_STATUS: {
+            refreshSuitelet = true;
+            break;
+        }
+        case SUITELET_FIELD_IDS.TRAN_TYPES: {
+            refreshSuitelet = true;
+            break;
+        }
+        case SUITELET_FIELD_IDS.INCLUDE_SELECTED: {
+            refreshSuitelet = true;
             break;
         }
         default: {
@@ -119,18 +155,21 @@ export function fieldChanged(
         }
     }
 
-    // base parameters for suitelet refresh retrieve
-    const scriptId = getParameterFromURL("script");
-    const deploymentId = getParameterFromURL("deploy");
+    if (refreshSuitelet) {
+        // base parameters for suitelet refresh retrieve
+        const scriptId = getParameterFromURL("script");
+        const deploymentId = getParameterFromURL("deploy");
 
-    params.typeArr = JSON.stringify(params.typeArr);
+        params.typeArr = JSON.stringify(params.typeArr);
+        params.statusArr = JSON.stringify(params.statusArr);
 
-    window.onbeforeunload = null;
-    document.location = url.resolveScript({
-        scriptId,
-        deploymentId,
-        params: params
-    });
+        window.onbeforeunload = null;
+        document.location = url.resolveScript({
+            scriptId,
+            deploymentId,
+            params: params
+        });
+    }
 }
 
 // export function lineinit(context: EntryPoints.Client.lineInitContext): void {}

@@ -51,8 +51,8 @@ define(["require", "exports"], function (require, exports) {
                 {
                     value: "CustInvc:B",
                     text: "Invoice:Paid In Full"
-                },
-                { value: "@ALL@", text: "Invoice:All" }
+                }
+                //     { value: "@ALL@", text: "Invoice:All" }
             ];
         }
         creditStatus() {
@@ -64,8 +64,8 @@ define(["require", "exports"], function (require, exports) {
                 {
                     value: "CustCred:B",
                     text: "Credit Memo:Fully Applied"
-                },
-                { value: "@ALL@", text: "Credit Memo:All" }
+                }
+                //        { value: "@ALL@", text: "Credit Memo:All" }
             ];
         }
         vendorBillStatus() {
@@ -80,8 +80,8 @@ define(["require", "exports"], function (require, exports) {
                     value: "VendBill:D",
                     text: "Bill:Pending Approval"
                 },
-                { value: "VendBill:E", text: "Bill:Rejected" },
-                { value: "@ALL@", text: "Bill:All" }
+                { value: "VendBill:E", text: "Bill:Rejected" }
+                //        { value: "@ALL@", text: "Bill:All" }
             ];
         }
     }

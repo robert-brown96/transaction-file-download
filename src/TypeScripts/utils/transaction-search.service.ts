@@ -85,6 +85,10 @@ export class TransactionSearchService {
         this.transaction_status.push(
             ...options.TRAN_STATUS
         );
+        log.debug(
+            "status property",
+            this.transaction_status
+        );
 
         // initial filters
         this.searchFilters.push(
@@ -161,6 +165,10 @@ export class TransactionSearchService {
             this.searchFilters.push(
                 this.getSubsidiaryFilter()
             );
+
+        const statusFilter = this.getStatusFilter();
+        if (statusFilter)
+            this.searchFilters.push(statusFilter);
 
         const searchObj = search.create({
             type: this.searchType,
@@ -264,6 +272,20 @@ export class TransactionSearchService {
             name: "type",
             operator: search.Operator.ANYOF,
             values: vals
+        });
+    }
+
+    private getStatusFilter(): search.Filter | false {
+        if (
+            !this.transaction_status ||
+            this.transaction_status.length === 0
+        )
+            return false;
+
+        return search.createFilter({
+            name: "status",
+            operator: search.Operator.ANYOF,
+            values: this.transaction_status
         });
     }
 }

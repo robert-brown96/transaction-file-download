@@ -79,5 +79,8 @@ export interface IGetParams {
     customer?: string;
     subsidiary?: string;
     allTypesParam: boolean;
+    allStatusParam: boolean;
     tranTypes: string[];
+    tranStatuses: string[];
+    selectTransactions: boolean;
 }
