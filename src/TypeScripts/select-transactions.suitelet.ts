@@ -395,7 +395,7 @@ const _get = ({
 
     const tranSearchService = new TransactionSearchService({
         START_DATE: new Date(start),
-        ALL_STATUSES: true,
+        ALL_STATUSES: allStatusParam,
         ALL_TRAN_TYPES: allTypesParam,
         TRAN_TYPES: tranTypeChecked,
         TRAN_STATUS: tranStatuses,

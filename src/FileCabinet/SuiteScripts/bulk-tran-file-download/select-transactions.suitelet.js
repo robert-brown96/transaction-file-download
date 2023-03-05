@@ -299,7 +299,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         });
         const tranSearchService = new transaction_search_service_1.TransactionSearchService({
             START_DATE: new Date(start),
-            ALL_STATUSES: true,
+            ALL_STATUSES: allStatusParam,
             ALL_TRAN_TYPES: allTypesParam,
             TRAN_TYPES: tranTypeChecked,
             TRAN_STATUS: tranStatuses,

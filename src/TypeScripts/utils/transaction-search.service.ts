@@ -138,7 +138,7 @@ export class TransactionSearchService {
         });
     }
 
-    public runSearch(pageSize: number) {
+    private buildSearchFilters() {
         if (this.start_date) {
             const myNewFilter = search.createFilter({
                 name: "trandate",
@@ -169,7 +169,10 @@ export class TransactionSearchService {
         const statusFilter = this.getStatusFilter();
         if (statusFilter)
             this.searchFilters.push(statusFilter);
+    }
 
+    public runSearch(pageSize: number) {
+        this.buildSearchFilters();
         const searchObj = search.create({
             type: this.searchType,
             filters: this.searchFilters,

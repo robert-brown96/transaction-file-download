@@ -100,7 +100,7 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
                 values: [this.subsidiary]
             });
         }
-        runSearch(pageSize) {
+        buildSearchFilters() {
             if (this.start_date) {
                 const myNewFilter = search.createFilter({
                     name: "trandate",
@@ -123,6 +123,9 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
             const statusFilter = this.getStatusFilter();
             if (statusFilter)
                 this.searchFilters.push(statusFilter);
+        }
+        runSearch(pageSize) {
+            this.buildSearchFilters();
             const searchObj = search.create({
                 type: this.searchType,
                 filters: this.searchFilters,
