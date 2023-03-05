@@ -494,9 +494,16 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             request
         });
         log.debug("PostService", postService);
-        const idRes = postService.getSelectedIds();
-        postService.processFileService.setTransactionIds(idRes);
-        log.debug("idRes", idRes);
-        postService.processFileService.writeProcessFile();
+        // submit only selected transactions
+        if (selectIndividual) {
+            const idRes = postService.getSelectedIds();
+            postService.processFileService.setTransactionIds(idRes);
+            log.debug("idRes", idRes);
+            postService.processFileService.writeProcessFile();
+        }
+        else {
+            // run search for ids
+            log.debug("find filters", postService.selectIndividual);
+        }
     };
 });

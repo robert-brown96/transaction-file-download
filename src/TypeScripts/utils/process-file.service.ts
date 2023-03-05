@@ -43,6 +43,7 @@ export class ProcessFileService {
             name: `${PROCESS_FILE_NAME_PREFIX}.txt`,
             fileType: file.Type.PLAINTEXT,
             contents: JSON.stringify({
+                submitted_at: new Date(),
                 process_options,
                 transaction_ids: this.transaction_ids
             })

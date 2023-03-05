@@ -28,6 +28,7 @@ define(["require", "exports", "N/file", "N/log", "../constants"], function (requ
                 name: `${constants_1.PROCESS_FILE_NAME_PREFIX}.txt`,
                 fileType: file.Type.PLAINTEXT,
                 contents: JSON.stringify({
+                    submitted_at: new Date(),
                     process_options,
                     transaction_ids: this.transaction_ids
                 })

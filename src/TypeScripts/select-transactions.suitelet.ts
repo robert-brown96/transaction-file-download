@@ -638,9 +638,20 @@ const _post = ({
 
     log.debug("PostService", postService);
 
-    const idRes = postService.getSelectedIds();
-    postService.processFileService.setTransactionIds(idRes);
-    log.debug("idRes", idRes);
+    // submit only selected transactions
+    if (selectIndividual) {
+        const idRes = postService.getSelectedIds();
+        postService.processFileService.setTransactionIds(
+            idRes
+        );
+        log.debug("idRes", idRes);
 
-    postService.processFileService.writeProcessFile();
+        postService.processFileService.writeProcessFile();
+    } else {
+        // run search for ids
+        log.debug(
+            "find filters",
+            postService.selectIndividual
+        );
+    }
 };
