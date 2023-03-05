@@ -104,18 +104,18 @@ export class TransactionSearchService {
     //     });
     // }
 
-    // private getEndDateFilter(v: Date): search.Filter {
-    //     return search.createFilter({
-    //         name: "trandate",
-    //         operator: search.Operator.ONORBEFORE,
-    //         values: v
-    //     });
-    // }
+    private getEndDateFilter(v: Date): search.Filter {
+        return search.createFilter({
+            name: "trandate",
+            operator: search.Operator.ONORBEFORE,
+            values: format.format({
+                value: new Date(v),
+                type: format.Type.DATE
+            })
+        });
+    }
 
     public runSearch(pageSize: number) {
-        log.debug("start param", this.start_date);
-        log.debug("setting start param", this.start_date);
-
         if (this.start_date) {
             log.debug(
                 "setting start param",
@@ -132,12 +132,10 @@ export class TransactionSearchService {
             this.searchFilters.push(myNewFilter);
         }
 
-        // if (this.end_date) {
-        //     const f = this.getEndDateFilter(
-        //         this.start_date
-        //     );
-        //     this.searchFilters.push(f);
-        // }
+        if (this.end_date) {
+            const f = this.getEndDateFilter(this.end_date);
+            this.searchFilters.push(f);
+        }
 
         const searchObj = search.create({
             type: this.searchType,

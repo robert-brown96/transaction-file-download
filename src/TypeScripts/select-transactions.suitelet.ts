@@ -311,7 +311,8 @@ const _get = ({
         ALL_STATUSES: true,
         ALL_TRAN_TYPES: true,
         TRAN_TYPES: [],
-        TRAN_STATUS: []
+        TRAN_STATUS: [],
+        ...(end && { END_DATE: new Date(end) })
     });
     const transactionSearchPageData =
         tranSearchService.runSearch(PAGE_SIZE);

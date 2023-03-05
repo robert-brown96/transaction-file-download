@@ -242,7 +242,8 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             ALL_STATUSES: true,
             ALL_TRAN_TYPES: true,
             TRAN_TYPES: [],
-            TRAN_STATUS: []
+            TRAN_STATUS: [],
+            ...(end && { END_DATE: new Date(end) })
         });
         const transactionSearchPageData = tranSearchService.runSearch(PAGE_SIZE);
         const pageCount = Math.ceil(transactionSearchPageData.count / PAGE_SIZE);

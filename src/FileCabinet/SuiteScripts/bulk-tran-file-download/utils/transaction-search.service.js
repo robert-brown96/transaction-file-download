@@ -74,16 +74,17 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
         //         values: v
         //     });
         // }
-        // private getEndDateFilter(v: Date): search.Filter {
-        //     return search.createFilter({
-        //         name: "trandate",
-        //         operator: search.Operator.ONORBEFORE,
-        //         values: v
-        //     });
-        // }
+        getEndDateFilter(v) {
+            return search.createFilter({
+                name: "trandate",
+                operator: search.Operator.ONORBEFORE,
+                values: format.format({
+                    value: new Date(v),
+                    type: format.Type.DATE
+                })
+            });
+        }
         runSearch(pageSize) {
-            log.debug("start param", this.start_date);
-            log.debug("setting start param", this.start_date);
             if (this.start_date) {
                 log.debug("setting start param", this.start_date);
                 const myNewFilter = search.createFilter({
@@ -96,12 +97,10 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
                 });
                 this.searchFilters.push(myNewFilter);
             }
-            // if (this.end_date) {
-            //     const f = this.getEndDateFilter(
-            //         this.start_date
-            //     );
-            //     this.searchFilters.push(f);
-            // }
+            if (this.end_date) {
+                const f = this.getEndDateFilter(this.end_date);
+                this.searchFilters.push(f);
+            }
             const searchObj = search.create({
                 type: this.searchType,
                 filters: this.searchFilters,
