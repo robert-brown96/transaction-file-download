@@ -9,11 +9,16 @@ import { EntryPoints } from "N/types";
 import log = require("N/log");
 import format = require("N/format");
 import url = require("N/url");
+import redirect = require("N/redirect");
 import serverWidget = require("N/ui/serverWidget");
 //import search = require("N/search");
-import { validateSuiteletMethod } from "./utils/util.module";
+import {
+    getScriptInternalId,
+    validateSuiteletMethod
+} from "./utils/util.module";
 import { TransactionStatusService } from "./utils/tran-status-val.service";
 import {
+    FILE_DOWNLOAD_MR,
     SUITELET_FIELD_IDS,
     SUITELET_SUBLIST_FIELD_IDS,
     SUITELET_SUBLIST_ID
@@ -163,6 +168,15 @@ export function onRequest(
             selectIndividual,
             concatFiles,
             request
+        });
+
+        redirect.toTaskLink({
+            id: "LIST_MAPREDUCESCRIPTSTATUS",
+            parameters: {
+                scripttype: getScriptInternalId(
+                    FILE_DOWNLOAD_MR.scriptId
+                )
+            }
         });
     }
 }

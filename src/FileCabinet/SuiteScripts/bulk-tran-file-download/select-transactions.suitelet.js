@@ -4,7 +4,7 @@
  * @NModuleScope Public
  * @NScriptType Suitelet
  */
-define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget", "./utils/util.module", "./utils/tran-status-val.service", "./constants", "./utils/transaction-search.service", "./utils/suitelet.service"], function (require, exports, log, format, url, serverWidget, util_module_1, tran_status_val_service_1, constants_1, transaction_search_service_1, suitelet_service_1) {
+define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/serverWidget", "./utils/util.module", "./utils/tran-status-val.service", "./constants", "./utils/transaction-search.service", "./utils/suitelet.service"], function (require, exports, log, format, url, redirect, serverWidget, util_module_1, tran_status_val_service_1, constants_1, transaction_search_service_1, suitelet_service_1) {
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.onRequest = void 0;
     const PAGE_SIZE = 50;
@@ -100,6 +100,12 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
                 selectIndividual,
                 concatFiles,
                 request
+            });
+            redirect.toTaskLink({
+                id: "LIST_MAPREDUCESCRIPTSTATUS",
+                parameters: {
+                    scripttype: (0, util_module_1.getScriptInternalId)(constants_1.FILE_DOWNLOAD_MR.scriptId)
+                }
             });
         }
     }
