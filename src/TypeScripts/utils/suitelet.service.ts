@@ -7,8 +7,11 @@
 import { IPostServiceInit } from "../globals";
 import log = require("N/log");
 import search = require("N/search");
+import task = require("N/task");
 import http = require("N/http");
 import {
+    FILE_DOWNLOAD_MR,
+    FILE_DOWNLOAD_MR_PARAMS,
     SUITELET_SUBLIST_FIELD_IDS,
     SUITELET_SUBLIST_ID
 } from "../constants";
@@ -87,5 +90,17 @@ export class PostService {
             }
         }
         return resultIds;
+    }
+
+    invokeMapReduce(fileId: string) {
+        const mrTask = task.create({
+            taskType: task.TaskType.MAP_REDUCE,
+            scriptId: FILE_DOWNLOAD_MR.scriptId,
+            deploymentId: FILE_DOWNLOAD_MR.deploymentId
+        });
+        mrTask.params[FILE_DOWNLOAD_MR_PARAMS.fileId] =
+            fileId;
+
+        mrTask.submit();
     }
 }
