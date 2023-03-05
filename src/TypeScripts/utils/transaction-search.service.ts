@@ -123,6 +123,14 @@ export class TransactionSearchService {
         });
     }
 
+    private getSubsidiaryFilter(): search.Filter {
+        return search.createFilter({
+            name: "subsidiary",
+            operator: search.Operator.ANYOF,
+            values: [this.subsidiary]
+        });
+    }
+
     public runSearch(pageSize: number) {
         if (this.start_date) {
             log.debug(
@@ -148,6 +156,11 @@ export class TransactionSearchService {
         if (this.entity)
             this.searchFilters.push(
                 this.getCustomerFilter()
+            );
+
+        if (this.subsidiary)
+            this.searchFilters.push(
+                this.getSubsidiaryFilter()
             );
 
         const searchObj = search.create({

@@ -77,4 +77,5 @@ export interface IGetParams {
     start: Date;
     end?: Date;
     customer?: string;
+    subsidiary?: string;
 }

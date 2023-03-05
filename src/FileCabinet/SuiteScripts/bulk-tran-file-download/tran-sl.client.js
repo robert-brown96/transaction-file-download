@@ -23,7 +23,7 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
             cr.getValue({
                 fieldId: constants_1.SUITELET_FIELD_IDS.CUSTOMER
             }) || "";
-        params.subsid =
+        params.subsidiary =
             cr.getValue({
                 fieldId: constants_1.SUITELET_FIELD_IDS.SUBSIDIARY
             }) || "";

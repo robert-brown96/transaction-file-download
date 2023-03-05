@@ -91,6 +91,13 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
                 values: this.entity
             });
         }
+        getSubsidiaryFilter() {
+            return search.createFilter({
+                name: "subsidiary",
+                operator: search.Operator.ANYOF,
+                values: [this.subsidiary]
+            });
+        }
         runSearch(pageSize) {
             if (this.start_date) {
                 log.debug("setting start param", this.start_date);
@@ -110,6 +117,8 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
             }
             if (this.entity)
                 this.searchFilters.push(this.getCustomerFilter());
+            if (this.subsidiary)
+                this.searchFilters.push(this.getSubsidiaryFilter());
             const searchObj = search.create({
                 type: this.searchType,
                 filters: this.searchFilters,

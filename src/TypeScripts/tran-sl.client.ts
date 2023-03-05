@@ -36,7 +36,7 @@ export function fieldChanged(
         cr.getValue({
             fieldId: SUITELET_FIELD_IDS.CUSTOMER
         }) || "";
-    params.subsid =
+    params.subsidiary =
         cr.getValue({
             fieldId: SUITELET_FIELD_IDS.SUBSIDIARY
         }) || "";

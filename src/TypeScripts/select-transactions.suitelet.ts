@@ -60,6 +60,9 @@ export function onRequest(
 
             const customer = request.parameters.customer;
 
+            const subsidiary =
+                request.parameters.subsidiary;
+
             log.debug("start param", start);
 
             const formRes = _get({
@@ -68,7 +71,8 @@ export function onRequest(
                 deploymentId,
                 start,
                 ...(end && { end }),
-                ...(customer && { customer })
+                ...(customer && { customer }),
+                ...(subsidiary && { subsidiary })
             });
             response.writePage(formRes);
         } catch (e) {
@@ -86,7 +90,8 @@ const _get = ({
     deploymentId,
     start,
     end,
-    customer
+    customer,
+    subsidiary
 }: IGetParams): serverWidget.Form => {
     log.debug("start get", scriptId + deploymentId);
 
@@ -180,14 +185,14 @@ const _get = ({
     customerField.defaultValue = customer ? customer : "";
 
     // Subsidiary
-    //const subsidiaryField =
-    slForm.addField({
+    const subsidiaryField = slForm.addField({
         id: SUITELET_FIELD_IDS.SUBSIDIARY,
         type: serverWidget.FieldType.SELECT,
         label: "Subsidiary",
         source: "subsidiary",
         container: "filters_group"
     });
+    subsidiaryField.defaultValue = subsidiary ?? "";
 
     // transaction type and status fields
     const tranStatusService = new TransactionStatusService(
@@ -326,7 +331,10 @@ const _get = ({
         TRAN_TYPES: [],
         TRAN_STATUS: [],
         ...(end && { END_DATE: new Date(end) }),
-        ...(customer && { CUSTOMER: parseInt(customer) })
+        ...(customer && { CUSTOMER: parseInt(customer) }),
+        ...(subsidiary && {
+            SUBSIDIARY: parseInt(subsidiary)
+        })
     });
     const transactionSearchPageData =
         tranSearchService.runSearch(PAGE_SIZE);

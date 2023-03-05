@@ -30,6 +30,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
                 const start = request.parameters.start ?? new Date();
                 const end = request.parameters.end;
                 const customer = request.parameters.customer;
+                const subsidiary = request.parameters.subsidiary;
                 log.debug("start param", start);
                 const formRes = _get({
                     pageId,
@@ -37,7 +38,8 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
                     deploymentId,
                     start,
                     ...(end && { end }),
-                    ...(customer && { customer })
+                    ...(customer && { customer }),
+                    ...(subsidiary && { subsidiary })
                 });
                 response.writePage(formRes);
             }
@@ -50,7 +52,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         }
     }
     exports.onRequest = onRequest;
-    const _get = ({ pageId, scriptId, deploymentId, start, end, customer }) => {
+    const _get = ({ pageId, scriptId, deploymentId, start, end, customer, subsidiary }) => {
         log.debug("start get", scriptId + deploymentId);
         const slForm = serverWidget.createForm({
             title: "Download Transaction Files in Bulk"
@@ -126,14 +128,14 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         });
         customerField.defaultValue = customer ? customer : "";
         // Subsidiary
-        //const subsidiaryField =
-        slForm.addField({
+        const subsidiaryField = slForm.addField({
             id: constants_1.SUITELET_FIELD_IDS.SUBSIDIARY,
             type: serverWidget.FieldType.SELECT,
             label: "Subsidiary",
             source: "subsidiary",
             container: "filters_group"
         });
+        subsidiaryField.defaultValue = subsidiary ?? "";
         // transaction type and status fields
         const tranStatusService = new tran_status_val_service_1.TransactionStatusService([]);
         const selectAllTransField = slForm.addField({
@@ -253,7 +255,10 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             TRAN_TYPES: [],
             TRAN_STATUS: [],
             ...(end && { END_DATE: new Date(end) }),
-            ...(customer && { CUSTOMER: parseInt(customer) })
+            ...(customer && { CUSTOMER: parseInt(customer) }),
+            ...(subsidiary && {
+                SUBSIDIARY: parseInt(subsidiary)
+            })
         });
         const transactionSearchPageData = tranSearchService.runSearch(PAGE_SIZE);
         const pageCount = Math.ceil(transactionSearchPageData.count / PAGE_SIZE);
