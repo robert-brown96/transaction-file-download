@@ -24,7 +24,8 @@ export const SUITELET_FIELD_IDS = {
     TRAN_TYPES: "custpage_tran_type",
     TRAN_STATUS: "custpage_status",
     PAGE_ID: "custpage_page_id",
-    TRAN_COUNT: "custpage_count"
+    TRAN_COUNT: "custpage_count",
+    INCLUDE_SELECTED: "custpage_use_all"
 };
 
 export const SUITELET_SUBLIST_FIELD_IDS = {
@@ -36,5 +37,6 @@ export const SUITELET_SUBLIST_FIELD_IDS = {
     entity: "entity",
     trannumber: "trannumber",
     date: "date",
-    amount: "amount"
+    amount: "amount",
+    tran_link: "tran_link"
 };

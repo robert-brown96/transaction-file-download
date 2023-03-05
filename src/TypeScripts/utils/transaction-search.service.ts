@@ -9,7 +9,7 @@ import {
     ITransactionResult,
     TSupportedTranType
 } from "../globals";
-
+import format = require("N/format");
 import log = require("N/log");
 import search = require("N/search");
 
@@ -27,16 +27,24 @@ export class TransactionSearchService {
         name: "type"
     });
     private transactionSearchColStatus =
-        search.createColumn({ name: "statusref" });
+        search.createColumn({ name: "status" });
     private transactionSearchColSubsidiary =
-        search.createColumn({ name: "subsidiary" });
+        search.createColumn({
+            name: "subsidiary"
+        });
+    private transactionSearchColNameNoHierarchy =
+        search.createColumn({
+            name: "namenohierarchy",
+            join: "subsidiary"
+        });
     private transactionSearchColName = search.createColumn({
         name: "entity"
     });
     private transactionSearchColDocumentNumber =
         search.createColumn({ name: "tranid" });
     private transactionSearchColDate = search.createColumn({
-        name: "trandate"
+        name: "trandate",
+        sort: search.Sort.DESC
     });
     private transactionSearchColAmount =
         search.createColumn({ name: "amount" });
@@ -45,6 +53,7 @@ export class TransactionSearchService {
         this.transactionSearchColType,
         this.transactionSearchColStatus,
         this.transactionSearchColSubsidiary,
+        this.transactionSearchColNameNoHierarchy,
         this.transactionSearchColName,
         this.transactionSearchColDocumentNumber,
         this.transactionSearchColDate,
@@ -60,10 +69,13 @@ export class TransactionSearchService {
         this.subsidiary = options.SUBSIDIARY;
 
         // get transaction types property
-        if (options.ALL_TRAN_TYPES) {
+        if (
+            options.ALL_TRAN_TYPES ||
+            options.TRAN_TYPES.length === 0
+        ) {
             this.transaction_types.push("creditmemo");
             this.transaction_types.push("invoice");
-            this.transaction_types.push("vendorbill");
+            // this.transaction_types.push("vendorbill");
         } else {
             this.transaction_types.push(
                 ...options.TRAN_TYPES
@@ -87,7 +99,74 @@ export class TransactionSearchService {
         );
     }
 
+    private getStartDateFilter(v: Date): search.Filter {
+        return search.createFilter({
+            name: "trandate",
+            operator: search.Operator.ONORAFTER,
+            values: format.format({
+                value: new Date(v),
+                type: format.Type.DATE
+            })
+        });
+    }
+
+    private getEndDateFilter(v: Date): search.Filter {
+        return search.createFilter({
+            name: "trandate",
+            operator: search.Operator.ONORBEFORE,
+            values: format.format({
+                value: new Date(v),
+                type: format.Type.DATE
+            })
+        });
+    }
+
+    private getCustomerFilter(): search.Filter {
+        return search.createFilter({
+            name: "name",
+            operator: search.Operator.ANYOF,
+            values: this.entity
+        });
+    }
+
+    private getSubsidiaryFilter(): search.Filter {
+        return search.createFilter({
+            name: "subsidiary",
+            operator: search.Operator.ANYOF,
+            values: [this.subsidiary]
+        });
+    }
+
+    private buildSearchFilters() {
+        if (this.start_date) {
+            const myNewFilter = this.getStartDateFilter(
+                this.start_date
+            );
+            this.searchFilters.push(myNewFilter);
+        }
+
+        if (this.end_date) {
+            const f = this.getEndDateFilter(this.end_date);
+            this.searchFilters.push(f);
+        }
+
+        if (this.entity)
+            this.searchFilters.push(
+                this.getCustomerFilter()
+            );
+
+        if (this.subsidiary)
+            this.searchFilters.push(
+                this.getSubsidiaryFilter()
+            );
+
+        const statusFilter = this.getStatusFilter();
+        if (statusFilter)
+            this.searchFilters.push(statusFilter);
+    }
+
     public runSearch(pageSize: number) {
+        this.buildSearchFilters();
         const searchObj = search.create({
             type: this.searchType,
             filters: this.searchFilters,
@@ -99,7 +178,10 @@ export class TransactionSearchService {
                 })
             ]
         });
-
+        log.debug({
+            title: "search check",
+            details: JSON.stringify(searchObj)
+        });
         return searchObj.runPaged({ pageSize });
     }
 
@@ -119,9 +201,9 @@ export class TransactionSearchService {
 
             searchPage.data.forEach((res) => {
                 const subsidiaryVal = res.getValue(
-                    this.transactionSearchColSubsidiary
+                    this.transactionSearchColNameNoHierarchy
                 );
-                const entityVal = res.getText(
+                const entityVal = res.getValue(
                     this.transactionSearchColName
                 );
                 const dateVal = res.getValue(
@@ -129,18 +211,22 @@ export class TransactionSearchService {
                 );
                 results.push({
                     id: parseInt(res.id),
-                    type: res.getValue(
-                        this.transactionSearchColType
-                    ) as string,
-                    status: res.getValue(
+                    type:
+                        res.getValue(
+                            this.transactionSearchColType
+                        ) === "CustInvc"
+                            ? "Invoice"
+                            : "Credit Memo",
+                    raw_type:
+                        res.getValue(
+                            this.transactionSearchColType
+                        ) === "CustInvc"
+                            ? "invoice"
+                            : "creditmemo",
+                    status: res.getText(
                         this.transactionSearchColStatus
                     ) as string,
-                    subsidiary:
-                        typeof subsidiaryVal === "number"
-                            ? subsidiaryVal
-                            : parseInt(
-                                  subsidiaryVal as string
-                              ),
+                    subsidiary: subsidiaryVal as string,
                     entity:
                         typeof entityVal === "number"
                             ? entityVal
@@ -176,13 +262,27 @@ export class TransactionSearchService {
             vals.push("CustInvc");
         if (this.transaction_types.includes("creditmemo"))
             vals.push("CustCred");
-        if (this.transaction_types.includes("vendorbill"))
-            vals.push("VendBill");
+        // if (this.transaction_types.includes("vendorbill"))
+        //     vals.push("VendBill");
 
         return search.createFilter({
             name: "type",
             operator: search.Operator.ANYOF,
             values: vals
+        });
+    }
+
+    private getStatusFilter(): search.Filter | false {
+        if (
+            !this.transaction_status ||
+            this.transaction_status.length === 0
+        )
+            return false;
+
+        return search.createFilter({
+            name: "status",
+            operator: search.Operator.ANYOF,
+            values: this.transaction_status
         });
     }
 }

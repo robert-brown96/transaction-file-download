@@ -26,9 +26,23 @@ export class TransactionStatusService {
     supportedTransValues(): ITranPicklistOption[] {
         return [
             { text: "Invoice", value: "invoice" },
-            { text: "Credit Memo", value: "creditmemo" },
-            { text: "Bill", value: "vendorbill" }
+            { text: "Credit Memo", value: "creditmemo" }
+            //  { text: "Bill", value: "vendorbill" }
         ];
+    }
+
+    public static stringToTranTypes(
+        vals: string[]
+    ): TSupportedTranType[] {
+        const retVals: TSupportedTranType[] = [];
+
+        if (vals.includes("invoice"))
+            retVals.push("invoice");
+
+        if (vals.includes("creditmemo"))
+            retVals.push("creditmemo");
+
+        return retVals;
     }
 
     getUniqueValues() {
@@ -42,9 +56,9 @@ export class TransactionStatusService {
         if (this.transactionTypes.includes("creditmemo"))
             allStatuses.push(...this.creditStatus());
 
-        //credit status values
-        if (this.transactionTypes.includes("vendorbill"))
-            allStatuses.push(...this.vendorBillStatus());
+        // //credit status values
+        // if (this.transactionTypes.includes("vendorbill"))
+        //     allStatuses.push(...this.vendorBillStatus());
 
         return [...new Set(allStatuses)];
     }
@@ -55,8 +69,8 @@ export class TransactionStatusService {
             {
                 value: "CustInvc:B",
                 text: "Invoice:Paid In Full"
-            },
-            { value: "@ALL@", text: "Invoice:All" }
+            }
+            //     { value: "@ALL@", text: "Invoice:All" }
         ];
     }
 
@@ -69,8 +83,8 @@ export class TransactionStatusService {
             {
                 value: "CustCred:B",
                 text: "Credit Memo:Fully Applied"
-            },
-            { value: "@ALL@", text: "Credit Memo:All" }
+            }
+            //        { value: "@ALL@", text: "Credit Memo:All" }
         ];
     }
 
@@ -86,8 +100,8 @@ export class TransactionStatusService {
                 value: "VendBill:D",
                 text: "Bill:Pending Approval"
             },
-            { value: "VendBill:E", text: "Bill:Rejected" },
-            { value: "@ALL@", text: "Bill:All" }
+            { value: "VendBill:E", text: "Bill:Rejected" }
+            //        { value: "@ALL@", text: "Bill:All" }
         ];
     }
 }

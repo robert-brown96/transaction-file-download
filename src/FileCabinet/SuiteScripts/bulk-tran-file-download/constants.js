@@ -23,7 +23,8 @@ define(["require", "exports"], function (require, exports) {
         TRAN_TYPES: "custpage_tran_type",
         TRAN_STATUS: "custpage_status",
         PAGE_ID: "custpage_page_id",
-        TRAN_COUNT: "custpage_count"
+        TRAN_COUNT: "custpage_count",
+        INCLUDE_SELECTED: "custpage_use_all"
     };
     exports.SUITELET_SUBLIST_FIELD_IDS = {
         process: "process",
@@ -34,6 +35,7 @@ define(["require", "exports"], function (require, exports) {
         entity: "entity",
         trannumber: "trannumber",
         date: "date",
-        amount: "amount"
+        amount: "amount",
+        tran_link: "tran_link"
     };
 });

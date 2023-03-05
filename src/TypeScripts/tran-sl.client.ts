@@ -12,30 +12,72 @@ import {
     TRAN_SELECT_SUITELET
 } from "./constants";
 import { getParameterFromURL } from "./utils/util.module";
+import { TMapAny } from "./globals";
 
 export function fieldChanged(
     context: EntryPoints.Client.fieldChangedContext
 ): void {
+    let refreshSuitelet = false;
     const changedField = context.fieldId;
     const cr = currentRecord.get();
     console.log(`changed field ${changedField}`);
 
+    const params: TMapAny = {};
+
+    let newPageId: number;
+
+    params.start = cr.getValue({
+        fieldId: SUITELET_FIELD_IDS.START_DATE
+    });
+    params.end =
+        cr.getValue({
+            fieldId: SUITELET_FIELD_IDS.END_DATE
+        }) || "";
+    params.customer =
+        cr.getValue({
+            fieldId: SUITELET_FIELD_IDS.CUSTOMER
+        }) || "";
+    params.subsidiary =
+        cr.getValue({
+            fieldId: SUITELET_FIELD_IDS.SUBSIDIARY
+        }) || "";
+    params.allTypes = cr.getValue({
+        fieldId: SUITELET_FIELD_IDS.ALL_TRAN_TYPES
+    });
+    params.allStatus = cr.getValue({
+        fieldId: SUITELET_FIELD_IDS.ALL_STATUSES
+    });
+    params.typeArr = cr.getValue({
+        fieldId: SUITELET_FIELD_IDS.TRAN_TYPES
+    });
+    params.statusArr = cr.getValue({
+        fieldId: SUITELET_FIELD_IDS.TRAN_STATUS
+    });
+
+    params.selectIndividual = cr.getValue({
+        fieldId: SUITELET_FIELD_IDS.INCLUDE_SELECTED
+    });
+    console.log(`types arr: ${params.typeArr}`);
     // switch through fields
+    console.log(
+        `params before switch ${JSON.stringify(params)}`
+    );
     switch (changedField) {
         case "custpage_page_id": {
             const pageIdVal =
                 context.currentRecord.getValue({
                     fieldId: "custpage_page_id"
                 }) as string;
-            const pageId = parseInt(
-                pageIdVal.split("_")[1]
-            );
+            newPageId = parseInt(pageIdVal.split("_")[1]);
 
-            document.location = url.resolveScript({
-                scriptId: getParameterFromURL("script"),
-                deploymentId: getParameterFromURL("deploy"),
-                params: { page: pageId }
-            });
+            params.page = newPageId;
+            refreshSuitelet = true;
+
+            // document.location = url.resolveScript({
+            //     scriptId: getParameterFromURL("script"),
+            //     deploymentId: getParameterFromURL("deploy"),
+            //     params: { page: newPageId }
+            // });
             break;
         }
         case SUITELET_FIELD_IDS.ALL_TRAN_TYPES: {
@@ -48,10 +90,14 @@ export function fieldChanged(
             if (allTranTypes) {
                 // disable transaction select
                 tranTypeField.isDisabled = true;
+
+                // reset transaction type filter
+                params.typeArr = [];
             } else {
                 // enable transaction select
                 tranTypeField.isDisabled = false;
             }
+            refreshSuitelet = true;
             break;
         }
         case SUITELET_FIELD_IDS.ALL_STATUSES: {
@@ -68,6 +114,38 @@ export function fieldChanged(
                 // enable transaction select
                 tranStatusField.isDisabled = false;
             }
+            refreshSuitelet = true;
+            break;
+        }
+        case SUITELET_FIELD_IDS.START_DATE: {
+            params.start = cr.getValue({
+                fieldId: SUITELET_FIELD_IDS.START_DATE
+            });
+            refreshSuitelet = true;
+            break;
+        }
+        case SUITELET_FIELD_IDS.END_DATE: {
+            refreshSuitelet = true;
+            break;
+        }
+        case SUITELET_FIELD_IDS.CUSTOMER: {
+            refreshSuitelet = true;
+            break;
+        }
+        case SUITELET_FIELD_IDS.SUBSIDIARY: {
+            refreshSuitelet = true;
+            break;
+        }
+        case SUITELET_FIELD_IDS.TRAN_STATUS: {
+            refreshSuitelet = true;
+            break;
+        }
+        case SUITELET_FIELD_IDS.TRAN_TYPES: {
+            refreshSuitelet = true;
+            break;
+        }
+        case SUITELET_FIELD_IDS.INCLUDE_SELECTED: {
+            refreshSuitelet = true;
             break;
         }
         default: {
@@ -75,6 +153,22 @@ export function fieldChanged(
                 `no action for field ${changedField} - continuing`
             );
         }
+    }
+
+    if (refreshSuitelet) {
+        // base parameters for suitelet refresh retrieve
+        const scriptId = getParameterFromURL("script");
+        const deploymentId = getParameterFromURL("deploy");
+
+        params.typeArr = JSON.stringify(params.typeArr);
+        params.statusArr = JSON.stringify(params.statusArr);
+
+        window.onbeforeunload = null;
+        document.location = url.resolveScript({
+            scriptId,
+            deploymentId,
+            params: params
+        });
     }
 }
 
@@ -87,24 +181,30 @@ export function pageInit(
     const CR = currentRecord.get();
 
     // disable transaction type field if all is selected
-    const selectAllTransField = CR.getField({
+    // const selectAllTransField = CR.getField({
+    //     fieldId: SUITELET_FIELD_IDS.ALL_TRAN_TYPES
+    // });
+    const selectAllTransVal = CR.getValue({
         fieldId: SUITELET_FIELD_IDS.ALL_TRAN_TYPES
     });
+
     const tranTypeField = CR.getField({
         fieldId: SUITELET_FIELD_IDS.TRAN_TYPES
     });
-    if (selectAllTransField)
-        tranTypeField.isDisabled = true;
+    console.log(
+        `tran type field val: ${selectAllTransVal}`
+    );
+    if (selectAllTransVal) tranTypeField.isDisabled = true;
     else tranTypeField.isDisabled = false;
 
     // disable transaction status field if all is selected
-    const selectAllStatusField = CR.getField({
+    const selectAllStatusValue = CR.getValue({
         fieldId: SUITELET_FIELD_IDS.ALL_STATUSES
     });
     const tranStatusField = CR.getField({
         fieldId: SUITELET_FIELD_IDS.TRAN_STATUS
     });
-    if (selectAllStatusField)
+    if (selectAllStatusValue)
         tranStatusField.isDisabled = true;
     else tranStatusField.isDisabled = false;
 }

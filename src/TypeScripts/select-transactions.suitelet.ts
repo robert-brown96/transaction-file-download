@@ -7,6 +7,8 @@
 
 import { EntryPoints } from "N/types";
 import log = require("N/log");
+import format = require("N/format");
+import url = require("N/url");
 import serverWidget = require("N/ui/serverWidget");
 //import search = require("N/search");
 import { validateSuiteletMethod } from "./utils/util.module";
@@ -32,11 +34,81 @@ export function onRequest(
 
     if (method === "GET") {
         try {
+            // log entry params
+            log.audit({
+                title: "entry parameters",
+                details: request.parameters
+            });
+
             // page id parameter
             const pageId = parseInt(
                 request.parameters.page
             );
-            const formRes = _get({ pageId });
+
+            // script id params
+            const scriptId =
+                context.request.parameters.script;
+            const deploymentId =
+                context.request.parameters.deploy;
+
+            // form value parameters
+            const start =
+                request.parameters.start ?? new Date();
+
+            const end = request.parameters.end;
+
+            const customer = request.parameters.customer;
+
+            const subsidiary =
+                request.parameters.subsidiary;
+
+            const allTypesParam =
+                request.parameters.allTypes === "false"
+                    ? false
+                    : true;
+
+            const allStatusParam =
+                request.parameters.allStatus === "false"
+                    ? false
+                    : true;
+
+            let tranTypes = request.parameters.typeArr;
+            tranTypes = tranTypes
+                ? JSON.parse(tranTypes)
+                : [];
+
+            let tranStatuses = request.parameters.statusArr;
+            tranStatuses = tranStatuses
+                ? JSON.parse(tranStatuses)
+                : [];
+            tranStatuses = tranStatuses.filter(
+                (x: string) => x && x !== ""
+            );
+            log.debug(
+                `status param is ${tranStatuses}`,
+                tranStatuses[0]
+            );
+
+            // select individual params
+            const selectTransactions =
+                request.parameters.selectIndividual ===
+                "true"
+                    ? true
+                    : false;
+            const formRes = _get({
+                pageId,
+                scriptId,
+                deploymentId,
+                start,
+                allTypesParam,
+                allStatusParam,
+                tranTypes,
+                tranStatuses,
+                selectTransactions,
+                ...(end && { end }),
+                ...(customer && { customer }),
+                ...(subsidiary && { subsidiary })
+            });
             response.writePage(formRes);
         } catch (e) {
             log.error({
@@ -48,13 +120,35 @@ export function onRequest(
 }
 
 const _get = ({
-    pageId
+    pageId,
+    scriptId,
+    deploymentId,
+    start,
+    end,
+    customer,
+    subsidiary,
+    allTypesParam,
+    allStatusParam,
+    selectTransactions,
+    tranTypes,
+    tranStatuses
 }: IGetParams): serverWidget.Form => {
+    log.debug("start get", scriptId + deploymentId);
+
     const slForm = serverWidget.createForm({
         title: "Download Transaction Files in Bulk"
     });
 
+    slForm.addSubmitButton({ label: "Download Files" });
+
     slForm.clientScriptModulePath = "./tran-sl.client.js";
+
+    // add reset button
+    slForm.addButton({
+        id: "custpage_reset",
+        label: "Reset Filters",
+        functionName: `resetFilterParams`
+    });
 
     // field groups
     slForm.addFieldGroup({
@@ -104,15 +198,21 @@ const _get = ({
         label: "Earliest Tran Date",
         container: "filters_group"
     });
-    startDateField.defaultValue =
-        new Date() as unknown as string;
+    startDateField.defaultValue = new Date(
+        start
+    ) as unknown as string;
+    startDateField.isMandatory = true;
     // End Date
-    slForm.addField({
+    const endDateField = slForm.addField({
         id: SUITELET_FIELD_IDS.END_DATE,
         type: serverWidget.FieldType.DATE,
         label: "Latest Tran Date",
         container: "filters_group"
     });
+    if (end)
+        endDateField.defaultValue = new Date(
+            end
+        ) as unknown as string;
 
     // customer
     const customerField = slForm.addField({
@@ -122,21 +222,25 @@ const _get = ({
         source: "customer",
         container: "filters_group"
     });
-    customerField.defaultValue = "";
+    customerField.defaultValue = customer ? customer : "";
 
     // Subsidiary
-    //const subsidiaryField =
-    slForm.addField({
+    const subsidiaryField = slForm.addField({
         id: SUITELET_FIELD_IDS.SUBSIDIARY,
         type: serverWidget.FieldType.SELECT,
         label: "Subsidiary",
         source: "subsidiary",
         container: "filters_group"
     });
+    subsidiaryField.defaultValue = subsidiary ?? "";
 
+    const tranTypeChecked =
+        TransactionStatusService.stringToTranTypes(
+            tranTypes
+        );
     // transaction type and status fields
     const tranStatusService = new TransactionStatusService(
-        []
+        tranTypeChecked
     );
 
     const selectAllTransField = slForm.addField({
@@ -148,7 +252,8 @@ const _get = ({
     selectAllTransField.updateBreakType({
         breakType: serverWidget.FieldBreakType.STARTCOL
     });
-    selectAllTransField.defaultValue = "T";
+    selectAllTransField.defaultValue =
+        allTypesParam === false ? "F" : "T";
     const tranTypeField = slForm.addField({
         id: SUITELET_FIELD_IDS.TRAN_TYPES,
         type: serverWidget.FieldType.MULTISELECT,
@@ -160,6 +265,15 @@ const _get = ({
         .supportedTransValues()
         .forEach((e) => tranTypeField.addSelectOption(e));
 
+    if (tranTypeChecked.length > 0 && !allTypesParam)
+        tranTypeField.defaultValue = tranTypeChecked;
+    else if (tranTypeChecked.length === 0 && !allTypesParam)
+        tranTypeField.defaultValue = [
+            "invoice",
+            "creditmemo"
+        ];
+    else tranTypeField.defaultValue = [];
+
     const selectAllStatuses = slForm.addField({
         type: serverWidget.FieldType.CHECKBOX,
         id: SUITELET_FIELD_IDS.ALL_STATUSES,
@@ -169,7 +283,8 @@ const _get = ({
     selectAllStatuses.updateBreakType({
         breakType: serverWidget.FieldBreakType.STARTCOL
     });
-    selectAllStatuses.defaultValue = "T";
+    selectAllStatuses.defaultValue =
+        allStatusParam === false ? "F" : "T";
 
     const statusField = slForm.addField({
         id: SUITELET_FIELD_IDS.TRAN_STATUS,
@@ -182,6 +297,10 @@ const _get = ({
         .getUniqueValues()
         .forEach((e) => statusField.addSelectOption(e));
 
+    if (tranStatuses.length > 0 && !allStatusParam)
+        statusField.defaultValue = tranStatuses;
+    else statusField.defaultValue = [];
+
     // create sublist for transactions
     const tranSublist = slForm.addSublist({
         id: "custpage_tran_list",
@@ -189,14 +308,24 @@ const _get = ({
         type: serverWidget.SublistType.LIST
     });
 
-    tranSublist.addMarkAllButtons();
+    if (selectTransactions) tranSublist.addMarkAllButtons();
 
     // sublist fields
-    tranSublist.addField({
+    const processSublistField = tranSublist.addField({
         id: SUITELET_SUBLIST_FIELD_IDS.process,
         label: "Process",
         type: serverWidget.FieldType.CHECKBOX
     });
+    if (!selectTransactions)
+        processSublistField.updateDisplayType({
+            displayType:
+                serverWidget.FieldDisplayType.DISABLED
+        });
+    else
+        processSublistField.updateDisplayType({
+            displayType:
+                serverWidget.FieldDisplayType.NORMAL
+        });
 
     tranSublist
         .addField({
@@ -218,20 +347,16 @@ const _get = ({
     const sublistStatusField = tranSublist.addField({
         id: SUITELET_SUBLIST_FIELD_IDS.status,
         label: "Status",
-        type: serverWidget.FieldType.SELECT
+        type: serverWidget.FieldType.TEXT
     });
-
-    tranStatusService
-        .getUniqueValues()
-        .forEach((e) =>
-            sublistStatusField.addSelectOption(e)
-        );
+    sublistStatusField.updateDisplayType({
+        displayType: serverWidget.FieldDisplayType.INLINE
+    });
 
     const subsidiarySublistField = tranSublist.addField({
         id: SUITELET_SUBLIST_FIELD_IDS.subsidiary,
         label: "Subsidiary",
-        type: serverWidget.FieldType.SELECT,
-        source: "subsidiary"
+        type: serverWidget.FieldType.TEXT
     });
     subsidiarySublistField.updateDisplayType({
         displayType: serverWidget.FieldDisplayType.INLINE
@@ -240,7 +365,8 @@ const _get = ({
     const entityField = tranSublist.addField({
         id: SUITELET_SUBLIST_FIELD_IDS.entity,
         label: "Entity",
-        type: serverWidget.FieldType.TEXT
+        type: serverWidget.FieldType.SELECT,
+        source: "customer"
     });
     entityField.updateDisplayType({
         displayType: serverWidget.FieldDisplayType.INLINE
@@ -261,13 +387,23 @@ const _get = ({
         label: "Amount",
         type: serverWidget.FieldType.CURRENCY
     });
+    tranSublist.addField({
+        id: SUITELET_SUBLIST_FIELD_IDS.tran_link,
+        label: "Transaction",
+        type: serverWidget.FieldType.TEXT
+    });
 
     const tranSearchService = new TransactionSearchService({
-        START_DATE: new Date(),
-        ALL_STATUSES: true,
-        ALL_TRAN_TYPES: true,
-        TRAN_TYPES: [],
-        TRAN_STATUS: []
+        START_DATE: new Date(start),
+        ALL_STATUSES: allStatusParam,
+        ALL_TRAN_TYPES: allTypesParam,
+        TRAN_TYPES: tranTypeChecked,
+        TRAN_STATUS: tranStatuses,
+        ...(end && { END_DATE: new Date(end) }),
+        ...(customer && { CUSTOMER: parseInt(customer) }),
+        ...(subsidiary && {
+            SUBSIDIARY: parseInt(subsidiary)
+        })
     });
     const transactionSearchPageData =
         tranSearchService.runSearch(PAGE_SIZE);
@@ -289,6 +425,15 @@ const _get = ({
         container: "navigation_group"
     });
 
+    slForm.addField({
+        id: "custpage_page_num_html",
+        type: serverWidget.FieldType.INLINEHTML,
+        label: " ",
+        container: "navigation_group"
+    }).defaultValue = `<p style='font-size:14px'>Viewing Page ${
+        pageId + 1
+    } of ${pageCount}</p><br><br>`;
+
     const resultCountField = slForm.addField({
         id: SUITELET_FIELD_IDS.TRAN_COUNT,
         label: "Total Transaction Count",
@@ -303,6 +448,21 @@ const _get = ({
     });
     resultCountField.updateBreakType({
         breakType: serverWidget.FieldBreakType.STARTCOL
+    });
+
+    const onlySelectedField = slForm.addField({
+        type: serverWidget.FieldType.CHECKBOX,
+        id: SUITELET_FIELD_IDS.INCLUDE_SELECTED,
+        label: "Only Include Selected Transactions",
+        container: "navigation_group"
+    });
+    onlySelectedField.defaultValue =
+        selectTransactions === false ? "F" : "T";
+    onlySelectedField.updateBreakType({
+        breakType: serverWidget.FieldBreakType.STARTCOL
+    });
+    onlySelectedField.setHelpText({
+        help: "Unchecking this box will process only checked transactions"
     });
 
     for (let i = 0; i < pageCount; i++) {
@@ -327,68 +487,82 @@ const _get = ({
             });
     }
 
-    // get page of data that will be shown
-    const pageResults = tranSearchService.fetchSearchResult(
-        {
-            pagedData: transactionSearchPageData,
-            pageIndex: pageId
-        }
-    );
+    if (pageCount > 0) {
+        // get page of data that will be shown
+        const pageResults =
+            tranSearchService.fetchSearchResult({
+                pagedData: transactionSearchPageData,
+                pageIndex: pageId
+            });
 
-    let line = 0;
-    pageResults.forEach((res) => {
-        log.debug({
-            title: `result ${line}`,
-            details: res
-        });
-        tranSublist.setSublistValue({
-            id: SUITELET_SUBLIST_FIELD_IDS.process,
-            value: "F",
-            line
-        });
-        tranSublist.setSublistValue({
-            id: SUITELET_SUBLIST_FIELD_IDS.id,
-            value: res.id as unknown as string,
-            line
-        });
-        tranSublist.setSublistValue({
-            id: SUITELET_SUBLIST_FIELD_IDS.type,
-            value: res.type,
-            line
-        });
-        tranSublist.setSublistValue({
-            id: SUITELET_SUBLIST_FIELD_IDS.status,
-            value: res.status,
-            line
-        });
-        tranSublist.setSublistValue({
-            id: SUITELET_SUBLIST_FIELD_IDS.subsidiary,
-            value: res.subsidiary as unknown as string,
-            line
-        });
-        tranSublist.setSublistValue({
-            id: SUITELET_SUBLIST_FIELD_IDS.entity,
-            value: res.entity as unknown as string,
-            line
-        });
-        tranSublist.setSublistValue({
-            id: SUITELET_SUBLIST_FIELD_IDS.trannumber,
-            value: res.trannumber,
-            line
-        });
-        tranSublist.setSublistValue({
-            id: SUITELET_SUBLIST_FIELD_IDS.date,
-            value: new Date(res.date) as unknown as string,
-            line
-        });
-        tranSublist.setSublistValue({
-            id: SUITELET_SUBLIST_FIELD_IDS.amount,
-            value: res.amount as unknown as string,
-            line
-        });
+        let line = 0;
+        pageResults.forEach((res) => {
+            // log.debug({
+            //     title: `result sublist value ${line}`,
+            //     details: res
+            // });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.process,
+                value: "F",
+                line
+            });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.id,
+                value: res.id as unknown as string,
+                line
+            });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.type,
+                value: res.type,
+                line
+            });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.status,
+                value: res.status,
+                line
+            });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.subsidiary,
+                value: res.subsidiary as unknown as string,
+                line
+            });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.entity,
+                value: res.entity as unknown as string,
+                line
+            });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.trannumber,
+                value: res.trannumber,
+                line
+            });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.date,
+                value: format.format({
+                    value: new Date(res.date),
+                    type: format.Type.DATE
+                }),
+                line
+            });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.amount,
+                value: res.amount as unknown as string,
+                line
+            });
 
-        line++;
-    });
+            const tranUrl = url.resolveRecord({
+                recordId: res.id,
+                recordType: res.raw_type
+            });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.tran_link,
+                value: `<a href="${tranUrl}">Link</a>`,
+                line
+            });
+
+            line++;
+        });
+    }
 
     return slForm;
 };

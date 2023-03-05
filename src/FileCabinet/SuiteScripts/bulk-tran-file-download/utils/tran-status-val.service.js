@@ -20,9 +20,17 @@ define(["require", "exports"], function (require, exports) {
         supportedTransValues() {
             return [
                 { text: "Invoice", value: "invoice" },
-                { text: "Credit Memo", value: "creditmemo" },
-                { text: "Bill", value: "vendorbill" }
+                { text: "Credit Memo", value: "creditmemo" }
+                //  { text: "Bill", value: "vendorbill" }
             ];
+        }
+        static stringToTranTypes(vals) {
+            const retVals = [];
+            if (vals.includes("invoice"))
+                retVals.push("invoice");
+            if (vals.includes("creditmemo"))
+                retVals.push("creditmemo");
+            return retVals;
         }
         getUniqueValues() {
             const allStatuses = [];
@@ -32,9 +40,9 @@ define(["require", "exports"], function (require, exports) {
             //credit status values
             if (this.transactionTypes.includes("creditmemo"))
                 allStatuses.push(...this.creditStatus());
-            //credit status values
-            if (this.transactionTypes.includes("vendorbill"))
-                allStatuses.push(...this.vendorBillStatus());
+            // //credit status values
+            // if (this.transactionTypes.includes("vendorbill"))
+            //     allStatuses.push(...this.vendorBillStatus());
             return [...new Set(allStatuses)];
         }
         invoiceStatus() {
@@ -43,8 +51,8 @@ define(["require", "exports"], function (require, exports) {
                 {
                     value: "CustInvc:B",
                     text: "Invoice:Paid In Full"
-                },
-                { value: "@ALL@", text: "Invoice:All" }
+                }
+                //     { value: "@ALL@", text: "Invoice:All" }
             ];
         }
         creditStatus() {
@@ -56,8 +64,8 @@ define(["require", "exports"], function (require, exports) {
                 {
                     value: "CustCred:B",
                     text: "Credit Memo:Fully Applied"
-                },
-                { value: "@ALL@", text: "Credit Memo:All" }
+                }
+                //        { value: "@ALL@", text: "Credit Memo:All" }
             ];
         }
         vendorBillStatus() {
@@ -72,8 +80,8 @@ define(["require", "exports"], function (require, exports) {
                     value: "VendBill:D",
                     text: "Bill:Pending Approval"
                 },
-                { value: "VendBill:E", text: "Bill:Rejected" },
-                { value: "@ALL@", text: "Bill:All" }
+                { value: "VendBill:E", text: "Bill:Rejected" }
+                //        { value: "@ALL@", text: "Bill:All" }
             ];
         }
     }

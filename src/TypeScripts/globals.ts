@@ -15,10 +15,21 @@ export type TMap = {
     [id: string]: string;
 };
 
-export type TSupportedTranType =
-    | "invoice"
-    | "creditmemo"
-    | "vendorbill";
+export type TMapAny = {
+    [id: string]:
+        | string
+        | string[]
+        | boolean
+        | number
+        | number[]
+        | Date;
+};
+
+export type TClientUrlParam = {
+    [id: string]: string;
+};
+
+export type TSupportedTranType = "invoice" | "creditmemo";
 
 export interface ITranPicklistOption {
     value: TSupportedTranType;
@@ -50,8 +61,9 @@ export interface ISearchParameters {
 export interface ITransactionResult {
     id: number;
     type: string;
+    raw_type: string;
     status: string;
-    subsidiary: number;
+    subsidiary: string;
     entity: number;
     trannumber: string;
     date: Date;
@@ -60,4 +72,15 @@ export interface ITransactionResult {
 
 export interface IGetParams {
     pageId: number;
+    scriptId: string;
+    deploymentId: string;
+    start: Date;
+    end?: Date;
+    customer?: string;
+    subsidiary?: string;
+    allTypesParam: boolean;
+    allStatusParam: boolean;
+    tranTypes: string[];
+    tranStatuses: string[];
+    selectTransactions: boolean;
 }
