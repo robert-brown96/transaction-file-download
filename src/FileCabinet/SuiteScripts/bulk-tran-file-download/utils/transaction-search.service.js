@@ -48,7 +48,8 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
             this.entity = options.CUSTOMER;
             this.subsidiary = options.SUBSIDIARY;
             // get transaction types property
-            if (options.ALL_TRAN_TYPES) {
+            if (options.ALL_TRAN_TYPES ||
+                options.TRAN_TYPES.length === 0) {
                 this.transaction_types.push("creditmemo");
                 this.transaction_types.push("invoice");
                 // this.transaction_types.push("vendorbill");
@@ -100,7 +101,6 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
         }
         runSearch(pageSize) {
             if (this.start_date) {
-                log.debug("setting start param", this.start_date);
                 const myNewFilter = search.createFilter({
                     name: "trandate",
                     operator: search.Operator.ONORAFTER,

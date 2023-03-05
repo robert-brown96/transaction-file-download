@@ -31,6 +31,20 @@ export class TransactionStatusService {
         ];
     }
 
+    public static stringToTranTypes(
+        vals: string[]
+    ): TSupportedTranType[] {
+        const retVals: TSupportedTranType[] = [];
+
+        if (vals.includes("invoice"))
+            retVals.push("invoice");
+
+        if (vals.includes("creditmemo"))
+            retVals.push("creditmemo");
+
+        return retVals;
+    }
+
     getUniqueValues() {
         const allStatuses: TPicklistOption[] = [];
 

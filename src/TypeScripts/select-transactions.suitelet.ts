@@ -34,8 +34,7 @@ export function onRequest(
 
     if (method === "GET") {
         try {
-            // just for logging
-            // TODO: remove this log
+            // log entry params
             log.audit({
                 title: "entry parameters",
                 details: request.parameters
@@ -63,13 +62,26 @@ export function onRequest(
             const subsidiary =
                 request.parameters.subsidiary;
 
-            log.debug("start param", start);
+            const allTypesParam =
+                request.parameters.allTypes === "false"
+                    ? false
+                    : true;
 
+            let tranTypes = request.parameters.typeArr;
+            tranTypes = tranTypes
+                ? JSON.parse(tranTypes)
+                : [];
+            log.debug(
+                `type param is ${tranTypes}`,
+                tranTypes[0]
+            );
             const formRes = _get({
                 pageId,
                 scriptId,
                 deploymentId,
                 start,
+                allTypesParam,
+                tranTypes,
                 ...(end && { end }),
                 ...(customer && { customer }),
                 ...(subsidiary && { subsidiary })
@@ -91,7 +103,9 @@ const _get = ({
     start,
     end,
     customer,
-    subsidiary
+    subsidiary,
+    allTypesParam,
+    tranTypes
 }: IGetParams): serverWidget.Form => {
     log.debug("start get", scriptId + deploymentId);
 
@@ -194,9 +208,13 @@ const _get = ({
     });
     subsidiaryField.defaultValue = subsidiary ?? "";
 
+    const tranTypeChecked =
+        TransactionStatusService.stringToTranTypes(
+            tranTypes
+        );
     // transaction type and status fields
     const tranStatusService = new TransactionStatusService(
-        []
+        tranTypeChecked
     );
 
     const selectAllTransField = slForm.addField({
@@ -208,7 +226,8 @@ const _get = ({
     selectAllTransField.updateBreakType({
         breakType: serverWidget.FieldBreakType.STARTCOL
     });
-    selectAllTransField.defaultValue = "T";
+    selectAllTransField.defaultValue =
+        allTypesParam === false ? "F" : "T";
     const tranTypeField = slForm.addField({
         id: SUITELET_FIELD_IDS.TRAN_TYPES,
         type: serverWidget.FieldType.MULTISELECT,
@@ -219,6 +238,10 @@ const _get = ({
     tranStatusService
         .supportedTransValues()
         .forEach((e) => tranTypeField.addSelectOption(e));
+
+    if (tranTypeChecked.length > 0 && !allTypesParam)
+        tranTypeField.defaultValue = tranTypeChecked;
+    else tranTypeField.defaultValue = [];
 
     const selectAllStatuses = slForm.addField({
         type: serverWidget.FieldType.CHECKBOX,
@@ -327,8 +350,8 @@ const _get = ({
     const tranSearchService = new TransactionSearchService({
         START_DATE: new Date(start),
         ALL_STATUSES: true,
-        ALL_TRAN_TYPES: true,
-        TRAN_TYPES: [],
+        ALL_TRAN_TYPES: allTypesParam,
+        TRAN_TYPES: tranTypeChecked,
         TRAN_STATUS: [],
         ...(end && { END_DATE: new Date(end) }),
         ...(customer && { CUSTOMER: parseInt(customer) }),

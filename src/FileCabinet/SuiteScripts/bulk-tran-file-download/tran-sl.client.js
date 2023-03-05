@@ -39,20 +39,7 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
         params.statusArr = cr.getValue({
             fieldId: constants_1.SUITELET_FIELD_IDS.TRAN_STATUS
         });
-        // const filterParams: ISearchParameters = {
-        //     ALL_STATUSES: allStatusParam as boolean,
-        //     ALL_TRAN_TYPES: allTypesParam as boolean,
-        //     START_DATE: new Date(startDateParam as string),
-        //     TRAN_STATUS: [],
-        //     TRAN_TYPES: [],
-        //     ...(endDateParam && {
-        //         END_DATE: new Date(endDateParam as string)
-        //     }),
-        //     ...(customerParam && {
-        //         CUSTOMER: customerParam
-        //     }),
-        //     ...(subsidParam && { SUBSIDIARY: subsidParam })
-        // };
+        console.log(`types arr: ${params.typeArr}`);
         // switch through fields
         console.log(`params before switch ${JSON.stringify(params)}`);
         switch (changedField) {
@@ -116,6 +103,7 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
         // base parameters for suitelet refresh retrieve
         const scriptId = (0, util_module_1.getParameterFromURL)("script");
         const deploymentId = (0, util_module_1.getParameterFromURL)("deploy");
+        params.typeArr = JSON.stringify(params.typeArr);
         window.onbeforeunload = null;
         document.location = url.resolveScript({
             scriptId,
@@ -129,24 +117,28 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
         console.log(`page init start for ${context}`);
         const CR = currentRecord.get();
         // disable transaction type field if all is selected
-        const selectAllTransField = CR.getField({
+        // const selectAllTransField = CR.getField({
+        //     fieldId: SUITELET_FIELD_IDS.ALL_TRAN_TYPES
+        // });
+        const selectAllTransVal = CR.getValue({
             fieldId: constants_1.SUITELET_FIELD_IDS.ALL_TRAN_TYPES
         });
         const tranTypeField = CR.getField({
             fieldId: constants_1.SUITELET_FIELD_IDS.TRAN_TYPES
         });
-        if (selectAllTransField)
+        console.log(`tran type field val: ${selectAllTransVal}`);
+        if (selectAllTransVal)
             tranTypeField.isDisabled = true;
         else
             tranTypeField.isDisabled = false;
         // disable transaction status field if all is selected
-        const selectAllStatusField = CR.getField({
+        const selectAllStatusValue = CR.getValue({
             fieldId: constants_1.SUITELET_FIELD_IDS.ALL_STATUSES
         });
         const tranStatusField = CR.getField({
             fieldId: constants_1.SUITELET_FIELD_IDS.TRAN_STATUS
         });
-        if (selectAllStatusField)
+        if (selectAllStatusValue)
             tranStatusField.isDisabled = true;
         else
             tranStatusField.isDisabled = false;

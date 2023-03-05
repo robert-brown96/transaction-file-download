@@ -26,7 +26,7 @@ export type TMapAny = {
 };
 
 export type TClientUrlParam = {
-    [id: string]: any;
+    [id: string]: string;
 };
 
 export type TSupportedTranType = "invoice" | "creditmemo";
@@ -78,4 +78,6 @@ export interface IGetParams {
     end?: Date;
     customer?: string;
     subsidiary?: string;
+    allTypesParam: boolean;
+    tranTypes: string[];
 }
