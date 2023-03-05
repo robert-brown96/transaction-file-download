@@ -42,3 +42,6 @@ export const SUITELET_SUBLIST_FIELD_IDS = {
 };
 
 export const OUTPUT_FOLDER_ID = 1264907;
+
+export const PROCESS_FILE_NAME_PREFIX =
+    "download_process_file";

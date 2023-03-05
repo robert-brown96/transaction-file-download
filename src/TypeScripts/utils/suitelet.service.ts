@@ -15,11 +15,11 @@ export class PostService {
 
     private searchFilters: search.Filter[] = [];
 
-    private readonly transactionSearchColType =
-        search.createColumn({
-            name: "type"
-        });
-    private readonly searchType = search.Type.TRANSACTION;
+    // private readonly transactionSearchColType =
+    //     search.createColumn({
+    //         name: "type"
+    //     });
+    // private readonly searchType = search.Type.TRANSACTION;
 
     constructor(options: IPostServiceInit) {
         this.selectIndividual = options.selectIndividual;
@@ -27,5 +27,13 @@ export class PostService {
             options.includeTranPrintout;
         this.includeAllFiles = options.includeAllFiles;
         this.concatFiles = options.concatFiles;
+
+        this.searchFilters.push(
+            search.createFilter({
+                name: "mainline",
+                operator: search.Operator.IS,
+                values: "T"
+            })
+        );
     }
 }
