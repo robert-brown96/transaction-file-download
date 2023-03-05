@@ -82,4 +82,5 @@ export interface IGetParams {
     allStatusParam: boolean;
     tranTypes: string[];
     tranStatuses: string[];
+    selectTransactions: boolean;
 }

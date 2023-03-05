@@ -53,6 +53,10 @@ export function fieldChanged(
     params.statusArr = cr.getValue({
         fieldId: SUITELET_FIELD_IDS.TRAN_STATUS
     });
+
+    params.selectIndividual = cr.getValue({
+        fieldId: SUITELET_FIELD_IDS.INCLUDE_SELECTED
+    });
     console.log(`types arr: ${params.typeArr}`);
     // switch through fields
     console.log(
@@ -137,6 +141,10 @@ export function fieldChanged(
             break;
         }
         case SUITELET_FIELD_IDS.TRAN_TYPES: {
+            refreshSuitelet = true;
+            break;
+        }
+        case SUITELET_FIELD_IDS.INCLUDE_SELECTED: {
             refreshSuitelet = true;
             break;
         }

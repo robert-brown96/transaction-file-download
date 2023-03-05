@@ -88,6 +88,13 @@ export function onRequest(
                 `status param is ${tranStatuses}`,
                 tranStatuses[0]
             );
+
+            // select individual params
+            const selectTransactions =
+                request.parameters.selectIndividual ===
+                "true"
+                    ? true
+                    : false;
             const formRes = _get({
                 pageId,
                 scriptId,
@@ -97,6 +104,7 @@ export function onRequest(
                 allStatusParam,
                 tranTypes,
                 tranStatuses,
+                selectTransactions,
                 ...(end && { end }),
                 ...(customer && { customer }),
                 ...(subsidiary && { subsidiary })
@@ -121,6 +129,7 @@ const _get = ({
     subsidiary,
     allTypesParam,
     allStatusParam,
+    selectTransactions,
     tranTypes,
     tranStatuses
 }: IGetParams): serverWidget.Form => {
@@ -302,11 +311,21 @@ const _get = ({
     tranSublist.addMarkAllButtons();
 
     // sublist fields
-    tranSublist.addField({
+    const processSublistField = tranSublist.addField({
         id: SUITELET_SUBLIST_FIELD_IDS.process,
         label: "Process",
         type: serverWidget.FieldType.CHECKBOX
     });
+    if (!selectTransactions)
+        processSublistField.updateDisplayType({
+            displayType:
+                serverWidget.FieldDisplayType.DISABLED
+        });
+    else
+        processSublistField.updateDisplayType({
+            displayType:
+                serverWidget.FieldDisplayType.NORMAL
+        });
 
     tranSublist
         .addField({
@@ -463,16 +482,17 @@ const _get = ({
 
     const onlySelectedField = slForm.addField({
         type: serverWidget.FieldType.CHECKBOX,
-        id: SUITELET_FIELD_IDS.INCLUDE_ALL,
+        id: SUITELET_FIELD_IDS.INCLUDE_SELECTED,
         label: "Only Include Selected Transactions",
         container: "navigation_group"
     });
-    onlySelectedField.defaultValue = "F";
+    onlySelectedField.defaultValue =
+        selectTransactions === false ? "F" : "T";
     onlySelectedField.updateBreakType({
         breakType: serverWidget.FieldBreakType.STARTCOL
     });
     onlySelectedField.setHelpText({
-        help: "Checking this box will process only checked transactions"
+        help: "Unchecking this box will process only checked transactions"
     });
 
     for (let i = 0; i < pageCount; i++) {

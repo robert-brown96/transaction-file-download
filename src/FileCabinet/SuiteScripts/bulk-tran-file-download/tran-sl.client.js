@@ -40,6 +40,9 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
         params.statusArr = cr.getValue({
             fieldId: constants_1.SUITELET_FIELD_IDS.TRAN_STATUS
         });
+        params.selectIndividual = cr.getValue({
+            fieldId: constants_1.SUITELET_FIELD_IDS.INCLUDE_SELECTED
+        });
         console.log(`types arr: ${params.typeArr}`);
         // switch through fields
         console.log(`params before switch ${JSON.stringify(params)}`);
@@ -120,6 +123,10 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
                 break;
             }
             case constants_1.SUITELET_FIELD_IDS.TRAN_TYPES: {
+                refreshSuitelet = true;
+                break;
+            }
+            case constants_1.SUITELET_FIELD_IDS.INCLUDE_SELECTED: {
                 refreshSuitelet = true;
                 break;
             }

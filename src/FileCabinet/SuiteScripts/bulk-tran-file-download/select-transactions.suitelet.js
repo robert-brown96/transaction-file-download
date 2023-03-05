@@ -46,6 +46,11 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
                     : [];
                 tranStatuses = tranStatuses.filter((x) => x && x !== "");
                 log.debug(`status param is ${tranStatuses}`, tranStatuses[0]);
+                // select individual params
+                const selectTransactions = request.parameters.selectIndividual ===
+                    "true"
+                    ? true
+                    : false;
                 const formRes = _get({
                     pageId,
                     scriptId,
@@ -55,6 +60,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
                     allStatusParam,
                     tranTypes,
                     tranStatuses,
+                    selectTransactions,
                     ...(end && { end }),
                     ...(customer && { customer }),
                     ...(subsidiary && { subsidiary })
@@ -70,7 +76,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         }
     }
     exports.onRequest = onRequest;
-    const _get = ({ pageId, scriptId, deploymentId, start, end, customer, subsidiary, allTypesParam, allStatusParam, tranTypes, tranStatuses }) => {
+    const _get = ({ pageId, scriptId, deploymentId, start, end, customer, subsidiary, allTypesParam, allStatusParam, selectTransactions, tranTypes, tranStatuses }) => {
         log.debug("start get", scriptId + deploymentId);
         const slForm = serverWidget.createForm({
             title: "Download Transaction Files in Bulk"
@@ -218,11 +224,19 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         });
         tranSublist.addMarkAllButtons();
         // sublist fields
-        tranSublist.addField({
+        const processSublistField = tranSublist.addField({
             id: constants_1.SUITELET_SUBLIST_FIELD_IDS.process,
             label: "Process",
             type: serverWidget.FieldType.CHECKBOX
         });
+        if (!selectTransactions)
+            processSublistField.updateDisplayType({
+                displayType: serverWidget.FieldDisplayType.DISABLED
+            });
+        else
+            processSublistField.updateDisplayType({
+                displayType: serverWidget.FieldDisplayType.NORMAL
+            });
         tranSublist
             .addField({
             id: constants_1.SUITELET_SUBLIST_FIELD_IDS.id,
@@ -359,16 +373,17 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         });
         const onlySelectedField = slForm.addField({
             type: serverWidget.FieldType.CHECKBOX,
-            id: constants_1.SUITELET_FIELD_IDS.INCLUDE_ALL,
+            id: constants_1.SUITELET_FIELD_IDS.INCLUDE_SELECTED,
             label: "Only Include Selected Transactions",
             container: "navigation_group"
         });
-        onlySelectedField.defaultValue = "F";
+        onlySelectedField.defaultValue =
+            selectTransactions === false ? "F" : "T";
         onlySelectedField.updateBreakType({
             breakType: serverWidget.FieldBreakType.STARTCOL
         });
         onlySelectedField.setHelpText({
-            help: "Checking this box will process only checked transactions"
+            help: "Unchecking this box will process only checked transactions"
         });
         for (let i = 0; i < pageCount; i++) {
             if (i == pageId)
