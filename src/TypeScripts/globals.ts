@@ -4,6 +4,8 @@
  * @NModuleScope Public
  */
 
+import http = require("N/http");
+
 export type TSUITELET_METHOD = "GET" | "POST";
 
 export type TPicklistOption = {
@@ -90,13 +92,12 @@ export interface IPostServiceInit {
     includeTranPrintout: boolean;
     includeAllFiles: boolean;
     concatFiles: boolean;
+    request: http.ServerRequest;
 }
 
-export interface IProcessFileData {
+export interface IProcessFileInit {
     selectIndividual: boolean;
     includeTranPrintout: boolean;
     includeAllFiles: boolean;
     concatFiles: boolean;
-
-    transaction_ids?: number[];
 }

@@ -5,13 +5,19 @@
  */
 
 import { IPostServiceInit } from "../globals";
+import log = require("N/log");
 import search = require("N/search");
-
+import http = require("N/http");
+import {
+    SUITELET_SUBLIST_FIELD_IDS,
+    SUITELET_SUBLIST_ID
+} from "../constants";
 export class PostService {
     selectIndividual: boolean;
     includeTranPrintout: boolean;
     includeAllFiles: boolean;
     concatFiles: boolean;
+    request: http.ServerRequest;
 
     private searchFilters: search.Filter[] = [];
 
@@ -27,6 +33,7 @@ export class PostService {
             options.includeTranPrintout;
         this.includeAllFiles = options.includeAllFiles;
         this.concatFiles = options.concatFiles;
+        this.request = options.request;
 
         this.searchFilters.push(
             search.createFilter({
@@ -35,5 +42,40 @@ export class PostService {
                 values: "T"
             })
         );
+    }
+
+    getSelectedIds(): number[] {
+        const request = this.request;
+        const lineItemCount = request.getLineCount({
+            group: SUITELET_SUBLIST_ID
+        });
+        const resultIds: number[] = [];
+
+        for (
+            let line = 0;
+            lineItemCount !== 0 && line < lineItemCount;
+            line++
+        ) {
+            const processVal = request.getSublistValue({
+                group: SUITELET_SUBLIST_ID,
+                line,
+                name: SUITELET_SUBLIST_FIELD_IDS.process
+            });
+            log.debug(
+                `process value for line ${line}`,
+                processVal
+            );
+            if (processVal === "T") {
+                //c
+                const tranId = request.getSublistValue({
+                    group: SUITELET_SUBLIST_ID,
+                    line,
+                    name: SUITELET_SUBLIST_FIELD_IDS.id
+                });
+                resultIds.push(parseInt(tranId));
+            }
+        }
+
+        return resultIds;
     }
 }

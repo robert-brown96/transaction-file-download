@@ -4,7 +4,7 @@
  * @NModuleScope Public
  * @NScriptType Suitelet
  */
-define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget", "./utils/util.module", "./utils/tran-status-val.service", "./constants", "./utils/transaction-search.service"], function (require, exports, log, format, url, serverWidget, util_module_1, tran_status_val_service_1, constants_1, transaction_search_service_1) {
+define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget", "./utils/util.module", "./utils/tran-status-val.service", "./constants", "./utils/transaction-search.service", "./utils/suitelet.service"], function (require, exports, log, format, url, serverWidget, util_module_1, tran_status_val_service_1, constants_1, transaction_search_service_1, suitelet_service_1) {
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.onRequest = void 0;
     const PAGE_SIZE = 50;
@@ -89,10 +89,18 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
                 ? true
                 : false;
             log.debug("concatFiles", concatFiles);
+            // check if selected or full search
             const selectIndividual = context.request.parameters[constants_1.SUITELET_FIELD_IDS.INCLUDE_SELECTED] === "T"
                 ? true
                 : false;
-            log.debug("submit individual", selectIndividual);
+            log.debug("select individual", selectIndividual);
+            _post({
+                includeAllFiles,
+                includeTranPrintout,
+                selectIndividual,
+                concatFiles,
+                request
+            });
         }
     }
     exports.onRequest = onRequest;
@@ -238,7 +246,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             statusField.defaultValue = [];
         // create sublist for transactions
         const tranSublist = slForm.addSublist({
-            id: "custpage_tran_list",
+            id: constants_1.SUITELET_SUBLIST_ID,
             label: "Transaction Sublist",
             type: serverWidget.SublistType.LIST
         });
@@ -471,6 +479,16 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         }
         return slForm;
     };
+    const _post = ({ selectIndividual, includeTranPrintout, includeAllFiles, concatFiles, request }) => {
+        const postService = new suitelet_service_1.PostService({
+            selectIndividual,
+            includeAllFiles,
+            includeTranPrintout,
+            concatFiles,
+            request
+        });
+        log.debug("process file service 1", postService);
+        const idTest = postService.getSelectedIds();
+        log.debug("idTest", idTest);
+    };
 });
-// const _post = (context: EntryPoints.Suitelet.onRequestContext)=>{
-// }

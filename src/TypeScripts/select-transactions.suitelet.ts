@@ -15,10 +15,12 @@ import { validateSuiteletMethod } from "./utils/util.module";
 import { TransactionStatusService } from "./utils/tran-status-val.service";
 import {
     SUITELET_FIELD_IDS,
-    SUITELET_SUBLIST_FIELD_IDS
+    SUITELET_SUBLIST_FIELD_IDS,
+    SUITELET_SUBLIST_ID
 } from "./constants";
 import { TransactionSearchService } from "./utils/transaction-search.service";
-import { IGetParams } from "./globals";
+import { IGetParams, IPostServiceInit } from "./globals";
+import { PostService } from "./utils/suitelet.service";
 
 const PAGE_SIZE = 50;
 
@@ -154,6 +156,14 @@ export function onRequest(
                 ? true
                 : false;
         log.debug("select individual", selectIndividual);
+
+        _post({
+            includeAllFiles,
+            includeTranPrintout,
+            selectIndividual,
+            concatFiles,
+            request
+        });
     }
 }
 
@@ -341,7 +351,7 @@ const _get = ({
 
     // create sublist for transactions
     const tranSublist = slForm.addSublist({
-        id: "custpage_tran_list",
+        id: SUITELET_SUBLIST_ID,
         label: "Transaction Sublist",
         type: serverWidget.SublistType.LIST
     });
@@ -605,6 +615,23 @@ const _get = ({
     return slForm;
 };
 
-// const _post = (context: EntryPoints.Suitelet.onRequestContext)=>{
+const _post = ({
+    selectIndividual,
+    includeTranPrintout,
+    includeAllFiles,
+    concatFiles,
+    request
+}: IPostServiceInit) => {
+    const postService = new PostService({
+        selectIndividual,
+        includeAllFiles,
+        includeTranPrintout,
+        concatFiles,
+        request
+    });
 
-// }
+    log.debug("process file service 1", postService);
+
+    const idTest = postService.getSelectedIds();
+    log.debug("idTest", idTest);
+};
