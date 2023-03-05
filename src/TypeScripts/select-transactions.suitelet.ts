@@ -239,8 +239,8 @@ const _get = ({
         .supportedTransValues()
         .forEach((e) => tranTypeField.addSelectOption(e));
 
-    if (tranTypes.length > 0 && !allTypesParam)
-        tranTypeField.defaultValue = tranTypes;
+    if (tranTypeChecked.length > 0 && !allTypesParam)
+        tranTypeField.defaultValue = tranTypeChecked;
     else tranTypeField.defaultValue = [];
 
     const selectAllStatuses = slForm.addField({
@@ -350,8 +350,8 @@ const _get = ({
     const tranSearchService = new TransactionSearchService({
         START_DATE: new Date(start),
         ALL_STATUSES: true,
-        ALL_TRAN_TYPES: true,
-        TRAN_TYPES: [],
+        ALL_TRAN_TYPES: allTypesParam,
+        TRAN_TYPES: tranTypeChecked,
         TRAN_STATUS: [],
         ...(end && { END_DATE: new Date(end) }),
         ...(customer && { CUSTOMER: parseInt(customer) }),

@@ -167,8 +167,8 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         tranStatusService
             .supportedTransValues()
             .forEach((e) => tranTypeField.addSelectOption(e));
-        if (tranTypes.length > 0 && !allTypesParam)
-            tranTypeField.defaultValue = tranTypes;
+        if (tranTypeChecked.length > 0 && !allTypesParam)
+            tranTypeField.defaultValue = tranTypeChecked;
         else
             tranTypeField.defaultValue = [];
         const selectAllStatuses = slForm.addField({
@@ -265,8 +265,8 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         const tranSearchService = new transaction_search_service_1.TransactionSearchService({
             START_DATE: new Date(start),
             ALL_STATUSES: true,
-            ALL_TRAN_TYPES: true,
-            TRAN_TYPES: [],
+            ALL_TRAN_TYPES: allTypesParam,
+            TRAN_TYPES: tranTypeChecked,
             TRAN_STATUS: [],
             ...(end && { END_DATE: new Date(end) }),
             ...(customer && { CUSTOMER: parseInt(customer) }),
