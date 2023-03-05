@@ -16,40 +16,21 @@ import {
     INDVIDUAL_PDF_OUTPUT_FOLDER_ID
 } from "./constants";
 import { summarizeLogger } from "./utils/util.module";
+import { IProcessFileValues } from "./globals";
 
 export function getInputData(
     context: EntryPoints.MapReduce.getInputDataContext
-): void {
+): number[] {
     log.debug(`starting file download`, context);
 
-    const currentScriptRt = runtime.getCurrentScript();
-    const inputFileId = currentScriptRt.getParameter({
-        name: FILE_DOWNLOAD_MR_PARAMS.fileId
-    });
-    if (!inputFileId)
-        throw error.create({
-            name: "MISSING_FILE_INPUT",
-            message: `input file id submission of ${inputFileId} is invalid`
-        });
-    if (
-        inputFileId &&
-        (typeof inputFileId === "string" ||
-            typeof inputFileId === "number")
-    ) {
-        const fileObj = file.load({ id: inputFileId });
+    try {
+        const fileData = getProcessFileContent();
 
-        const contents = fileObj.getContents();
-        const parsedContent = contents
-            ? JSON.parse(contents)
-            : null;
-
-        log.debug(`loaded file contents`, contents);
-        log.debug(
-            `loaded file tran ids`,
-            parsedContent.transaction_ids
-        );
-        return parsedContent.transaction_ids;
-    } else return;
+        return fileData.transaction_ids;
+    } catch (e) {
+        log.error("Error in getInputData", e);
+        return [];
+    }
 }
 
 export function map(
@@ -103,4 +84,49 @@ export function summarize(
         "Count of Reduce Errors",
         reduceErrors.length
     );
+
+    try {
+        const tranIds: number[] = [];
+        context.output.iterator().each((key, value) => {
+            log.debug(`key ${key}`, `value ${value}`);
+
+            tranIds.push(parseInt(value));
+
+            return true;
+        });
+        log.debug("all pdf ids", tranIds);
+    } catch (e) {
+        log.error(`error consolidating pdfs`, e);
+    }
 }
+
+const getProcessFileContent = (): IProcessFileValues => {
+    const currentScriptRt = runtime.getCurrentScript();
+    const inputFileId = currentScriptRt.getParameter({
+        name: FILE_DOWNLOAD_MR_PARAMS.fileId
+    });
+
+    if (
+        !inputFileId ||
+        (typeof inputFileId !== "string" &&
+            typeof inputFileId !== "number")
+    )
+        throw error.create({
+            name: "MISSING_FILE_INPUT",
+            message: `input file id submission of ${inputFileId} is invalid`
+        });
+
+    const fileObj = file.load({ id: inputFileId });
+
+    const contents = fileObj.getContents();
+    const parsedContent = contents
+        ? JSON.parse(contents)
+        : {};
+
+    log.debug(`loaded file contents`, contents);
+    log.debug(
+        `loaded file tran ids`,
+        parsedContent.transaction_ids
+    );
+    return parsedContent;
+};

@@ -521,7 +521,9 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
             const idRes = postService.getSelectedIds();
             postService.processFileService.setTransactionIds(idRes);
             log.debug("idRes", idRes);
-            postService.processFileService.writeProcessFile();
+            const resultFile = postService.processFileService.writeProcessFile();
+            const submittedTaskId = postService.invokeMapReduce(resultFile);
+            log.debug("my submittedTaskId", submittedTaskId);
         }
         else {
             // run search for ids

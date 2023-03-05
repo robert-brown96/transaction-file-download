@@ -102,3 +102,9 @@ export interface IProcessFileInit {
     includeAllFiles: boolean;
     concatFiles: boolean;
 }
+
+export interface IProcessFileValues {
+    submitted_at: Date;
+    process_options: IProcessFileInit;
+    transaction_ids: number[];
+}

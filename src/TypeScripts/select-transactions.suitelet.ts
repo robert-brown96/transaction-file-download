@@ -677,7 +677,11 @@ const _post = ({
         );
         log.debug("idRes", idRes);
 
-        postService.processFileService.writeProcessFile();
+        const resultFile =
+            postService.processFileService.writeProcessFile();
+        const submittedTaskId =
+            postService.invokeMapReduce(resultFile);
+        log.debug("my submittedTaskId", submittedTaskId);
     } else {
         // run search for ids
         log.debug(
