@@ -26,7 +26,7 @@ export type TMapAny = {
 };
 
 export type TClientUrlParam = {
-    [id: string]: any;
+    [id: string]: string;
 };
 
 export type TSupportedTranType = "invoice" | "creditmemo";

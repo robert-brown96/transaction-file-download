@@ -28,6 +28,8 @@ define(["require", "exports"], function (require, exports) {
             const retVals = [];
             if (vals.includes("invoice"))
                 retVals.push("invoice");
+            if (vals.includes("creditmemo"))
+                retVals.push("creditmemo");
             return retVals;
         }
         getUniqueValues() {
