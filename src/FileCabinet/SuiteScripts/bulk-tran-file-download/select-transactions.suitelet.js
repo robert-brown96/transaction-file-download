@@ -49,6 +49,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
     }
     exports.onRequest = onRequest;
     const _get = ({ pageId, scriptId, deploymentId, start, end }) => {
+        log.debug("start get", scriptId + deploymentId);
         const slForm = serverWidget.createForm({
             title: "Download Transaction Files in Bulk"
         });
@@ -253,32 +254,34 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             pageId = 0;
         else if (pageId >= pageCount)
             pageId = pageCount - 1;
-        if (pageId != 0) {
-            tranSublist.addButton({
-                id: "custpage_previous",
-                label: "Previous",
-                functionName: "getSuiteletPage(" +
-                    scriptId +
-                    ", " +
-                    deploymentId +
-                    ", " +
-                    (pageId - 1) +
-                    ")"
-            });
-        }
-        if (pageId != pageCount - 1) {
-            tranSublist.addButton({
-                id: "custpage_next",
-                label: "Next",
-                functionName: "getSuiteletPage(" +
-                    scriptId +
-                    ", " +
-                    deploymentId +
-                    ", " +
-                    (pageId + 1) +
-                    ")"
-            });
-        }
+        // if (pageId != 0) {
+        //     tranSublist.addButton({
+        //         id: "custpage_previous",
+        //         label: "Previous",
+        //         functionName:
+        //             "getSuiteletPage(" +
+        //             scriptId +
+        //             ", " +
+        //             deploymentId +
+        //             ", " +
+        //             (pageId - 1) +
+        //             ")"
+        //     });
+        // }
+        // if (pageId != pageCount - 1 && pageCount !== 0) {
+        //     tranSublist.addButton({
+        //         id: "custpage_next",
+        //         label: "Next",
+        //         functionName:
+        //             "getSuiteletPage(" +
+        //             scriptId +
+        //             ", " +
+        //             deploymentId +
+        //             ", " +
+        //             (pageId + 1) +
+        //             ")"
+        //     });
+        // }
         // Add drop-down and options to navigate to specific page
         const selectOptions = slForm.addField({
             id: constants_1.SUITELET_FIELD_IDS.PAGE_ID,
@@ -338,76 +341,78 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
                         (i + 1) * PAGE_SIZE
                 });
         }
-        // get page of data that will be shown
-        const pageResults = tranSearchService.fetchSearchResult({
-            pagedData: transactionSearchPageData,
-            pageIndex: pageId
-        });
-        let line = 0;
-        pageResults.forEach((res) => {
-            // log.debug({
-            //     title: `result sublist value ${line}`,
-            //     details: res
-            // });
-            tranSublist.setSublistValue({
-                id: constants_1.SUITELET_SUBLIST_FIELD_IDS.process,
-                value: "F",
-                line
+        if (pageCount > 0) {
+            // get page of data that will be shown
+            const pageResults = tranSearchService.fetchSearchResult({
+                pagedData: transactionSearchPageData,
+                pageIndex: pageId
             });
-            tranSublist.setSublistValue({
-                id: constants_1.SUITELET_SUBLIST_FIELD_IDS.id,
-                value: res.id,
-                line
+            let line = 0;
+            pageResults.forEach((res) => {
+                // log.debug({
+                //     title: `result sublist value ${line}`,
+                //     details: res
+                // });
+                tranSublist.setSublistValue({
+                    id: constants_1.SUITELET_SUBLIST_FIELD_IDS.process,
+                    value: "F",
+                    line
+                });
+                tranSublist.setSublistValue({
+                    id: constants_1.SUITELET_SUBLIST_FIELD_IDS.id,
+                    value: res.id,
+                    line
+                });
+                tranSublist.setSublistValue({
+                    id: constants_1.SUITELET_SUBLIST_FIELD_IDS.type,
+                    value: res.type,
+                    line
+                });
+                tranSublist.setSublistValue({
+                    id: constants_1.SUITELET_SUBLIST_FIELD_IDS.status,
+                    value: res.status,
+                    line
+                });
+                tranSublist.setSublistValue({
+                    id: constants_1.SUITELET_SUBLIST_FIELD_IDS.subsidiary,
+                    value: res.subsidiary,
+                    line
+                });
+                tranSublist.setSublistValue({
+                    id: constants_1.SUITELET_SUBLIST_FIELD_IDS.entity,
+                    value: res.entity,
+                    line
+                });
+                tranSublist.setSublistValue({
+                    id: constants_1.SUITELET_SUBLIST_FIELD_IDS.trannumber,
+                    value: res.trannumber,
+                    line
+                });
+                tranSublist.setSublistValue({
+                    id: constants_1.SUITELET_SUBLIST_FIELD_IDS.date,
+                    value: format.format({
+                        value: new Date(res.date),
+                        type: format.Type.DATE
+                    }),
+                    line
+                });
+                tranSublist.setSublistValue({
+                    id: constants_1.SUITELET_SUBLIST_FIELD_IDS.amount,
+                    value: res.amount,
+                    line
+                });
+                const tranUrl = url.resolveRecord({
+                    recordId: res.id,
+                    recordType: res.raw_type
+                });
+                tranSublist.setSublistValue({
+                    id: constants_1.SUITELET_SUBLIST_FIELD_IDS.tran_link,
+                    value: `<a href="${tranUrl}">Link</a>`,
+                    line
+                });
+                line++;
             });
-            tranSublist.setSublistValue({
-                id: constants_1.SUITELET_SUBLIST_FIELD_IDS.type,
-                value: res.type,
-                line
-            });
-            tranSublist.setSublistValue({
-                id: constants_1.SUITELET_SUBLIST_FIELD_IDS.status,
-                value: res.status,
-                line
-            });
-            tranSublist.setSublistValue({
-                id: constants_1.SUITELET_SUBLIST_FIELD_IDS.subsidiary,
-                value: res.subsidiary,
-                line
-            });
-            tranSublist.setSublistValue({
-                id: constants_1.SUITELET_SUBLIST_FIELD_IDS.entity,
-                value: res.entity,
-                line
-            });
-            tranSublist.setSublistValue({
-                id: constants_1.SUITELET_SUBLIST_FIELD_IDS.trannumber,
-                value: res.trannumber,
-                line
-            });
-            tranSublist.setSublistValue({
-                id: constants_1.SUITELET_SUBLIST_FIELD_IDS.date,
-                value: format.format({
-                    value: new Date(res.date),
-                    type: format.Type.DATE
-                }),
-                line
-            });
-            tranSublist.setSublistValue({
-                id: constants_1.SUITELET_SUBLIST_FIELD_IDS.amount,
-                value: res.amount,
-                line
-            });
-            const tranUrl = url.resolveRecord({
-                recordId: res.id,
-                recordType: res.raw_type
-            });
-            tranSublist.setSublistValue({
-                id: constants_1.SUITELET_SUBLIST_FIELD_IDS.tran_link,
-                value: `<a href="${tranUrl}">Link</a>`,
-                line
-            });
-            line++;
-        });
+        }
         return slForm;
     };
 });

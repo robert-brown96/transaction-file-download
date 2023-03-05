@@ -61,11 +61,12 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
                     fieldId: "custpage_page_id"
                 });
                 newPageId = parseInt(pageIdVal.split("_")[1]);
-                document.location = url.resolveScript({
-                    scriptId: (0, util_module_1.getParameterFromURL)("script"),
-                    deploymentId: (0, util_module_1.getParameterFromURL)("deploy"),
-                    params: { page: newPageId }
-                });
+                params.page = newPageId;
+                // document.location = url.resolveScript({
+                //     scriptId: getParameterFromURL("script"),
+                //     deploymentId: getParameterFromURL("deploy"),
+                //     params: { page: newPageId }
+                // });
                 break;
             }
             case constants_1.SUITELET_FIELD_IDS.ALL_TRAN_TYPES: {

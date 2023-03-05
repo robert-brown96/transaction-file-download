@@ -84,6 +84,8 @@ const _get = ({
     start,
     end
 }: IGetParams): serverWidget.Form => {
+    log.debug("start get", scriptId + deploymentId);
+
     const slForm = serverWidget.createForm({
         title: "Download Transaction Files in Bulk"
     });
@@ -326,35 +328,35 @@ const _get = ({
     if (!pageId || pageId < 0) pageId = 0;
     else if (pageId >= pageCount) pageId = pageCount - 1;
 
-    if (pageId != 0) {
-        tranSublist.addButton({
-            id: "custpage_previous",
-            label: "Previous",
-            functionName:
-                "getSuiteletPage(" +
-                scriptId +
-                ", " +
-                deploymentId +
-                ", " +
-                (pageId - 1) +
-                ")"
-        });
-    }
+    // if (pageId != 0) {
+    //     tranSublist.addButton({
+    //         id: "custpage_previous",
+    //         label: "Previous",
+    //         functionName:
+    //             "getSuiteletPage(" +
+    //             scriptId +
+    //             ", " +
+    //             deploymentId +
+    //             ", " +
+    //             (pageId - 1) +
+    //             ")"
+    //     });
+    // }
 
-    if (pageId != pageCount - 1) {
-        tranSublist.addButton({
-            id: "custpage_next",
-            label: "Next",
-            functionName:
-                "getSuiteletPage(" +
-                scriptId +
-                ", " +
-                deploymentId +
-                ", " +
-                (pageId + 1) +
-                ")"
-        });
-    }
+    // if (pageId != pageCount - 1 && pageCount !== 0) {
+    //     tranSublist.addButton({
+    //         id: "custpage_next",
+    //         label: "Next",
+    //         functionName:
+    //             "getSuiteletPage(" +
+    //             scriptId +
+    //             ", " +
+    //             deploymentId +
+    //             ", " +
+    //             (pageId + 1) +
+    //             ")"
+    //     });
+    // }
 
     // Add drop-down and options to navigate to specific page
     const selectOptions = slForm.addField({

@@ -78,11 +78,13 @@ export function fieldChanged(
                 }) as string;
             newPageId = parseInt(pageIdVal.split("_")[1]);
 
-            document.location = url.resolveScript({
-                scriptId: getParameterFromURL("script"),
-                deploymentId: getParameterFromURL("deploy"),
-                params: { page: newPageId }
-            });
+            params.page = newPageId;
+
+            // document.location = url.resolveScript({
+            //     scriptId: getParameterFromURL("script"),
+            //     deploymentId: getParameterFromURL("deploy"),
+            //     params: { page: newPageId }
+            // });
             break;
         }
         case SUITELET_FIELD_IDS.ALL_TRAN_TYPES: {
