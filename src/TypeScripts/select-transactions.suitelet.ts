@@ -425,81 +425,82 @@ const _get = ({
             });
     }
 
-    // get page of data that will be shown
-    const pageResults = tranSearchService.fetchSearchResult(
-        {
-            pagedData: transactionSearchPageData,
-            pageIndex: pageId
-        }
-    );
+    if (pageCount > 0) {
+        // get page of data that will be shown
+        const pageResults =
+            tranSearchService.fetchSearchResult({
+                pagedData: transactionSearchPageData,
+                pageIndex: pageId
+            });
 
-    let line = 0;
-    pageResults.forEach((res) => {
-        // log.debug({
-        //     title: `result sublist value ${line}`,
-        //     details: res
-        // });
-        tranSublist.setSublistValue({
-            id: SUITELET_SUBLIST_FIELD_IDS.process,
-            value: "F",
-            line
-        });
-        tranSublist.setSublistValue({
-            id: SUITELET_SUBLIST_FIELD_IDS.id,
-            value: res.id as unknown as string,
-            line
-        });
-        tranSublist.setSublistValue({
-            id: SUITELET_SUBLIST_FIELD_IDS.type,
-            value: res.type,
-            line
-        });
-        tranSublist.setSublistValue({
-            id: SUITELET_SUBLIST_FIELD_IDS.status,
-            value: res.status,
-            line
-        });
-        tranSublist.setSublistValue({
-            id: SUITELET_SUBLIST_FIELD_IDS.subsidiary,
-            value: res.subsidiary as unknown as string,
-            line
-        });
-        tranSublist.setSublistValue({
-            id: SUITELET_SUBLIST_FIELD_IDS.entity,
-            value: res.entity as unknown as string,
-            line
-        });
-        tranSublist.setSublistValue({
-            id: SUITELET_SUBLIST_FIELD_IDS.trannumber,
-            value: res.trannumber,
-            line
-        });
-        tranSublist.setSublistValue({
-            id: SUITELET_SUBLIST_FIELD_IDS.date,
-            value: format.format({
-                value: new Date(res.date),
-                type: format.Type.DATE
-            }),
-            line
-        });
-        tranSublist.setSublistValue({
-            id: SUITELET_SUBLIST_FIELD_IDS.amount,
-            value: res.amount as unknown as string,
-            line
-        });
+        let line = 0;
+        pageResults.forEach((res) => {
+            // log.debug({
+            //     title: `result sublist value ${line}`,
+            //     details: res
+            // });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.process,
+                value: "F",
+                line
+            });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.id,
+                value: res.id as unknown as string,
+                line
+            });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.type,
+                value: res.type,
+                line
+            });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.status,
+                value: res.status,
+                line
+            });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.subsidiary,
+                value: res.subsidiary as unknown as string,
+                line
+            });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.entity,
+                value: res.entity as unknown as string,
+                line
+            });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.trannumber,
+                value: res.trannumber,
+                line
+            });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.date,
+                value: format.format({
+                    value: new Date(res.date),
+                    type: format.Type.DATE
+                }),
+                line
+            });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.amount,
+                value: res.amount as unknown as string,
+                line
+            });
 
-        const tranUrl = url.resolveRecord({
-            recordId: res.id,
-            recordType: res.raw_type
-        });
-        tranSublist.setSublistValue({
-            id: SUITELET_SUBLIST_FIELD_IDS.tran_link,
-            value: `<a href="${tranUrl}">Link</a>`,
-            line
-        });
+            const tranUrl = url.resolveRecord({
+                recordId: res.id,
+                recordType: res.raw_type
+            });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.tran_link,
+                value: `<a href="${tranUrl}">Link</a>`,
+                line
+            });
 
-        line++;
-    });
+            line++;
+        });
+    }
 
     return slForm;
 };
