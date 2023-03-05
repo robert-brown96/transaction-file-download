@@ -66,6 +66,8 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
                 if (allTranTypes) {
                     // disable transaction select
                     tranTypeField.isDisabled = true;
+                    // reset transaction type filter
+                    params.typeArr = [];
                 }
                 else {
                     // enable transaction select

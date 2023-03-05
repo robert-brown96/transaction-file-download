@@ -84,6 +84,9 @@ export function fieldChanged(
             if (allTranTypes) {
                 // disable transaction select
                 tranTypeField.isDisabled = true;
+
+                // reset transaction type filter
+                params.typeArr = [];
             } else {
                 // enable transaction select
                 tranTypeField.isDisabled = false;
