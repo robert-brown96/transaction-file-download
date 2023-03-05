@@ -116,6 +116,44 @@ export function onRequest(
                 details: e
             });
         }
+    } else {
+        log.audit("post sl", context.request);
+
+        // get download options
+        const includeTranPrintout =
+            context.request.parameters[
+                SUITELET_FIELD_IDS.INCLUDE_PDF
+            ] === "T"
+                ? true
+                : false;
+        log.debug(
+            "includeTranPrintout",
+            includeTranPrintout
+        );
+
+        const includeAllFiles =
+            context.request.parameters[
+                SUITELET_FIELD_IDS.INCLUDE_ALL_FILES
+            ] === "T"
+                ? true
+                : false;
+        log.debug("includeAllFiles", includeAllFiles);
+        const concatFiles =
+            context.request.parameters[
+                SUITELET_FIELD_IDS.JOIN_PDFS
+            ] === "T"
+                ? true
+                : false;
+        log.debug("concatFiles", concatFiles);
+
+        // check if selected or full search
+        const selectIndividual =
+            context.request.parameters[
+                SUITELET_FIELD_IDS.INCLUDE_SELECTED
+            ] === "T"
+                ? true
+                : false;
+        log.debug("select individual", selectIndividual);
     }
 }
 

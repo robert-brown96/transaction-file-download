@@ -84,3 +84,10 @@ export interface IGetParams {
     tranStatuses: string[];
     selectTransactions: boolean;
 }
+
+export interface IPostServiceInit {
+    selectIndividual: boolean;
+    includeTranPrintout: boolean;
+    includeAllFiles: boolean;
+    concatFiles: boolean;
+}

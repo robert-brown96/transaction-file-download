@@ -74,6 +74,26 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
                 });
             }
         }
+        else {
+            log.audit("post sl", context.request);
+            // get download options
+            const includeTranPrintout = context.request.parameters[constants_1.SUITELET_FIELD_IDS.INCLUDE_PDF] === "T"
+                ? true
+                : false;
+            log.debug("includeTranPrintout", includeTranPrintout);
+            const includeAllFiles = context.request.parameters[constants_1.SUITELET_FIELD_IDS.INCLUDE_ALL_FILES] === "T"
+                ? true
+                : false;
+            log.debug("includeAllFiles", includeAllFiles);
+            const concatFiles = context.request.parameters[constants_1.SUITELET_FIELD_IDS.JOIN_PDFS] === "T"
+                ? true
+                : false;
+            log.debug("concatFiles", concatFiles);
+            const selectIndividual = context.request.parameters[constants_1.SUITELET_FIELD_IDS.INCLUDE_SELECTED] === "T"
+                ? true
+                : false;
+            log.debug("submit individual", selectIndividual);
+        }
     }
     exports.onRequest = onRequest;
     const _get = ({ pageId, scriptId, deploymentId, start, end, customer, subsidiary, allTypesParam, allStatusParam, selectTransactions, tranTypes, tranStatuses }) => {
@@ -452,3 +472,5 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         return slForm;
     };
 });
+// const _post = (context: EntryPoints.Suitelet.onRequestContext)=>{
+// }

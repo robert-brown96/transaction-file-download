@@ -40,3 +40,5 @@ export const SUITELET_SUBLIST_FIELD_IDS = {
     amount: "amount",
     tran_link: "tran_link"
 };
+
+export const OUTPUT_FOLDER_ID = 1264907;
