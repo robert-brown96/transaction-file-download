@@ -115,6 +115,14 @@ export class TransactionSearchService {
         });
     }
 
+    private getCustomerFilter(): search.Filter {
+        return search.createFilter({
+            name: "name",
+            operator: search.Operator.ANYOF,
+            values: this.entity
+        });
+    }
+
     public runSearch(pageSize: number) {
         if (this.start_date) {
             log.debug(
@@ -136,6 +144,11 @@ export class TransactionSearchService {
             const f = this.getEndDateFilter(this.end_date);
             this.searchFilters.push(f);
         }
+
+        if (this.entity)
+            this.searchFilters.push(
+                this.getCustomerFilter()
+            );
 
         const searchObj = search.create({
             type: this.searchType,

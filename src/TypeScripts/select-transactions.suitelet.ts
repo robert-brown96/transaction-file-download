@@ -325,7 +325,8 @@ const _get = ({
         ALL_TRAN_TYPES: true,
         TRAN_TYPES: [],
         TRAN_STATUS: [],
-        ...(end && { END_DATE: new Date(end) })
+        ...(end && { END_DATE: new Date(end) }),
+        ...(customer && { CUSTOMER: parseInt(customer) })
     });
     const transactionSearchPageData =
         tranSearchService.runSearch(PAGE_SIZE);

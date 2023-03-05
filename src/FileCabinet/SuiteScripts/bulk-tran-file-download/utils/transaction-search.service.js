@@ -84,6 +84,13 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
                 })
             });
         }
+        getCustomerFilter() {
+            return search.createFilter({
+                name: "name",
+                operator: search.Operator.ANYOF,
+                values: this.entity
+            });
+        }
         runSearch(pageSize) {
             if (this.start_date) {
                 log.debug("setting start param", this.start_date);
@@ -101,6 +108,8 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
                 const f = this.getEndDateFilter(this.end_date);
                 this.searchFilters.push(f);
             }
+            if (this.entity)
+                this.searchFilters.push(this.getCustomerFilter());
             const searchObj = search.create({
                 type: this.searchType,
                 filters: this.searchFilters,
