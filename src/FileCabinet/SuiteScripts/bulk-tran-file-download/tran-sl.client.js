@@ -7,6 +7,7 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getSuiteletPage = exports.resetFilterParams = exports.pageInit = exports.fieldChanged = void 0;
     function fieldChanged(context) {
+        let refreshSuitelet = false;
         const changedField = context.fieldId;
         const cr = currentRecord.get();
         console.log(`changed field ${changedField}`);
@@ -49,6 +50,7 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
                 });
                 newPageId = parseInt(pageIdVal.split("_")[1]);
                 params.page = newPageId;
+                refreshSuitelet = true;
                 // document.location = url.resolveScript({
                 //     scriptId: getParameterFromURL("script"),
                 //     deploymentId: getParameterFromURL("deploy"),
@@ -73,6 +75,7 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
                     // enable transaction select
                     tranTypeField.isDisabled = false;
                 }
+                refreshSuitelet = true;
                 break;
             }
             case constants_1.SUITELET_FIELD_IDS.ALL_STATUSES: {
@@ -90,29 +93,53 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
                     // enable transaction select
                     tranStatusField.isDisabled = false;
                 }
+                refreshSuitelet = true;
                 break;
             }
             case constants_1.SUITELET_FIELD_IDS.START_DATE: {
                 params.start = cr.getValue({
                     fieldId: constants_1.SUITELET_FIELD_IDS.START_DATE
                 });
+                refreshSuitelet = true;
+                break;
+            }
+            case constants_1.SUITELET_FIELD_IDS.END_DATE: {
+                refreshSuitelet = true;
+                break;
+            }
+            case constants_1.SUITELET_FIELD_IDS.CUSTOMER: {
+                refreshSuitelet = true;
+                break;
+            }
+            case constants_1.SUITELET_FIELD_IDS.SUBSIDIARY: {
+                refreshSuitelet = true;
+                break;
+            }
+            case constants_1.SUITELET_FIELD_IDS.TRAN_STATUS: {
+                refreshSuitelet = true;
+                break;
+            }
+            case constants_1.SUITELET_FIELD_IDS.TRAN_TYPES: {
+                refreshSuitelet = true;
                 break;
             }
             default: {
                 console.log(`no action for field ${changedField} - continuing`);
             }
         }
-        // base parameters for suitelet refresh retrieve
-        const scriptId = (0, util_module_1.getParameterFromURL)("script");
-        const deploymentId = (0, util_module_1.getParameterFromURL)("deploy");
-        params.typeArr = JSON.stringify(params.typeArr);
-        params.statusArr = JSON.stringify(params.statusArr);
-        window.onbeforeunload = null;
-        document.location = url.resolveScript({
-            scriptId,
-            deploymentId,
-            params: params
-        });
+        if (refreshSuitelet) {
+            // base parameters for suitelet refresh retrieve
+            const scriptId = (0, util_module_1.getParameterFromURL)("script");
+            const deploymentId = (0, util_module_1.getParameterFromURL)("deploy");
+            params.typeArr = JSON.stringify(params.typeArr);
+            params.statusArr = JSON.stringify(params.statusArr);
+            window.onbeforeunload = null;
+            document.location = url.resolveScript({
+                scriptId,
+                deploymentId,
+                params: params
+            });
+        }
     }
     exports.fieldChanged = fieldChanged;
     // export function lineinit(context: EntryPoints.Client.lineInitContext): void {}
