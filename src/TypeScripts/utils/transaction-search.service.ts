@@ -137,7 +137,7 @@ export class TransactionSearchService {
         });
     }
 
-    private buildSearchFilters() {
+    buildSearchFilters() {
         if (this.start_date) {
             const myNewFilter = this.getStartDateFilter(
                 this.start_date

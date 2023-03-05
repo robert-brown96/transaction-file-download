@@ -12,12 +12,15 @@ import {
     SUITELET_SUBLIST_FIELD_IDS,
     SUITELET_SUBLIST_ID
 } from "../constants";
+import { ProcessFileService } from "./process-file.service";
 export class PostService {
     selectIndividual: boolean;
     includeTranPrintout: boolean;
     includeAllFiles: boolean;
     concatFiles: boolean;
     request: http.ServerRequest;
+
+    processFileService: ProcessFileService;
 
     private searchFilters: search.Filter[] = [];
 
@@ -34,6 +37,14 @@ export class PostService {
         this.includeAllFiles = options.includeAllFiles;
         this.concatFiles = options.concatFiles;
         this.request = options.request;
+
+        this.processFileService = new ProcessFileService({
+            selectIndividual: options.selectIndividual,
+            includeTranPrintout:
+                options.includeTranPrintout,
+            includeAllFiles: options.includeAllFiles,
+            concatFiles: options.concatFiles
+        });
 
         this.searchFilters.push(
             search.createFilter({
@@ -75,7 +86,6 @@ export class PostService {
                 resultIds.push(parseInt(tranId));
             }
         }
-
         return resultIds;
     }
 }

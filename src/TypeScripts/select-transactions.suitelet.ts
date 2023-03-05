@@ -512,6 +512,12 @@ const _get = ({
     onlySelectedField.setHelpText({
         help: "Unchecking this box will process only checked transactions"
     });
+    slForm.addField({
+        id: "custpage_select_help_html",
+        type: serverWidget.FieldType.INLINEHTML,
+        label: " ",
+        container: "navigation_group"
+    }).defaultValue = `<p style='font-size:12px'>Check this box to select individual Transactions</p><br><br>`;
 
     for (let i = 0; i < pageCount; i++) {
         if (i == pageId)
@@ -630,8 +636,11 @@ const _post = ({
         request
     });
 
-    log.debug("process file service 1", postService);
+    log.debug("PostService", postService);
 
-    const idTest = postService.getSelectedIds();
-    log.debug("idTest", idTest);
+    const idRes = postService.getSelectedIds();
+    postService.processFileService.setTransactionIds(idRes);
+    log.debug("idRes", idRes);
+
+    postService.processFileService.writeProcessFile();
 };
