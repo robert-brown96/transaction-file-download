@@ -102,6 +102,12 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
                 }
                 break;
             }
+            case constants_1.SUITELET_FIELD_IDS.START_DATE: {
+                params.start = cr.getValue({
+                    fieldId: constants_1.SUITELET_FIELD_IDS.START_DATE
+                });
+                break;
+            }
             default: {
                 console.log(`no action for field ${changedField} - continuing`);
             }

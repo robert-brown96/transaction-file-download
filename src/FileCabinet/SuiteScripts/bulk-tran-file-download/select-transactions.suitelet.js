@@ -27,10 +27,12 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
                 const scriptId = context.request.parameters.script;
                 const deploymentId = context.request.parameters.deploy;
                 // form value parameters
+                const start = request.parameters.start ?? new Date();
                 const formRes = _get({
                     pageId,
                     scriptId,
-                    deploymentId
+                    deploymentId,
+                    start
                 });
                 response.writePage(formRes);
             }
@@ -43,7 +45,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         }
     }
     exports.onRequest = onRequest;
-    const _get = ({ pageId, scriptId, deploymentId }) => {
+    const _get = ({ pageId, scriptId, deploymentId, start }) => {
         const slForm = serverWidget.createForm({
             title: "Download Transaction Files in Bulk"
         });
@@ -91,8 +93,9 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             label: "Earliest Tran Date",
             container: "filters_group"
         });
-        startDateField.defaultValue =
-            new Date();
+        startDateField.defaultValue = start
+            ? new Date(start)
+            : "";
         // End Date
         slForm.addField({
             id: constants_1.SUITELET_FIELD_IDS.END_DATE,
@@ -338,7 +341,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
         let line = 0;
         pageResults.forEach((res) => {
             log.debug({
-                title: `result ${line}`,
+                title: `result sublist value ${line}`,
                 details: res
             });
             tranSublist.setSublistValue({

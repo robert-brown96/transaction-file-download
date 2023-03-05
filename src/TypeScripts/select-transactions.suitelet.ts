@@ -53,7 +53,8 @@ export function onRequest(
                 context.request.parameters.deploy;
 
             // form value parameters
-            const start = request.parameters.start;
+            const start =
+                request.parameters.start ?? new Date();
 
             const formRes = _get({
                 pageId,
@@ -135,7 +136,7 @@ const _get = ({
     });
     startDateField.defaultValue = start
         ? (new Date(start) as unknown as string)
-        : (new Date() as unknown as string);
+        : "";
     // End Date
     slForm.addField({
         id: SUITELET_FIELD_IDS.END_DATE,
@@ -423,7 +424,7 @@ const _get = ({
     let line = 0;
     pageResults.forEach((res) => {
         log.debug({
-            title: `result ${line}`,
+            title: `result sublist value ${line}`,
             details: res
         });
         tranSublist.setSublistValue({

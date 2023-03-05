@@ -3,7 +3,7 @@
  * @NApiVersion 2.1
  * @NModuleScope Public
  */
-define(["require", "exports", "N/log", "N/search"], function (require, exports, log, search) {
+define(["require", "exports", "N/format", "N/log", "N/search"], function (require, exports, format, log, search) {
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.TransactionSearchService = void 0;
     class TransactionSearchService {
@@ -67,7 +67,41 @@ define(["require", "exports", "N/log", "N/search"], function (require, exports, 
                 this.getTranTypeFilter()
             ]);
         }
+        // private getStartDateFilter(v: Date): search.Filter {
+        //     return search.createFilter({
+        //         name: "trandate",
+        //         operator: search.Operator.ONORAFTER,
+        //         values: v
+        //     });
+        // }
+        // private getEndDateFilter(v: Date): search.Filter {
+        //     return search.createFilter({
+        //         name: "trandate",
+        //         operator: search.Operator.ONORBEFORE,
+        //         values: v
+        //     });
+        // }
         runSearch(pageSize) {
+            log.debug("start param", this.start_date);
+            log.debug("setting start param", this.start_date);
+            if (this.start_date) {
+                log.debug("setting start param", this.start_date);
+                const myNewFilter = search.createFilter({
+                    name: "trandate",
+                    operator: search.Operator.ONORAFTER,
+                    values: format.format({
+                        value: new Date(this.start_date),
+                        type: format.Type.DATE
+                    })
+                });
+                this.searchFilters.push(myNewFilter);
+            }
+            // if (this.end_date) {
+            //     const f = this.getEndDateFilter(
+            //         this.start_date
+            //     );
+            //     this.searchFilters.push(f);
+            // }
             const searchObj = search.create({
                 type: this.searchType,
                 filters: this.searchFilters,
@@ -78,6 +112,10 @@ define(["require", "exports", "N/log", "N/search"], function (require, exports, 
                         value: "NONE"
                     })
                 ]
+            });
+            log.debug({
+                title: "search check",
+                details: JSON.stringify(searchObj)
             });
             return searchObj.runPaged({ pageSize });
         }
