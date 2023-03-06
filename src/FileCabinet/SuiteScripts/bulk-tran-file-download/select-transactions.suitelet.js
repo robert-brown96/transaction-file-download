@@ -4,7 +4,7 @@
  * @NModuleScope Public
  * @NScriptType Suitelet
  */
-define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget", "./utils/util.module", "./utils/tran-status-val.service", "./constants", "./utils/transaction-search.service", "./utils/suitelet.service"], function (require, exports, log, format, url, serverWidget, util_module_1, tran_status_val_service_1, constants_1, transaction_search_service_1, suitelet_service_1) {
+define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/serverWidget", "./utils/util.module", "./utils/tran-status-val.service", "./constants", "./utils/transaction-search.service", "./utils/suitelet.service"], function (require, exports, log, format, url, redirect, serverWidget, util_module_1, tran_status_val_service_1, constants_1, transaction_search_service_1, suitelet_service_1) {
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.onRequest = void 0;
     const PAGE_SIZE = 50;
@@ -101,6 +101,13 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
                 concatFiles,
                 request
             });
+            // send to map reduce status page if success
+            redirect.toTaskLink({
+                id: "LIST_MAPREDUCESCRIPTSTATUS",
+                parameters: {
+                    scripttype: (0, util_module_1.getScriptInternalId)(constants_1.FILE_DOWNLOAD_MR.scriptId)
+                }
+            });
         }
     }
     exports.onRequest = onRequest;
@@ -145,6 +152,9 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             container: "file_options_group"
         });
         includeAllFilesField.defaultValue = "F";
+        includeAllFilesField.updateDisplayType({
+            displayType: serverWidget.FieldDisplayType.HIDDEN
+        });
         const joinPdfFilesField = slForm.addField({
             type: serverWidget.FieldType.CHECKBOX,
             id: constants_1.SUITELET_FIELD_IDS.JOIN_PDFS,
@@ -315,6 +325,15 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             label: "Date",
             type: serverWidget.FieldType.TEXT
         });
+        const currencyField = tranSublist.addField({
+            id: constants_1.SUITELET_SUBLIST_FIELD_IDS.currency,
+            label: "Currency",
+            type: serverWidget.FieldType.SELECT,
+            source: "currency"
+        });
+        currencyField.updateDisplayType({
+            displayType: serverWidget.FieldDisplayType.INLINE
+        });
         tranSublist.addField({
             id: constants_1.SUITELET_SUBLIST_FIELD_IDS.amount,
             label: "Amount",
@@ -471,6 +490,11 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
                     value: res.amount,
                     line
                 });
+                tranSublist.setSublistValue({
+                    id: constants_1.SUITELET_SUBLIST_FIELD_IDS.currency,
+                    value: res.currency,
+                    line
+                });
                 const tranUrl = url.resolveRecord({
                     recordId: res.id,
                     recordType: res.raw_type
@@ -500,7 +524,9 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             const idRes = postService.getSelectedIds();
             postService.processFileService.setTransactionIds(idRes);
             log.debug("idRes", idRes);
-            postService.processFileService.writeProcessFile();
+            const resultFile = postService.processFileService.writeProcessFile();
+            const submittedTaskId = postService.invokeMapReduce(resultFile);
+            log.debug("my submittedTaskId", submittedTaskId);
         }
         else {
             // run search for ids
@@ -534,7 +560,9 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/ui/serverWidget",
             const idResults = searchService.searchAllIds();
             postService.processFileService.setTransactionIds(idResults);
             log.debug("my search service", idResults);
-            postService.processFileService.writeProcessFile();
+            const resultFile = postService.processFileService.writeProcessFile();
+            const submittedTaskId = postService.invokeMapReduce(resultFile);
+            log.debug("my submittedTaskId", submittedTaskId);
         }
     };
 });

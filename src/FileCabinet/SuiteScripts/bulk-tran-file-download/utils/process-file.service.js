@@ -36,6 +36,7 @@ define(["require", "exports", "N/file", "N/log", "../constants"], function (requ
             newFile.folder = constants_1.OUTPUT_FOLDER_ID;
             const newFileId = newFile.save();
             log.debug("newFileId", newFileId);
+            return newFileId;
         }
         setTransactionIds(vals) {
             this.transaction_ids.push(...vals);

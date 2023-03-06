@@ -9,11 +9,16 @@ import { EntryPoints } from "N/types";
 import log = require("N/log");
 import format = require("N/format");
 import url = require("N/url");
+import redirect = require("N/redirect");
 import serverWidget = require("N/ui/serverWidget");
 //import search = require("N/search");
-import { validateSuiteletMethod } from "./utils/util.module";
+import {
+    getScriptInternalId,
+    validateSuiteletMethod
+} from "./utils/util.module";
 import { TransactionStatusService } from "./utils/tran-status-val.service";
 import {
+    FILE_DOWNLOAD_MR,
     SUITELET_FIELD_IDS,
     SUITELET_SUBLIST_FIELD_IDS,
     SUITELET_SUBLIST_ID
@@ -164,6 +169,16 @@ export function onRequest(
             concatFiles,
             request
         });
+
+        // send to map reduce status page if success
+        redirect.toTaskLink({
+            id: "LIST_MAPREDUCESCRIPTSTATUS",
+            parameters: {
+                scripttype: getScriptInternalId(
+                    FILE_DOWNLOAD_MR.scriptId
+                )
+            }
+        });
     }
 }
 
@@ -230,6 +245,9 @@ const _get = ({
         container: "file_options_group"
     });
     includeAllFilesField.defaultValue = "F";
+    includeAllFilesField.updateDisplayType({
+        displayType: serverWidget.FieldDisplayType.HIDDEN
+    });
 
     const joinPdfFilesField = slForm.addField({
         type: serverWidget.FieldType.CHECKBOX,
@@ -430,6 +448,16 @@ const _get = ({
         label: "Date",
         type: serverWidget.FieldType.TEXT
     });
+
+    const currencyField = tranSublist.addField({
+        id: SUITELET_SUBLIST_FIELD_IDS.currency,
+        label: "Currency",
+        type: serverWidget.FieldType.SELECT,
+        source: "currency"
+    });
+    currencyField.updateDisplayType({
+        displayType: serverWidget.FieldDisplayType.INLINE
+    });
     tranSublist.addField({
         id: SUITELET_SUBLIST_FIELD_IDS.amount,
         label: "Amount",
@@ -603,6 +631,11 @@ const _get = ({
                 value: res.amount as unknown as string,
                 line
             });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.currency,
+                value: res.currency as unknown as string,
+                line
+            });
 
             const tranUrl = url.resolveRecord({
                 recordId: res.id,
@@ -647,7 +680,11 @@ const _post = ({
         );
         log.debug("idRes", idRes);
 
-        postService.processFileService.writeProcessFile();
+        const resultFile =
+            postService.processFileService.writeProcessFile();
+        const submittedTaskId =
+            postService.invokeMapReduce(resultFile);
+        log.debug("my submittedTaskId", submittedTaskId);
     } else {
         // run search for ids
         log.debug(
@@ -713,6 +750,11 @@ const _post = ({
             idResults
         );
         log.debug("my search service", idResults);
-        postService.processFileService.writeProcessFile();
+        const resultFile =
+            postService.processFileService.writeProcessFile();
+
+        const submittedTaskId =
+            postService.invokeMapReduce(resultFile);
+        log.debug("my submittedTaskId", submittedTaskId);
     }
 };

@@ -3,7 +3,7 @@
  * @NApiVersion 2.1
  * @NModuleScope Public
  */
-define(["require", "exports", "N/log", "N/search", "../constants", "./process-file.service"], function (require, exports, log, search, constants_1, process_file_service_1) {
+define(["require", "exports", "N/log", "N/search", "N/task", "../constants", "./process-file.service"], function (require, exports, log, search, task, constants_1, process_file_service_1) {
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.PostService = void 0;
     class PostService {
@@ -56,6 +56,18 @@ define(["require", "exports", "N/log", "N/search", "../constants", "./process-fi
                 }
             }
             return resultIds;
+        }
+        invokeMapReduce(fileId) {
+            const mrTask = task.create({
+                taskType: task.TaskType.MAP_REDUCE,
+                scriptId: constants_1.FILE_DOWNLOAD_MR.scriptId,
+                deploymentId: constants_1.FILE_DOWNLOAD_MR.deploymentId
+            });
+            // TODO: find out error when using variable object key for params
+            mrTask.params = {
+                custscript_scgtfd_mr_process_file_id: fileId
+            };
+            return mrTask.submit();
         }
     }
     exports.PostService = PostService;

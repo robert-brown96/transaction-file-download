@@ -70,6 +70,7 @@ export interface ITransactionResult {
     trannumber: string;
     date: Date;
     amount: string;
+    currency: string;
 }
 
 export interface IGetParams {
@@ -100,4 +101,10 @@ export interface IProcessFileInit {
     includeTranPrintout: boolean;
     includeAllFiles: boolean;
     concatFiles: boolean;
+}
+
+export interface IProcessFileValues {
+    submitted_at: Date;
+    process_options: IProcessFileInit;
+    transaction_ids: number[];
 }

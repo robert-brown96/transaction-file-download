@@ -7,8 +7,10 @@
 import { IPostServiceInit } from "../globals";
 import log = require("N/log");
 import search = require("N/search");
+import task = require("N/task");
 import http = require("N/http");
 import {
+    FILE_DOWNLOAD_MR,
     SUITELET_SUBLIST_FIELD_IDS,
     SUITELET_SUBLIST_ID
 } from "../constants";
@@ -87,5 +89,18 @@ export class PostService {
             }
         }
         return resultIds;
+    }
+
+    invokeMapReduce(fileId: number): string {
+        const mrTask = task.create({
+            taskType: task.TaskType.MAP_REDUCE,
+            scriptId: FILE_DOWNLOAD_MR.scriptId,
+            deploymentId: FILE_DOWNLOAD_MR.deploymentId
+        });
+        // TODO: find out error when using variable object key for params
+        mrTask.params = {
+            custscript_scgtfd_mr_process_file_id: fileId
+        };
+        return mrTask.submit();
     }
 }
