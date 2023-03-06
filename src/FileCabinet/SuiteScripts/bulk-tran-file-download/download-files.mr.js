@@ -4,7 +4,7 @@
  * @NModuleScope Public
  * @NScriptType MapReduceScript
  */
-define(["require", "exports", "N/log", "N/runtime", "N/file", "N/error", "N/render", "./constants", "./utils/util.module"], function (require, exports, log, runtime, file, error, render, constants_1, util_module_1) {
+define(["require", "exports", "N/log", "N/runtime", "N/file", "N/error", "N/render", "N/xml", "./constants", "./utils/util.module"], function (require, exports, log, runtime, file, error, render, xml, constants_1, util_module_1) {
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.summarize = exports.reduce = exports.map = exports.getInputData = void 0;
     function getInputData(context) {
@@ -29,6 +29,7 @@ define(["require", "exports", "N/log", "N/runtime", "N/file", "N/error", "N/rend
     exports.map = map;
     function reduce(context) {
         log.debug("reduce", context);
+        const fileContent = getProcessFileContent();
         const tranId = context.key;
         const pdfFile = render.transaction({
             entityId: parseInt(tranId),
@@ -39,10 +40,22 @@ define(["require", "exports", "N/log", "N/runtime", "N/file", "N/error", "N/rend
         pdfFile.isOnline = true;
         const savedFileId = pdfFile.save();
         log.debug("created pdfFile savedFileId", savedFileId);
-        context.write({
-            key: "new_ids",
-            value: String(savedFileId)
-        });
+        if (fileContent.process_options.concatFiles) {
+            // get xml for concat data
+            const fileObj = file.load({ id: savedFileId });
+            const xmlData = xml.escape({
+                xmlText: fileObj.url
+            });
+            context.write({
+                key: String(savedFileId),
+                value: xmlData
+            });
+        }
+        else
+            context.write({
+                key: String(savedFileId),
+                value: ""
+            });
     }
     exports.reduce = reduce;
     function summarize(context) {
@@ -53,17 +66,45 @@ define(["require", "exports", "N/log", "N/runtime", "N/file", "N/error", "N/rend
         });
         log.audit("Count of Map Errors", mapErrors.length);
         log.audit("Count of Reduce Errors", reduceErrors.length);
-        try {
-            const tranIds = [];
+        const fileContent = getProcessFileContent();
+        if (fileContent.process_options.concatFiles) {
+            try {
+                const tranIds = [];
+                const xmlStrings = [
+                    '<?xml version="1.0"?>\n<!DOCTYPE pdf.html PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">',
+                    "<pdfset>"
+                ];
+                context.output.iterator().each((key, value) => {
+                    log.debug(`key ${key}`, `value ${value}`);
+                    tranIds.push(parseInt(key));
+                    xmlStrings.push("<pdf src='" + value + "'/>");
+                    return true;
+                });
+                log.debug("xml string array", xmlStrings);
+                xmlStrings.push("</pdfset>");
+                const consolPdf = render.xmlToPdf({
+                    xmlString: xmlStrings.join("\n")
+                });
+                consolPdf.name = `${constants_1.CONSOL_FILE_NAME_PREFIX}_${new Date().toISOString()}.pdf.html`;
+                consolPdf.folder = constants_1.CONSOL_PDF_OUTPUT_FOLDER_ID;
+                const consolFileId = consolPdf.save();
+                log.debug({
+                    title: "SAVED CONSOLIDATED FILE",
+                    details: consolFileId
+                });
+            }
+            catch (e) {
+                log.error(`error consolidating pdfs`, e);
+            }
+        }
+        else {
+            const fileIds = [];
             context.output.iterator().each((key, value) => {
                 log.debug(`key ${key}`, `value ${value}`);
-                tranIds.push(parseInt(value));
+                fileIds.push(parseInt(key));
                 return true;
             });
-            log.debug("all pdf ids", tranIds);
-        }
-        catch (e) {
-            log.error(`error consolidating pdfs`, e);
+            log.audit("Successful Processing", `Processed ${fileIds.length} files`);
         }
     }
     exports.summarize = summarize;

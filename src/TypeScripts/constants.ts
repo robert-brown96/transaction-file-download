@@ -57,3 +57,4 @@ export const INDVIDUAL_PDF_OUTPUT_FOLDER_ID = 1264908;
 export const CONSOL_PDF_OUTPUT_FOLDER_ID = 1265009;
 export const PROCESS_FILE_NAME_PREFIX =
     "download_process_file";
+export const CONSOL_FILE_NAME_PREFIX = "consolidated_pdf";

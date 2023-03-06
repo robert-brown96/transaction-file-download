@@ -11,7 +11,10 @@ import runtime = require("N/runtime");
 import file = require("N/file");
 import error = require("N/error");
 import render = require("N/render");
+import xml = require("N/xml");
 import {
+    CONSOL_FILE_NAME_PREFIX,
+    CONSOL_PDF_OUTPUT_FOLDER_ID,
     FILE_DOWNLOAD_MR_PARAMS,
     INDVIDUAL_PDF_OUTPUT_FOLDER_ID
 } from "./constants";
@@ -51,6 +54,8 @@ export function reduce(
 ): void {
     log.debug("reduce", context);
 
+    const fileContent = getProcessFileContent();
+
     const tranId = context.key;
 
     const pdfFile = render.transaction({
@@ -63,10 +68,25 @@ export function reduce(
     pdfFile.isOnline = true;
     const savedFileId = pdfFile.save();
     log.debug("created pdfFile savedFileId", savedFileId);
-    context.write({
-        key: "new_ids",
-        value: String(savedFileId)
-    });
+
+    if (fileContent.process_options.concatFiles) {
+        // get xml for concat data
+
+        const fileObj = file.load({ id: savedFileId });
+
+        const xmlData = xml.escape({
+            xmlText: fileObj.url
+        });
+
+        context.write({
+            key: String(savedFileId),
+            value: xmlData
+        });
+    } else
+        context.write({
+            key: String(savedFileId),
+            value: ""
+        });
 }
 
 export function summarize(
@@ -85,18 +105,54 @@ export function summarize(
         reduceErrors.length
     );
 
-    try {
-        const tranIds: number[] = [];
+    const fileContent = getProcessFileContent();
+    if (fileContent.process_options.concatFiles) {
+        try {
+            const tranIds: number[] = [];
+            const xmlStrings: string[] = [
+                '<?xml version="1.0"?>\n<!DOCTYPE pdf.html PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">',
+                "<pdfset>"
+            ];
+            context.output.iterator().each((key, value) => {
+                log.debug(`key ${key}`, `value ${value}`);
+
+                tranIds.push(parseInt(key));
+                xmlStrings.push(
+                    "<pdf src='" + value + "'/>"
+                );
+
+                return true;
+            });
+            log.debug("xml string array", xmlStrings);
+
+            xmlStrings.push("</pdfset>");
+
+            const consolPdf = render.xmlToPdf({
+                xmlString: xmlStrings.join("\n")
+            });
+            consolPdf.name = `${CONSOL_FILE_NAME_PREFIX}_${new Date().toISOString()}.pdf.html`;
+            consolPdf.folder = CONSOL_PDF_OUTPUT_FOLDER_ID;
+            const consolFileId = consolPdf.save();
+            log.debug({
+                title: "SAVED CONSOLIDATED FILE",
+                details: consolFileId
+            });
+        } catch (e) {
+            log.error(`error consolidating pdfs`, e);
+        }
+    } else {
+        const fileIds: number[] = [];
         context.output.iterator().each((key, value) => {
             log.debug(`key ${key}`, `value ${value}`);
 
-            tranIds.push(parseInt(value));
+            fileIds.push(parseInt(key));
 
             return true;
         });
-        log.debug("all pdf ids", tranIds);
-    } catch (e) {
-        log.error(`error consolidating pdfs`, e);
+        log.audit(
+            "Successful Processing",
+            `Processed ${fileIds.length} files`
+        );
     }
 }
 
