@@ -16,8 +16,17 @@ export const FILE_DOWNLOAD_MR: ISCRIPT_RUN = {
     deploymentId: "customdeploy_scgtfd_download_files"
 };
 
+export const FILE_DELETE_MR: ISCRIPT_RUN = {
+    scriptId: "customscript_scgtfd_delete_files",
+    deploymentId: "customdeploy_scgtfd_delete_files"
+};
+
 export const FILE_DOWNLOAD_MR_PARAMS = {
     fileId: "custscript_scgtfd_mr_process_file_id"
+};
+
+export const FILE_DELETE_MR_PARAMS = {
+    deleteConsol: "custscript_scgtfd_mr_del_consol"
 };
 
 export const SUITELET_FIELD_IDS = {

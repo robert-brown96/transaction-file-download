@@ -12,14 +12,20 @@
       <allemployees>F</allemployees>
       <allpartners>F</allpartners>
       <allroles>F</allroles>
-      <audslctrole></audslctrole>
+      <audslctrole>ADMINISTRATOR</audslctrole>
       <eventtype></eventtype>
       <isdeployed>T</isdeployed>
       <isonline>F</isonline>
-      <loglevel>DEBUG</loglevel>
+      <loglevel>AUDIT</loglevel>
       <runasrole>ADMINISTRATOR</runasrole>
-      <status>TESTING</status>
+      <status>RELEASED</status>
       <title>SCG | SL | Select Transactions</title>
+      <links>
+        <link>
+          <linkcategory>BASICTRANSACTIONSMANAGEMENT</linkcategory>
+          <linklabel>Bulk Download Files</linklabel>
+        </link>
+      </links>
     </scriptdeployment>
   </scriptdeployments>
 </suitelet>

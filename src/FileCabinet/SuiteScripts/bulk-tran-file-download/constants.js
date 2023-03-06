@@ -5,7 +5,7 @@
  */
 define(["require", "exports"], function (require, exports) {
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.CONSOL_FILE_NAME_PREFIX = exports.PROCESS_FILE_NAME_PREFIX = exports.CONSOL_PDF_OUTPUT_FOLDER_ID = exports.INDVIDUAL_PDF_OUTPUT_FOLDER_ID = exports.OUTPUT_FOLDER_ID = exports.SUITELET_SUBLIST_ID = exports.SUITELET_SUBLIST_FIELD_IDS = exports.SUITELET_FIELD_IDS = exports.FILE_DOWNLOAD_MR_PARAMS = exports.FILE_DOWNLOAD_MR = exports.TRAN_SELECT_SUITELET = void 0;
+    exports.CONSOL_FILE_NAME_PREFIX = exports.PROCESS_FILE_NAME_PREFIX = exports.CONSOL_PDF_OUTPUT_FOLDER_ID = exports.INDVIDUAL_PDF_OUTPUT_FOLDER_ID = exports.OUTPUT_FOLDER_ID = exports.SUITELET_SUBLIST_ID = exports.SUITELET_SUBLIST_FIELD_IDS = exports.SUITELET_FIELD_IDS = exports.FILE_DELETE_MR_PARAMS = exports.FILE_DOWNLOAD_MR_PARAMS = exports.FILE_DELETE_MR = exports.FILE_DOWNLOAD_MR = exports.TRAN_SELECT_SUITELET = void 0;
     exports.TRAN_SELECT_SUITELET = {
         scriptId: "customscript_scgtfd_select_suitelet",
         deploymentId: "customdeploy_scgtfd_select_suitelet"
@@ -14,8 +14,15 @@ define(["require", "exports"], function (require, exports) {
         scriptId: "customscript_scgtfd_download_files",
         deploymentId: "customdeploy_scgtfd_download_files"
     };
+    exports.FILE_DELETE_MR = {
+        scriptId: "customscript_scgtfd_delete_files",
+        deploymentId: "customdeploy_scgtfd_delete_files"
+    };
     exports.FILE_DOWNLOAD_MR_PARAMS = {
         fileId: "custscript_scgtfd_mr_process_file_id"
+    };
+    exports.FILE_DELETE_MR_PARAMS = {
+        deleteConsol: "custscript_scgtfd_mr_del_consol"
     };
     exports.SUITELET_FIELD_IDS = {
         ALL_TRAN_TYPES: "custpage_tran_type_all",

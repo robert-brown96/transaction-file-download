@@ -1,13 +1,13 @@
-<mapreducescript scriptid="customscript_scgtfd_download_files">
+<mapreducescript scriptid="customscript_scgtfd_delete_files">
   <description></description>
   <isinactive>F</isinactive>
-  <name>SCG | MR | Download</name>
+  <name>SCG | MR | Delete Files</name>
   <notifyadmins>F</notifyadmins>
   <notifyemails></notifyemails>
   <notifyowner>T</notifyowner>
-  <scriptfile>[/SuiteScripts/bulk-tran-file-download/download-files.mr.js]</scriptfile>
+  <scriptfile>[/SuiteScripts/bulk-tran-file-download/delete-files.mr.js]</scriptfile>
   <scriptcustomfields>
-    <scriptcustomfield scriptid="custscript_scgtfd_mr_process_file_id">
+    <scriptcustomfield scriptid="custscript_scgtfd_mr_del_consol">
       <accesslevel>2</accesslevel>
       <applyformatting>T</applyformatting>
       <checkspelling>F</checkspelling>
@@ -19,11 +19,11 @@
       <displaytype>NORMAL</displaytype>
       <displaywidth></displaywidth>
       <dynamicdefault></dynamicdefault>
-      <fieldtype>INTEGER</fieldtype>
+      <fieldtype>CHECKBOX</fieldtype>
       <help></help>
       <isformula>F</isformula>
       <ismandatory>F</ismandatory>
-      <label>Process File ID</label>
+      <label>Delete Consolidated Files</label>
       <linktext></linktext>
       <maxlength></maxlength>
       <maxvalue></maxvalue>
@@ -36,16 +36,16 @@
     </scriptcustomfield>
   </scriptcustomfields>
   <scriptdeployments>
-    <scriptdeployment scriptid="customdeploy_scgtfd_download_files">
+    <scriptdeployment scriptid="customdeploy_scgtfd_delete_files">
       <buffersize>1</buffersize>
       <concurrencylimit>2</concurrencylimit>
-      <custscript_scgtfd_mr_process_file_id>1468431</custscript_scgtfd_mr_process_file_id>
+      <custscript_scgtfd_mr_del_consol></custscript_scgtfd_mr_del_consol>
       <isdeployed>T</isdeployed>
       <loglevel>DEBUG</loglevel>
       <queueallstagesatonce>T</queueallstagesatonce>
       <runasrole>ADMINISTRATOR</runasrole>
       <status>NOTSCHEDULED</status>
-      <title>SCG | MR | Download</title>
+      <title>SCG | MR | Delete Files</title>
       <yieldaftermins>60</yieldaftermins>
       <recurrence>
         <single>

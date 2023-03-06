@@ -125,8 +125,6 @@ define(["require", "exports", "N/log", "N/runtime", "N/file", "N/error", "N/rend
         const parsedContent = contents
             ? JSON.parse(contents)
             : {};
-        log.debug(`loaded file contents`, contents);
-        log.debug(`loaded file tran ids`, parsedContent.transaction_ids);
         return parsedContent;
     };
 });
