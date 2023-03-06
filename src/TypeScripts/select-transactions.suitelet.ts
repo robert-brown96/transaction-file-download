@@ -245,6 +245,9 @@ const _get = ({
         container: "file_options_group"
     });
     includeAllFilesField.defaultValue = "F";
+    includeAllFilesField.updateDisplayType({
+        displayType: serverWidget.FieldDisplayType.HIDDEN
+    });
 
     const joinPdfFilesField = slForm.addField({
         type: serverWidget.FieldType.CHECKBOX,

@@ -152,6 +152,9 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
             container: "file_options_group"
         });
         includeAllFilesField.defaultValue = "F";
+        includeAllFilesField.updateDisplayType({
+            displayType: serverWidget.FieldDisplayType.HIDDEN
+        });
         const joinPdfFilesField = slForm.addField({
             type: serverWidget.FieldType.CHECKBOX,
             id: constants_1.SUITELET_FIELD_IDS.JOIN_PDFS,

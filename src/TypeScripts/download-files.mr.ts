@@ -179,10 +179,5 @@ const getProcessFileContent = (): IProcessFileValues => {
         ? JSON.parse(contents)
         : {};
 
-    log.debug(`loaded file contents`, contents);
-    log.debug(
-        `loaded file tran ids`,
-        parsedContent.transaction_ids
-    );
     return parsedContent;
 };
