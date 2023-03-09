@@ -4,6 +4,8 @@
  * @NModuleScope Public
  */
 
+import http = require("N/http");
+
 export type TSUITELET_METHOD = "GET" | "POST";
 
 export type TPicklistOption = {
@@ -68,6 +70,7 @@ export interface ITransactionResult {
     trannumber: string;
     date: Date;
     amount: string;
+    currency: string;
 }
 
 export interface IGetParams {
@@ -83,4 +86,25 @@ export interface IGetParams {
     tranTypes: string[];
     tranStatuses: string[];
     selectTransactions: boolean;
+}
+
+export interface IPostServiceInit {
+    selectIndividual: boolean;
+    includeTranPrintout: boolean;
+    includeAllFiles: boolean;
+    concatFiles: boolean;
+    request: http.ServerRequest;
+}
+
+export interface IProcessFileInit {
+    selectIndividual: boolean;
+    includeTranPrintout: boolean;
+    includeAllFiles: boolean;
+    concatFiles: boolean;
+}
+
+export interface IProcessFileValues {
+    submitted_at: Date;
+    process_options: IProcessFileInit;
+    transaction_ids: number[];
 }

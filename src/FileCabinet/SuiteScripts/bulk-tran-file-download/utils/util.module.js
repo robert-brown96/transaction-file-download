@@ -3,9 +3,9 @@
  * @NApiVersion 2.1
  * @NModuleScope Public
  */
-define(["require", "exports", "N/log", "N/query", "N/error"], function (require, exports, log, query, error) {
+define(["require", "exports", "N/log", "N/query", "N/error", "N/search"], function (require, exports, log, query, error, search) {
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getParameterFromURL = exports.summarizeLogger = exports.queryReturn = exports.validateSuiteletMethod = void 0;
+    exports.getTransactionType = exports.getScriptInternalId = exports.getParameterFromURL = exports.summarizeLogger = exports.queryReturn = exports.validateSuiteletMethod = void 0;
     /**
      *
      * @param tempMethod
@@ -140,4 +140,55 @@ define(["require", "exports", "N/log", "N/query", "N/error"], function (require,
         });
     }
     exports.getParameterFromURL = getParameterFromURL;
+    /**
+     * Returns the internal id of the given script
+     *
+     * @appliedtorecord script
+     *
+     * @param {Array} scriptId: identifier given to this script
+     * @returns {Number|null}
+     */
+    const getScriptInternalId = (scriptId) => {
+        let scriptInternalId = "";
+        const scriptSearch = search.create({
+            type: "script",
+            columns: ["internalid"],
+            filters: [
+                ["scriptid", search.Operator.IS, scriptId]
+            ]
+        });
+        const resultSet = scriptSearch
+            .run()
+            .getRange({ start: 0, end: 1000 });
+        if (resultSet && resultSet.length > 0)
+            scriptInternalId = resultSet[0].id;
+        return scriptInternalId ? scriptInternalId : null;
+    };
+    exports.getScriptInternalId = getScriptInternalId;
+    const getTransactionType = (transactionId) => {
+        if (!transactionId)
+            return "";
+        const tranTypeA = search.lookupFields({
+            type: search.Type.TRANSACTION,
+            id: transactionId,
+            columns: "type"
+        });
+        const typeVal = tranTypeA.type;
+        log.debug({
+            title: "TranType",
+            details: typeVal[0].value
+        });
+        let tranType;
+        if (typeVal[0].value == "SalesOrd") {
+            tranType = "salesorder";
+        }
+        else if (typeVal[0].value == "CustInvc") {
+            tranType = "invoice";
+        }
+        else {
+            tranType = "creditmemo";
+        }
+        return tranType;
+    };
+    exports.getTransactionType = getTransactionType;
 });

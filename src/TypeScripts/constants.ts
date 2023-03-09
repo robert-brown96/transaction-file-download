@@ -11,6 +11,24 @@ export const TRAN_SELECT_SUITELET: ISCRIPT_RUN = {
     deploymentId: "customdeploy_scgtfd_select_suitelet"
 };
 
+export const FILE_DOWNLOAD_MR: ISCRIPT_RUN = {
+    scriptId: "customscript_scgtfd_download_files",
+    deploymentId: "customdeploy_scgtfd_download_files"
+};
+
+export const FILE_DELETE_MR: ISCRIPT_RUN = {
+    scriptId: "customscript_scgtfd_delete_files",
+    deploymentId: "customdeploy_scgtfd_delete_files"
+};
+
+export const FILE_DOWNLOAD_MR_PARAMS = {
+    fileId: "custscript_scgtfd_mr_process_file_id"
+};
+
+export const FILE_DELETE_MR_PARAMS = {
+    deleteConsol: "custscript_scgtfd_mr_del_consol"
+};
+
 export const SUITELET_FIELD_IDS = {
     ALL_TRAN_TYPES: "custpage_tran_type_all",
     ALL_STATUSES: "custpage_tran_status_all",
@@ -37,6 +55,15 @@ export const SUITELET_SUBLIST_FIELD_IDS = {
     entity: "entity",
     trannumber: "trannumber",
     date: "date",
+    currency: "currency",
     amount: "amount",
     tran_link: "tran_link"
 };
+
+export const SUITELET_SUBLIST_ID = "custpage_tran_list";
+export const OUTPUT_FOLDER_ID = 1264907;
+export const INDVIDUAL_PDF_OUTPUT_FOLDER_ID = 1264908;
+export const CONSOL_PDF_OUTPUT_FOLDER_ID = 1265009;
+export const PROCESS_FILE_NAME_PREFIX =
+    "download_process_file";
+export const CONSOL_FILE_NAME_PREFIX = "consolidated_pdf";

@@ -9,16 +9,23 @@ import { EntryPoints } from "N/types";
 import log = require("N/log");
 import format = require("N/format");
 import url = require("N/url");
+import redirect = require("N/redirect");
 import serverWidget = require("N/ui/serverWidget");
 //import search = require("N/search");
-import { validateSuiteletMethod } from "./utils/util.module";
+import {
+    getScriptInternalId,
+    validateSuiteletMethod
+} from "./utils/util.module";
 import { TransactionStatusService } from "./utils/tran-status-val.service";
 import {
+    FILE_DOWNLOAD_MR,
     SUITELET_FIELD_IDS,
-    SUITELET_SUBLIST_FIELD_IDS
+    SUITELET_SUBLIST_FIELD_IDS,
+    SUITELET_SUBLIST_ID
 } from "./constants";
 import { TransactionSearchService } from "./utils/transaction-search.service";
-import { IGetParams } from "./globals";
+import { IGetParams, IPostServiceInit } from "./globals";
+import { PostService } from "./utils/suitelet.service";
 
 const PAGE_SIZE = 50;
 
@@ -116,6 +123,62 @@ export function onRequest(
                 details: e
             });
         }
+    } else {
+        log.audit("post sl", context.request);
+
+        // get download options
+        const includeTranPrintout =
+            context.request.parameters[
+                SUITELET_FIELD_IDS.INCLUDE_PDF
+            ] === "T"
+                ? true
+                : false;
+        log.debug(
+            "includeTranPrintout",
+            includeTranPrintout
+        );
+
+        const includeAllFiles =
+            context.request.parameters[
+                SUITELET_FIELD_IDS.INCLUDE_ALL_FILES
+            ] === "T"
+                ? true
+                : false;
+        log.debug("includeAllFiles", includeAllFiles);
+        const concatFiles =
+            context.request.parameters[
+                SUITELET_FIELD_IDS.JOIN_PDFS
+            ] === "T"
+                ? true
+                : false;
+        log.debug("concatFiles", concatFiles);
+
+        // check if selected or full search
+        const selectIndividual =
+            context.request.parameters[
+                SUITELET_FIELD_IDS.INCLUDE_SELECTED
+            ] === "T"
+                ? true
+                : false;
+        log.debug("select individual", selectIndividual);
+
+        _post({
+            includeAllFiles,
+            includeTranPrintout,
+            selectIndividual,
+            concatFiles,
+            request
+        });
+
+        // send to map reduce status page if success
+        redirect.toTaskLink({
+            id: "LIST_MAPREDUCESCRIPTSTATUS",
+            parameters: {
+                scripttype: getScriptInternalId(
+                    FILE_DOWNLOAD_MR.scriptId
+                )
+            }
+        });
     }
 }
 
@@ -182,6 +245,9 @@ const _get = ({
         container: "file_options_group"
     });
     includeAllFilesField.defaultValue = "F";
+    includeAllFilesField.updateDisplayType({
+        displayType: serverWidget.FieldDisplayType.HIDDEN
+    });
 
     const joinPdfFilesField = slForm.addField({
         type: serverWidget.FieldType.CHECKBOX,
@@ -303,7 +369,7 @@ const _get = ({
 
     // create sublist for transactions
     const tranSublist = slForm.addSublist({
-        id: "custpage_tran_list",
+        id: SUITELET_SUBLIST_ID,
         label: "Transaction Sublist",
         type: serverWidget.SublistType.LIST
     });
@@ -381,6 +447,16 @@ const _get = ({
         id: SUITELET_SUBLIST_FIELD_IDS.date,
         label: "Date",
         type: serverWidget.FieldType.TEXT
+    });
+
+    const currencyField = tranSublist.addField({
+        id: SUITELET_SUBLIST_FIELD_IDS.currency,
+        label: "Currency",
+        type: serverWidget.FieldType.SELECT,
+        source: "currency"
+    });
+    currencyField.updateDisplayType({
+        displayType: serverWidget.FieldDisplayType.INLINE
     });
     tranSublist.addField({
         id: SUITELET_SUBLIST_FIELD_IDS.amount,
@@ -464,6 +540,12 @@ const _get = ({
     onlySelectedField.setHelpText({
         help: "Unchecking this box will process only checked transactions"
     });
+    slForm.addField({
+        id: "custpage_select_help_html",
+        type: serverWidget.FieldType.INLINEHTML,
+        label: " ",
+        container: "navigation_group"
+    }).defaultValue = `<p style='font-size:12px'>Check this box to select individual Transactions</p><br><br>`;
 
     for (let i = 0; i < pageCount; i++) {
         if (i == pageId)
@@ -549,6 +631,11 @@ const _get = ({
                 value: res.amount as unknown as string,
                 line
             });
+            tranSublist.setSublistValue({
+                id: SUITELET_SUBLIST_FIELD_IDS.currency,
+                value: res.currency as unknown as string,
+                line
+            });
 
             const tranUrl = url.resolveRecord({
                 recordId: res.id,
@@ -565,4 +652,109 @@ const _get = ({
     }
 
     return slForm;
+};
+
+const _post = ({
+    selectIndividual,
+    includeTranPrintout,
+    includeAllFiles,
+    concatFiles,
+    request
+}: IPostServiceInit) => {
+    const postService = new PostService({
+        selectIndividual,
+        includeAllFiles,
+        includeTranPrintout,
+        concatFiles,
+        request
+    });
+
+    log.debug("PostService", postService);
+
+    // submit only selected transactions
+    if (selectIndividual) {
+        // get selected ids
+        const idRes = postService.getSelectedIds();
+        postService.processFileService.setTransactionIds(
+            idRes
+        );
+        log.debug("idRes", idRes);
+
+        const resultFile =
+            postService.processFileService.writeProcessFile();
+        const submittedTaskId =
+            postService.invokeMapReduce(resultFile);
+        log.debug("my submittedTaskId", submittedTaskId);
+    } else {
+        // run search for ids
+        log.debug(
+            "find filters",
+            postService.selectIndividual
+        );
+
+        const start =
+            request.parameters[
+                SUITELET_FIELD_IDS.START_DATE
+            ];
+
+        const end =
+            request.parameters[SUITELET_FIELD_IDS.END_DATE];
+
+        const customer =
+            request.parameters[SUITELET_FIELD_IDS.CUSTOMER];
+
+        const subsidiary =
+            request.parameters[
+                SUITELET_FIELD_IDS.SUBSIDIARY
+            ];
+
+        const allTypesParam =
+            request.parameters[
+                SUITELET_FIELD_IDS.ALL_TRAN_TYPES
+            ] === "false"
+                ? false
+                : true;
+
+        const allStatusParam =
+            request.parameters[
+                SUITELET_FIELD_IDS.ALL_STATUSES
+            ] === "false"
+                ? false
+                : true;
+
+        const tranTypesRaw =
+            request.parameters[
+                SUITELET_FIELD_IDS.TRAN_TYPES
+            ];
+
+        const tranStatusRaw =
+            request.parameters[
+                SUITELET_FIELD_IDS.TRAN_STATUS
+            ];
+        const searchService = new TransactionSearchService({
+            START_DATE: new Date(start),
+            ALL_STATUSES: allStatusParam,
+            ALL_TRAN_TYPES: allTypesParam,
+            TRAN_TYPES: tranTypesRaw,
+            TRAN_STATUS: tranStatusRaw,
+            ...(end && { END_DATE: new Date(end) }),
+            ...(customer && {
+                CUSTOMER: parseInt(customer)
+            }),
+            ...(subsidiary && {
+                SUBSIDIARY: parseInt(subsidiary)
+            })
+        });
+        const idResults = searchService.searchAllIds();
+        postService.processFileService.setTransactionIds(
+            idResults
+        );
+        log.debug("my search service", idResults);
+        const resultFile =
+            postService.processFileService.writeProcessFile();
+
+        const submittedTaskId =
+            postService.invokeMapReduce(resultFile);
+        log.debug("my submittedTaskId", submittedTaskId);
+    }
 };

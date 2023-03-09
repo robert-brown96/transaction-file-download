@@ -7,6 +7,7 @@
 import log = require("N/log");
 import query = require("N/query");
 import error = require("N/error");
+import search = require("N/search");
 
 import { EntryPoints } from "N/types";
 import { IMrError, TSUITELET_METHOD } from "../globals";
@@ -167,3 +168,59 @@ export function getParameterFromURL(param: string): string {
         notifyOff: true
     });
 }
+
+/**
+ * Returns the internal id of the given script
+ *
+ * @appliedtorecord script
+ *
+ * @param {Array} scriptId: identifier given to this script
+ * @returns {Number|null}
+ */
+export const getScriptInternalId = (scriptId: string) => {
+    let scriptInternalId = "";
+
+    const scriptSearch = search.create({
+        type: "script",
+        columns: ["internalid"],
+        filters: [
+            ["scriptid", search.Operator.IS, scriptId]
+        ]
+    });
+    const resultSet = scriptSearch
+        .run()
+        .getRange({ start: 0, end: 1000 });
+
+    if (resultSet && resultSet.length > 0)
+        scriptInternalId = resultSet[0].id;
+
+    return scriptInternalId ? scriptInternalId : null;
+};
+
+export const getTransactionType = (
+    transactionId: string | number
+) => {
+    if (!transactionId) return "";
+    const tranTypeA = search.lookupFields({
+        type: search.Type.TRANSACTION,
+        id: transactionId,
+        columns: "type"
+    });
+
+    const typeVal = tranTypeA.type as any[];
+
+    log.debug({
+        title: "TranType",
+        details: typeVal[0].value
+    });
+    let tranType;
+    if (typeVal[0].value == "SalesOrd") {
+        tranType = "salesorder";
+    } else if (typeVal[0].value == "CustInvc") {
+        tranType = "invoice";
+    } else {
+        tranType = "creditmemo";
+    }
+
+    return tranType;
+};
