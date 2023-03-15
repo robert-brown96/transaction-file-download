@@ -148,6 +148,10 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
                 filters: this.searchFilters,
                 columns: [this.transactionSearchColType]
             });
+            log.debug({
+                title: "search check",
+                details: JSON.stringify(searchObj)
+            });
             const pagedSearchData = searchObj.runPaged({
                 pageSize: 900
             });

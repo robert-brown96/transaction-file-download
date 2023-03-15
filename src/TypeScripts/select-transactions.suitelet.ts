@@ -731,12 +731,16 @@ const _post = ({
             request.parameters[
                 SUITELET_FIELD_IDS.TRAN_STATUS
             ];
+        log.debug(
+            "tran status param",
+            typeof tranStatusRaw
+        );
         const searchService = new TransactionSearchService({
             START_DATE: new Date(start),
             ALL_STATUSES: allStatusParam,
             ALL_TRAN_TYPES: allTypesParam,
             TRAN_TYPES: tranTypesRaw,
-            TRAN_STATUS: tranStatusRaw,
+            TRAN_STATUS: [tranStatusRaw],
             ...(end && { END_DATE: new Date(end) }),
             ...(customer && {
                 CUSTOMER: parseInt(customer)

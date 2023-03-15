@@ -543,12 +543,13 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
                 : true;
             const tranTypesRaw = request.parameters[constants_1.SUITELET_FIELD_IDS.TRAN_TYPES];
             const tranStatusRaw = request.parameters[constants_1.SUITELET_FIELD_IDS.TRAN_STATUS];
+            log.debug("tran status param", typeof tranStatusRaw);
             const searchService = new transaction_search_service_1.TransactionSearchService({
                 START_DATE: new Date(start),
                 ALL_STATUSES: allStatusParam,
                 ALL_TRAN_TYPES: allTypesParam,
                 TRAN_TYPES: tranTypesRaw,
-                TRAN_STATUS: tranStatusRaw,
+                TRAN_STATUS: [tranStatusRaw],
                 ...(end && { END_DATE: new Date(end) }),
                 ...(customer && {
                     CUSTOMER: parseInt(customer)
