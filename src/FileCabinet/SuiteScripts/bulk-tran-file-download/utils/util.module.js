@@ -5,7 +5,7 @@
  */
 define(["require", "exports", "N/log", "N/query", "N/error", "N/search"], function (require, exports, log, query, error, search) {
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getTransactionType = exports.getScriptInternalId = exports.getParameterFromURL = exports.summarizeLogger = exports.queryReturn = exports.validateSuiteletMethod = void 0;
+    exports.formatAMPM = exports.getTransactionType = exports.getScriptInternalId = exports.getParameterFromURL = exports.summarizeLogger = exports.queryReturn = exports.validateSuiteletMethod = void 0;
     /**
      *
      * @param tempMethod
@@ -191,4 +191,16 @@ define(["require", "exports", "N/log", "N/query", "N/error", "N/search"], functi
         return tranType;
     };
     exports.getTransactionType = getTransactionType;
+    function formatAMPM(date) {
+        let hours = date.getHours();
+        let minutes = date.getMinutes();
+        const seconds = date.getSeconds();
+        const ampm = hours >= 12 ? "pm" : "am";
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        const strTime = hours + ":" + minutes + ":" + seconds + " " + ampm;
+        return strTime;
+    }
+    exports.formatAMPM = formatAMPM;
 });

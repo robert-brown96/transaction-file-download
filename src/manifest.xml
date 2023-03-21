@@ -7,5 +7,8 @@
       <feature required="false">CRM</feature>
       <feature required="false">CREATESUITEBUNDLES</feature>
     </features>
+    <objects>
+    <object>customrole1002</object>
+    </objects>
   </dependencies>
 </manifest>

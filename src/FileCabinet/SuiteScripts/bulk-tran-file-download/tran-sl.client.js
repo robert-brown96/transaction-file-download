@@ -13,13 +13,13 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
         console.log(`changed field ${changedField}`);
         const params = {};
         let newPageId;
-        params.start = cr.getValue({
+        params.start = new Date(cr.getValue({
             fieldId: constants_1.SUITELET_FIELD_IDS.START_DATE
-        });
+        }));
         params.end =
-            cr.getValue({
+            new Date(cr.getValue({
                 fieldId: constants_1.SUITELET_FIELD_IDS.END_DATE
-            }) || "";
+            })) || "";
         params.customer =
             cr.getValue({
                 fieldId: constants_1.SUITELET_FIELD_IDS.CUSTOMER
@@ -100,9 +100,6 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
                 break;
             }
             case constants_1.SUITELET_FIELD_IDS.START_DATE: {
-                params.start = cr.getValue({
-                    fieldId: constants_1.SUITELET_FIELD_IDS.START_DATE
-                });
                 refreshSuitelet = true;
                 break;
             }

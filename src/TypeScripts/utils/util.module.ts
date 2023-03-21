@@ -224,3 +224,16 @@ export const getTransactionType = (
 
     return tranType;
 };
+
+export function formatAMPM(date: Date) {
+    let hours = date.getHours();
+    let minutes: string | number = date.getMinutes();
+    const seconds = date.getSeconds();
+    const ampm = hours >= 12 ? "pm" : "am";
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    const strTime =
+        hours + ":" + minutes + ":" + seconds + " " + ampm;
+    return strTime;
+}

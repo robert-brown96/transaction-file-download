@@ -4,7 +4,7 @@
  * @NModuleScope Public
  * @NScriptType Suitelet
  */
-define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/serverWidget", "./utils/util.module", "./utils/tran-status-val.service", "./constants", "./utils/transaction-search.service", "./utils/suitelet.service"], function (require, exports, log, format, url, redirect, serverWidget, util_module_1, tran_status_val_service_1, constants_1, transaction_search_service_1, suitelet_service_1) {
+define(["require", "exports", "N/log", "N/format", "N/config", "N/url", "N/redirect", "N/ui/serverWidget", "./utils/util.module", "./utils/tran-status-val.service", "./constants", "./utils/transaction-search.service", "./utils/suitelet.service"], function (require, exports, log, format, config, url, redirect, serverWidget, util_module_1, tran_status_val_service_1, constants_1, transaction_search_service_1, suitelet_service_1) {
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.onRequest = void 0;
     const PAGE_SIZE = 50;
@@ -25,9 +25,16 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
                 // script id params
                 const scriptId = context.request.parameters.script;
                 const deploymentId = context.request.parameters.deploy;
+                const today = currentUserToday();
+                log.debug("today", today);
                 // form value parameters
-                const start = request.parameters.start ?? new Date();
-                const end = request.parameters.end;
+                const start = request.parameters.start
+                    ? dateToUserTz(request.parameters.start)
+                    : today;
+                log.debug("initial start date", start);
+                const end = request.parameters.end === "Invalid Date"
+                    ? null
+                    : request.parameters.end;
                 const customer = request.parameters.customer;
                 const subsidiary = request.parameters.subsidiary;
                 const allTypesParam = request.parameters.allTypes === "false"
@@ -345,7 +352,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
             type: serverWidget.FieldType.TEXT
         });
         const tranSearchService = new transaction_search_service_1.TransactionSearchService({
-            START_DATE: new Date(start),
+            START_DATE: start,
             ALL_STATUSES: allStatusParam,
             ALL_TRAN_TYPES: allTypesParam,
             TRAN_TYPES: tranTypeChecked,
@@ -383,10 +390,10 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
             type: serverWidget.FieldType.INTEGER,
             container: "navigation_group"
         });
-        resultCountField.defaultValue = (pageCount *
-            PAGE_SIZE);
+        resultCountField.defaultValue =
+            pageCount;
         resultCountField.updateDisplayType({
-            displayType: serverWidget.FieldDisplayType.INLINE
+            displayType: serverWidget.FieldDisplayType.HIDDEN
         });
         resultCountField.updateBreakType({
             breakType: serverWidget.FieldBreakType.STARTCOL
@@ -565,4 +572,58 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
             log.debug("my submittedTaskId", submittedTaskId);
         }
     };
+    function currentUserToday() {
+        const d = new Date();
+        const yyyy = d.getFullYear().toString();
+        const mm = (d.getMonth() + 1).toString();
+        const dd = d.getDate().toString();
+        const time = (0, util_module_1.formatAMPM)(d);
+        const val = (mm[1] ? mm : mm[0]) +
+            "/" +
+            (dd[1] ? dd : dd[0]) +
+            "/" +
+            yyyy +
+            " " +
+            time;
+        const conf = config.load({
+            type: config.Type.USER_PREFERENCES
+        });
+        const tz = conf.getValue({
+            fieldId: "TIMEZONE"
+        });
+        const tme = format.format({
+            value: val,
+            type: format.Type.DATETIME,
+            timezone: tz
+        });
+        log.debug("my today", tme);
+        return tme;
+    }
+    function dateToUserTz(d) {
+        d = d instanceof Date ? d : new Date(d);
+        const yyyy = d.getFullYear().toString();
+        const mm = (d.getMonth() + 1).toString();
+        const dd = d.getDate().toString();
+        const time = (0, util_module_1.formatAMPM)(d);
+        const val = (mm[1] ? mm : mm[0]) +
+            "/" +
+            (dd[1] ? dd : dd[0]) +
+            "/" +
+            yyyy +
+            " " +
+            time;
+        const conf = config.load({
+            type: config.Type.USER_PREFERENCES
+        });
+        const tz = conf.getValue({
+            fieldId: "TIMEZONE"
+        });
+        const tme = format.format({
+            value: val,
+            type: format.Type.DATETIME,
+            timezone: tz
+        });
+        log.debug("my datetime", tme);
+        return tme;
+    }
 });

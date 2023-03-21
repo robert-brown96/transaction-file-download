@@ -26,13 +26,17 @@ export function fieldChanged(
 
     let newPageId: number;
 
-    params.start = cr.getValue({
-        fieldId: SUITELET_FIELD_IDS.START_DATE
-    });
-    params.end =
+    params.start = new Date(
         cr.getValue({
-            fieldId: SUITELET_FIELD_IDS.END_DATE
-        }) || "";
+            fieldId: SUITELET_FIELD_IDS.START_DATE
+        }) as string | Date
+    );
+    params.end =
+        new Date(
+            cr.getValue({
+                fieldId: SUITELET_FIELD_IDS.END_DATE
+            }) as string | Date
+        ) || "";
     params.customer =
         cr.getValue({
             fieldId: SUITELET_FIELD_IDS.CUSTOMER
@@ -118,9 +122,6 @@ export function fieldChanged(
             break;
         }
         case SUITELET_FIELD_IDS.START_DATE: {
-            params.start = cr.getValue({
-                fieldId: SUITELET_FIELD_IDS.START_DATE
-            });
             refreshSuitelet = true;
             break;
         }
