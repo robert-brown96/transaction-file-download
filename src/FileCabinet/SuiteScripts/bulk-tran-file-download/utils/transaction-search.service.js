@@ -71,17 +71,13 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
             ]);
         }
         getStartDateFilter(v) {
-            log.debug("startDate", v);
-            v = new Date(v);
-            const startDateFormat = format.format({
-                value: v,
-                type: format.Type.DATE
-            });
-            log.debug("startDateFormat", startDateFormat);
             return search.createFilter({
                 name: "trandate",
                 operator: search.Operator.ONORAFTER,
-                values: startDateFormat
+                values: format.format({
+                    value: new Date(v),
+                    type: format.Type.DATE
+                })
             });
         }
         getEndDateFilter(v) {
@@ -89,7 +85,7 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
                 name: "trandate",
                 operator: search.Operator.ONORBEFORE,
                 values: format.format({
-                    value: v,
+                    value: new Date(v),
                     type: format.Type.DATE
                 })
             });
@@ -224,9 +220,7 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
         }
         getStatusFilter() {
             if (!this.transaction_status ||
-                this.transaction_status.length === 0 ||
-                (this.transaction_status.length === 1 &&
-                    this.transaction_status[0] === ""))
+                this.transaction_status.length === 0)
                 return false;
             return search.createFilter({
                 name: "status",

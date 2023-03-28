@@ -62,7 +62,10 @@ export function onRequest(
             const start =
                 request.parameters.start ?? new Date();
 
-            const end = request.parameters.end;
+            const end =
+                request.parameters.end === "Invalid Date"
+                    ? null
+                    : request.parameters.end;
 
             const customer = request.parameters.customer;
 
