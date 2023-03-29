@@ -13,7 +13,11 @@ import redirect = require("N/redirect");
 import serverWidget = require("N/ui/serverWidget");
 //import search = require("N/search");
 import {
+    dateObjToFormattedString,
+    formatDateObjToString,
     getScriptInternalId,
+    stringToDateObj,
+    validateDateObj,
     validateSuiteletMethod
 } from "./utils/util.module";
 import { TransactionStatusService } from "./utils/tran-status-val.service";
@@ -58,14 +62,18 @@ export function onRequest(
             const deploymentId =
                 context.request.parameters.deploy;
 
-            // form value parameters
             const start =
-                request.parameters.start ?? new Date();
+                request.parameters.start ??
+                dateObjToFormattedString(new Date());
+            log.debug("check start", start);
+            // form value parameters
+            const startObj = stringToDateObj(start);
+            log.debug("check start", startObj);
 
-            const end =
-                request.parameters.end === "Invalid Date"
-                    ? null
-                    : request.parameters.end;
+            const end = stringToDateObj(
+                request.parameters.end
+            );
+            log.debug("check end", end);
 
             const customer = request.parameters.customer;
 
@@ -110,6 +118,7 @@ export function onRequest(
                 scriptId,
                 deploymentId,
                 start,
+                startObj,
                 allTypesParam,
                 allStatusParam,
                 tranTypes,
@@ -189,7 +198,7 @@ const _get = ({
     pageId,
     scriptId,
     deploymentId,
-    start,
+    startObj,
     end,
     customer,
     subsidiary,
@@ -259,7 +268,7 @@ const _get = ({
         container: "file_options_group"
     });
     joinPdfFilesField.defaultValue = "F";
-
+    log.debug("date fields get", startObj);
     // Start Date
     const startDateField = slForm.addField({
         id: SUITELET_FIELD_IDS.START_DATE,
@@ -268,9 +277,25 @@ const _get = ({
         container: "filters_group"
     });
     startDateField.defaultValue = new Date(
-        start
+        startObj.year,
+        startObj.month,
+        startObj.day
     ) as unknown as string;
+    log.debug("check start date", startDateField);
     startDateField.isMandatory = true;
+    const startDateStringField = slForm.addField({
+        id: SUITELET_FIELD_IDS.START_OBJ,
+        type: serverWidget.FieldType.TEXT,
+        label: "Earliest Tran Datestring",
+        container: "filters_group"
+    });
+
+    startDateStringField.updateDisplayType({
+        displayType: serverWidget.FieldDisplayType.HIDDEN
+    });
+    startDateStringField.defaultValue =
+        formatDateObjToString(startObj);
+
     // End Date
     const endDateField = slForm.addField({
         id: SUITELET_FIELD_IDS.END_DATE,
@@ -278,10 +303,31 @@ const _get = ({
         label: "Latest Tran Date",
         container: "filters_group"
     });
-    if (end)
-        endDateField.defaultValue = new Date(
-            end
-        ) as unknown as string;
+    const endDateStringField = slForm.addField({
+        id: SUITELET_FIELD_IDS.END_OBJ,
+        type: serverWidget.FieldType.TEXT,
+        label: "Latest Tran Datestring",
+        container: "filters_group"
+    });
+    endDateStringField.updateDisplayType({
+        displayType: serverWidget.FieldDisplayType.HIDDEN
+    });
+    const dateObjCheck = validateDateObj(end);
+    if (end && dateObjCheck) {
+        log.debug("check end date", end);
+        try {
+            endDateField.defaultValue = new Date(
+                end.year,
+                end.month,
+                end.day
+            ) as unknown as string;
+            log.debug("passed end date", end);
+            endDateStringField.defaultValue =
+                formatDateObjToString(end);
+        } catch (e) {
+            log.debug("end date failed", end);
+        }
+    }
 
     // customer
     const customerField = slForm.addField({
@@ -473,12 +519,12 @@ const _get = ({
     });
 
     const tranSearchService = new TransactionSearchService({
-        START_DATE: new Date(start),
+        START_OBJ: startObj,
         ALL_STATUSES: allStatusParam,
         ALL_TRAN_TYPES: allTypesParam,
         TRAN_TYPES: tranTypeChecked,
         TRAN_STATUS: tranStatuses,
-        ...(end && { END_DATE: new Date(end) }),
+        ...(end && { END_DATE: end }),
         ...(customer && { CUSTOMER: parseInt(customer) }),
         ...(subsidiary && {
             SUBSIDIARY: parseInt(subsidiary)
@@ -513,21 +559,21 @@ const _get = ({
         pageId + 1
     } of ${pageCount}</p><br><br>`;
 
-    const resultCountField = slForm.addField({
-        id: SUITELET_FIELD_IDS.TRAN_COUNT,
-        label: "Total Transaction Count",
-        type: serverWidget.FieldType.INTEGER,
-        container: "navigation_group"
-    });
+    // const resultCountField = slForm.addField({
+    //     id: SUITELET_FIELD_IDS.TRAN_COUNT,
+    //     label: "Total Transaction Count",
+    //     type: serverWidget.FieldType.INTEGER,
+    //     container: "navigation_group"
+    // });
 
-    resultCountField.defaultValue = (pageCount *
-        PAGE_SIZE) as unknown as string;
-    resultCountField.updateDisplayType({
-        displayType: serverWidget.FieldDisplayType.INLINE
-    });
-    resultCountField.updateBreakType({
-        breakType: serverWidget.FieldBreakType.STARTCOL
-    });
+    // resultCountField.defaultValue = (pageCount *
+    //     PAGE_SIZE) as unknown as string;
+    // resultCountField.updateDisplayType({
+    //     displayType: serverWidget.FieldDisplayType.INLINE
+    // });
+    // resultCountField.updateBreakType({
+    //     breakType: serverWidget.FieldBreakType.STARTCOL
+    // });
 
     const onlySelectedField = slForm.addField({
         type: serverWidget.FieldType.CHECKBOX,
@@ -699,9 +745,11 @@ const _post = ({
             request.parameters[
                 SUITELET_FIELD_IDS.START_DATE
             ];
+        const startObj = stringToDateObj(start);
+        log.debug("check start", startObj);
 
-        const end =
-            request.parameters[SUITELET_FIELD_IDS.END_DATE];
+        const end = stringToDateObj(request.parameters.end);
+        log.debug("check end", end);
 
         const customer =
             request.parameters[SUITELET_FIELD_IDS.CUSTOMER];
@@ -735,12 +783,12 @@ const _post = ({
                 SUITELET_FIELD_IDS.TRAN_STATUS
             ];
         const searchService = new TransactionSearchService({
-            START_DATE: new Date(start),
+            START_OBJ: startObj,
             ALL_STATUSES: allStatusParam,
             ALL_TRAN_TYPES: allTypesParam,
             TRAN_TYPES: tranTypesRaw,
             TRAN_STATUS: tranStatusRaw,
-            ...(end && { END_DATE: new Date(end) }),
+            ...(end && { END_DATE: end }),
             ...(customer && {
                 CUSTOMER: parseInt(customer)
             }),

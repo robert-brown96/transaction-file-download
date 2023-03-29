@@ -11,7 +11,10 @@ import {
     SUITELET_FIELD_IDS,
     TRAN_SELECT_SUITELET
 } from "./constants";
-import { getParameterFromURL } from "./utils/util.module";
+import {
+    dateObjToFormattedString,
+    getParameterFromURL
+} from "./utils/util.module";
 import { TMapAny } from "./globals";
 
 export function fieldChanged(
@@ -26,17 +29,16 @@ export function fieldChanged(
 
     let newPageId: number;
 
-    params.start = new Date(
-        cr.getValue({
-            fieldId: SUITELET_FIELD_IDS.START_DATE
-        }) as string | Date
-    );
-    params.end =
-        new Date(
-            cr.getValue({
-                fieldId: SUITELET_FIELD_IDS.END_DATE
-            }) as string | Date
-        ) || "";
+    params.start = cr.getValue({
+        fieldId: SUITELET_FIELD_IDS.START_OBJ
+    });
+    console.log(`start date ${params.start}`);
+
+    params.end = cr.getValue({
+        fieldId: SUITELET_FIELD_IDS.END_OBJ
+    });
+    console.log(`end date ${params.end}`);
+
     params.customer =
         cr.getValue({
             fieldId: SUITELET_FIELD_IDS.CUSTOMER
@@ -61,7 +63,11 @@ export function fieldChanged(
     params.selectIndividual = cr.getValue({
         fieldId: SUITELET_FIELD_IDS.INCLUDE_SELECTED
     });
-    console.log(`types arr: ${params.typeArr}`);
+    console.log(
+        `start changed: ${
+            changedField === SUITELET_FIELD_IDS.START_DATE
+        }`
+    );
     // switch through fields
     console.log(
         `params before switch ${JSON.stringify(params)}`
@@ -122,11 +128,32 @@ export function fieldChanged(
             break;
         }
         case SUITELET_FIELD_IDS.START_DATE: {
-            refreshSuitelet = true;
+            const startDate = cr.getValue({
+                fieldId: SUITELET_FIELD_IDS.START_DATE
+            }) as unknown as Date;
+            const newStart =
+                dateObjToFormattedString(startDate);
+            params.start = newStart;
+            cr.setValue({
+                fieldId: SUITELET_FIELD_IDS.START_OBJ,
+                value: newStart
+            });
+            console.log(`new start: ${params.start}`);
+            //refreshSuitelet = true;
             break;
         }
         case SUITELET_FIELD_IDS.END_DATE: {
-            refreshSuitelet = true;
+            const endDate = cr.getValue({
+                fieldId: SUITELET_FIELD_IDS.END_DATE
+            }) as unknown as Date;
+            const newEnd =
+                dateObjToFormattedString(endDate);
+            params.end = newEnd;
+            cr.setValue({
+                fieldId: SUITELET_FIELD_IDS.END_OBJ,
+                value: newEnd
+            });
+            // refreshSuitelet = true;
             break;
         }
         case SUITELET_FIELD_IDS.CUSTOMER: {
@@ -146,7 +173,7 @@ export function fieldChanged(
             break;
         }
         case SUITELET_FIELD_IDS.INCLUDE_SELECTED: {
-            refreshSuitelet = true;
+            refreshSuitelet = false;
             break;
         }
         default: {
@@ -155,6 +182,7 @@ export function fieldChanged(
             );
         }
     }
+    console.log(`new params ${JSON.stringify(params)}`);
 
     if (refreshSuitelet) {
         // base parameters for suitelet refresh retrieve

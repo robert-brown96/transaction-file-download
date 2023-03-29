@@ -52,8 +52,8 @@ export interface IMrError {
 export interface ISearchParameters {
     ALL_TRAN_TYPES: boolean;
     ALL_STATUSES: boolean;
-    START_DATE: Date;
-    END_DATE?: Date;
+    START_OBJ: IDateObj;
+    END_DATE?: IDateObj;
     CUSTOMER?: number;
     SUBSIDIARY?: number;
     TRAN_TYPES: TSupportedTranType[];
@@ -77,8 +77,9 @@ export interface IGetParams {
     pageId: number;
     scriptId: string;
     deploymentId: string;
-    start: Date;
-    end?: Date;
+    start?: Date;
+    startObj: IDateObj;
+    end?: IDateObj;
     customer?: string;
     subsidiary?: string;
     allTypesParam: boolean;
@@ -107,4 +108,10 @@ export interface IProcessFileValues {
     submitted_at: Date;
     process_options: IProcessFileInit;
     transaction_ids: number[];
+}
+
+export interface IDateObj {
+    year: number;
+    month: number;
+    day: number;
 }

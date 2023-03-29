@@ -5,7 +5,7 @@
  */
 define(["require", "exports", "N/log", "N/query", "N/error", "N/search"], function (require, exports, log, query, error, search) {
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.formatAMPM = exports.getTransactionType = exports.getScriptInternalId = exports.getParameterFromURL = exports.summarizeLogger = exports.queryReturn = exports.validateSuiteletMethod = void 0;
+    exports.stringToDateObj = exports.formatDateObjToString = exports.validateDateObj = exports.dateObjToFormattedString = exports.formatAMPM = exports.getTransactionType = exports.getScriptInternalId = exports.getParameterFromURL = exports.summarizeLogger = exports.queryReturn = exports.validateSuiteletMethod = void 0;
     /**
      *
      * @param tempMethod
@@ -203,4 +203,76 @@ define(["require", "exports", "N/log", "N/query", "N/error", "N/search"], functi
         return strTime;
     }
     exports.formatAMPM = formatAMPM;
+    function dateObjToFormattedString(date) {
+        try {
+            const y = date.getFullYear();
+            const m = date.getMonth();
+            const d = date.getDate();
+            const mm = m > 9 ? `${m}` : `0${m}`;
+            const dd = d > 9 ? `${d}` : `0${d}`;
+            return `${y}${mm}${dd}`;
+        }
+        catch (e) {
+            log.debug("invalid date", date);
+            return "";
+        }
+    }
+    exports.dateObjToFormattedString = dateObjToFormattedString;
+    function validateDateObj(obj) {
+        try {
+            if (typeof obj.year !== "number" ||
+                obj.year === null) {
+                log.debug("invalid year", obj.year);
+                return false;
+            }
+            else if (typeof obj.month !== "number" ||
+                obj.month === null) {
+                log.debug("invalid month", obj.month);
+                return false;
+            }
+            else if (typeof obj.day !== "number" ||
+                obj.day === null) {
+                log.debug("invalid day", obj.day);
+                return false;
+            }
+            else
+                return true;
+        }
+        catch (e) {
+            return false;
+        }
+    }
+    exports.validateDateObj = validateDateObj;
+    function formatDateObjToString(v) {
+        log.debug("check format", v);
+        try {
+            const y = v.year;
+            const m = v.month;
+            const d = v.day;
+            const mm = m > 9 ? `${m}` : `0${m}`;
+            const dd = d > 9 ? `${d}` : `0${d}`;
+            return `${y}${mm}${dd}`;
+        }
+        catch (e) {
+            log.debug("invalid date obj", v);
+            return "";
+        }
+    }
+    exports.formatDateObjToString = formatDateObjToString;
+    function stringToDateObj(str) {
+        try {
+            const yyyy = str.substring(0, 4);
+            const mm = str.substring(4, 6);
+            const dd = str.substring(6, 8);
+            const year = parseInt(yyyy);
+            const month = parseInt(mm);
+            const day = parseInt(dd);
+            return { year, month, day };
+        }
+        catch (e) {
+            log.debug("invalid datestring", str);
+            return null;
+        }
+    }
+    exports.stringToDateObj = stringToDateObj;
 });

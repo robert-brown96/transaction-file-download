@@ -5,6 +5,7 @@
  */
 
 import {
+    IDateObj,
     ISearchParameters,
     ITransactionResult,
     TSupportedTranType
@@ -12,10 +13,11 @@ import {
 import format = require("N/format");
 import log = require("N/log");
 import search = require("N/search");
+import { validateDateObj } from "./util.module";
 
 export class TransactionSearchService {
-    start_date: Date;
-    end_date?: Date;
+    start_date: IDateObj;
+    end_date?: IDateObj;
     entity?: number;
     subsidiary?: number;
     transaction_types: TSupportedTranType[] = [];
@@ -66,8 +68,10 @@ export class TransactionSearchService {
 
     constructor(options: ISearchParameters) {
         // set base properties
-        this.start_date = options.START_DATE;
-        this.end_date = options.END_DATE;
+        this.start_date = options.START_OBJ;
+        this.end_date = validateDateObj(options.END_DATE)
+            ? options.END_DATE
+            : null;
         this.entity = options.CUSTOMER;
         this.subsidiary = options.SUBSIDIARY;
 
@@ -102,23 +106,23 @@ export class TransactionSearchService {
         );
     }
 
-    private getStartDateFilter(v: Date): search.Filter {
+    private getStartDateFilter(v: IDateObj): search.Filter {
         return search.createFilter({
             name: "trandate",
             operator: search.Operator.ONORAFTER,
             values: format.format({
-                value: new Date(v),
+                value: new Date(v.year, v.month, v.day),
                 type: format.Type.DATE
             })
         });
     }
 
-    private getEndDateFilter(v: Date): search.Filter {
+    private getEndDateFilter(v: IDateObj): search.Filter {
         return search.createFilter({
             name: "trandate",
             operator: search.Operator.ONORBEFORE,
             values: format.format({
-                value: new Date(v),
+                value: new Date(v.year, v.month, v.day),
                 type: format.Type.DATE
             })
         });

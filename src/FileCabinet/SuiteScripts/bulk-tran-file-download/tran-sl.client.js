@@ -13,13 +13,14 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
         console.log(`changed field ${changedField}`);
         const params = {};
         let newPageId;
-        params.start = new Date(cr.getValue({
-            fieldId: constants_1.SUITELET_FIELD_IDS.START_DATE
-        }));
-        params.end =
-            new Date(cr.getValue({
-                fieldId: constants_1.SUITELET_FIELD_IDS.END_DATE
-            })) || "";
+        params.start = cr.getValue({
+            fieldId: constants_1.SUITELET_FIELD_IDS.START_OBJ
+        });
+        console.log(`start date ${params.start}`);
+        params.end = cr.getValue({
+            fieldId: constants_1.SUITELET_FIELD_IDS.END_OBJ
+        });
+        console.log(`end date ${params.end}`);
         params.customer =
             cr.getValue({
                 fieldId: constants_1.SUITELET_FIELD_IDS.CUSTOMER
@@ -43,7 +44,7 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
         params.selectIndividual = cr.getValue({
             fieldId: constants_1.SUITELET_FIELD_IDS.INCLUDE_SELECTED
         });
-        console.log(`types arr: ${params.typeArr}`);
+        console.log(`start changed: ${changedField === constants_1.SUITELET_FIELD_IDS.START_DATE}`);
         // switch through fields
         console.log(`params before switch ${JSON.stringify(params)}`);
         switch (changedField) {
@@ -100,11 +101,30 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
                 break;
             }
             case constants_1.SUITELET_FIELD_IDS.START_DATE: {
-                refreshSuitelet = true;
+                const startDate = cr.getValue({
+                    fieldId: constants_1.SUITELET_FIELD_IDS.START_DATE
+                });
+                const newStart = (0, util_module_1.dateObjToFormattedString)(startDate);
+                params.start = newStart;
+                cr.setValue({
+                    fieldId: constants_1.SUITELET_FIELD_IDS.START_OBJ,
+                    value: newStart
+                });
+                console.log(`new start: ${params.start}`);
+                //refreshSuitelet = true;
                 break;
             }
             case constants_1.SUITELET_FIELD_IDS.END_DATE: {
-                refreshSuitelet = true;
+                const endDate = cr.getValue({
+                    fieldId: constants_1.SUITELET_FIELD_IDS.END_DATE
+                });
+                const newEnd = (0, util_module_1.dateObjToFormattedString)(endDate);
+                params.end = newEnd;
+                cr.setValue({
+                    fieldId: constants_1.SUITELET_FIELD_IDS.END_OBJ,
+                    value: newEnd
+                });
+                // refreshSuitelet = true;
                 break;
             }
             case constants_1.SUITELET_FIELD_IDS.CUSTOMER: {
@@ -124,13 +144,14 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
                 break;
             }
             case constants_1.SUITELET_FIELD_IDS.INCLUDE_SELECTED: {
-                refreshSuitelet = true;
+                refreshSuitelet = false;
                 break;
             }
             default: {
                 console.log(`no action for field ${changedField} - continuing`);
             }
         }
+        console.log(`new params ${JSON.stringify(params)}`);
         if (refreshSuitelet) {
             // base parameters for suitelet refresh retrieve
             const scriptId = (0, util_module_1.getParameterFromURL)("script");

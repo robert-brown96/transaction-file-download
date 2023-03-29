@@ -3,7 +3,7 @@
  * @NApiVersion 2.1
  * @NModuleScope Public
  */
-define(["require", "exports", "N/format", "N/log", "N/search"], function (require, exports, format, log, search) {
+define(["require", "exports", "N/format", "N/log", "N/search", "./util.module"], function (require, exports, format, log, search, util_module_1) {
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.TransactionSearchService = void 0;
     class TransactionSearchService {
@@ -45,8 +45,10 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
             ];
             this.searchType = search.Type.TRANSACTION;
             // set base properties
-            this.start_date = options.START_DATE;
-            this.end_date = options.END_DATE;
+            this.start_date = options.START_OBJ;
+            this.end_date = (0, util_module_1.validateDateObj)(options.END_DATE)
+                ? options.END_DATE
+                : null;
             this.entity = options.CUSTOMER;
             this.subsidiary = options.SUBSIDIARY;
             // get transaction types property
@@ -75,7 +77,7 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
                 name: "trandate",
                 operator: search.Operator.ONORAFTER,
                 values: format.format({
-                    value: new Date(v),
+                    value: new Date(v.year, v.month, v.day),
                     type: format.Type.DATE
                 })
             });
@@ -85,7 +87,7 @@ define(["require", "exports", "N/format", "N/log", "N/search"], function (requir
                 name: "trandate",
                 operator: search.Operator.ONORBEFORE,
                 values: format.format({
-                    value: new Date(v),
+                    value: new Date(v.year, v.month, v.day),
                     type: format.Type.DATE
                 })
             });

@@ -10,7 +10,11 @@ import error = require("N/error");
 import search = require("N/search");
 
 import { EntryPoints } from "N/types";
-import { IMrError, TSUITELET_METHOD } from "../globals";
+import {
+    IDateObj,
+    IMrError,
+    TSUITELET_METHOD
+} from "../globals";
 
 /**
  *
@@ -207,7 +211,9 @@ export const getTransactionType = (
         columns: "type"
     });
 
-    const typeVal = tranTypeA.type as any[];
+    const typeVal = tranTypeA.type as unknown as {
+        value: string;
+    }[];
 
     log.debug({
         title: "TranType",
@@ -236,4 +242,80 @@ export function formatAMPM(date: Date) {
     const strTime =
         hours + ":" + minutes + ":" + seconds + " " + ampm;
     return strTime;
+}
+
+export function dateObjToFormattedString(
+    date: Date
+): string {
+    try {
+        const y = date.getFullYear();
+        const m = date.getMonth();
+        const d = date.getDate();
+
+        const mm = m > 9 ? `${m}` : `0${m}`;
+        const dd = d > 9 ? `${d}` : `0${d}`;
+
+        return `${y}${mm}${dd}`;
+    } catch (e) {
+        log.debug("invalid date", date);
+        return "";
+    }
+}
+
+export function validateDateObj(obj: IDateObj): boolean {
+    try {
+        if (
+            typeof obj.year !== "number" ||
+            obj.year === null
+        ) {
+            log.debug("invalid year", obj.year);
+            return false;
+        } else if (
+            typeof obj.month !== "number" ||
+            obj.month === null
+        ) {
+            log.debug("invalid month", obj.month);
+            return false;
+        } else if (
+            typeof obj.day !== "number" ||
+            obj.day === null
+        ) {
+            log.debug("invalid day", obj.day);
+            return false;
+        } else return true;
+    } catch (e) {
+        return false;
+    }
+}
+export function formatDateObjToString(v: IDateObj): string {
+    log.debug("check format", v);
+    try {
+        const y = v.year;
+        const m = v.month;
+        const d = v.day;
+        const mm = m > 9 ? `${m}` : `0${m}`;
+        const dd = d > 9 ? `${d}` : `0${d}`;
+
+        return `${y}${mm}${dd}`;
+    } catch (e) {
+        log.debug("invalid date obj", v);
+        return "";
+    }
+}
+
+export function stringToDateObj(str: string): IDateObj {
+    try {
+        const yyyy = str.substring(0, 4);
+        const mm = str.substring(4, 6);
+        const dd = str.substring(6, 8);
+
+        const year = parseInt(yyyy);
+        const month = parseInt(mm);
+        const day = parseInt(dd);
+
+        return { year, month, day };
+    } catch (e) {
+        log.debug("invalid datestring", str);
+        return null;
+    }
 }

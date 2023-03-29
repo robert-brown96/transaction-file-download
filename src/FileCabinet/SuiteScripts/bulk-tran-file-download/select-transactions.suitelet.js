@@ -25,11 +25,14 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
                 // script id params
                 const scriptId = context.request.parameters.script;
                 const deploymentId = context.request.parameters.deploy;
+                const start = request.parameters.start ??
+                    (0, util_module_1.dateObjToFormattedString)(new Date());
+                log.debug("check start", start);
                 // form value parameters
-                const start = request.parameters.start ?? new Date();
-                const end = request.parameters.end === "Invalid Date"
-                    ? null
-                    : request.parameters.end;
+                const startObj = (0, util_module_1.stringToDateObj)(start);
+                log.debug("check start", startObj);
+                const end = (0, util_module_1.stringToDateObj)(request.parameters.end);
+                log.debug("check end", end);
                 const customer = request.parameters.customer;
                 const subsidiary = request.parameters.subsidiary;
                 const allTypesParam = request.parameters.allTypes === "false"
@@ -58,6 +61,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
                     scriptId,
                     deploymentId,
                     start,
+                    startObj,
                     allTypesParam,
                     allStatusParam,
                     tranTypes,
@@ -113,7 +117,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
         }
     }
     exports.onRequest = onRequest;
-    const _get = ({ pageId, scriptId, deploymentId, start, end, customer, subsidiary, allTypesParam, allStatusParam, selectTransactions, tranTypes, tranStatuses }) => {
+    const _get = ({ pageId, scriptId, deploymentId, startObj, end, customer, subsidiary, allTypesParam, allStatusParam, selectTransactions, tranTypes, tranStatuses }) => {
         log.debug("start get", scriptId + deploymentId);
         const slForm = serverWidget.createForm({
             title: "Download Transaction Files in Bulk"
@@ -164,6 +168,7 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
             container: "file_options_group"
         });
         joinPdfFilesField.defaultValue = "F";
+        log.debug("date fields get", startObj);
         // Start Date
         const startDateField = slForm.addField({
             id: constants_1.SUITELET_FIELD_IDS.START_DATE,
@@ -171,8 +176,20 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
             label: "Earliest Tran Date",
             container: "filters_group"
         });
-        startDateField.defaultValue = new Date(start);
+        startDateField.defaultValue = new Date(startObj.year, startObj.month, startObj.day);
+        log.debug("check start date", startDateField);
         startDateField.isMandatory = true;
+        const startDateStringField = slForm.addField({
+            id: constants_1.SUITELET_FIELD_IDS.START_OBJ,
+            type: serverWidget.FieldType.TEXT,
+            label: "Earliest Tran Datestring",
+            container: "filters_group"
+        });
+        startDateStringField.updateDisplayType({
+            displayType: serverWidget.FieldDisplayType.HIDDEN
+        });
+        startDateStringField.defaultValue =
+            (0, util_module_1.formatDateObjToString)(startObj);
         // End Date
         const endDateField = slForm.addField({
             id: constants_1.SUITELET_FIELD_IDS.END_DATE,
@@ -180,8 +197,28 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
             label: "Latest Tran Date",
             container: "filters_group"
         });
-        if (end)
-            endDateField.defaultValue = new Date(end);
+        const endDateStringField = slForm.addField({
+            id: constants_1.SUITELET_FIELD_IDS.END_OBJ,
+            type: serverWidget.FieldType.TEXT,
+            label: "Latest Tran Datestring",
+            container: "filters_group"
+        });
+        endDateStringField.updateDisplayType({
+            displayType: serverWidget.FieldDisplayType.HIDDEN
+        });
+        const dateObjCheck = (0, util_module_1.validateDateObj)(end);
+        if (end && dateObjCheck) {
+            log.debug("check end date", end);
+            try {
+                endDateField.defaultValue = new Date(end.year, end.month, end.day);
+                log.debug("passed end date", end);
+                endDateStringField.defaultValue =
+                    (0, util_module_1.formatDateObjToString)(end);
+            }
+            catch (e) {
+                log.debug("end date failed", end);
+            }
+        }
         // customer
         const customerField = slForm.addField({
             id: constants_1.SUITELET_FIELD_IDS.CUSTOMER,
@@ -347,12 +384,12 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
             type: serverWidget.FieldType.TEXT
         });
         const tranSearchService = new transaction_search_service_1.TransactionSearchService({
-            START_DATE: new Date(start),
+            START_OBJ: startObj,
             ALL_STATUSES: allStatusParam,
             ALL_TRAN_TYPES: allTypesParam,
             TRAN_TYPES: tranTypeChecked,
             TRAN_STATUS: tranStatuses,
-            ...(end && { END_DATE: new Date(end) }),
+            ...(end && { END_DATE: end }),
             ...(customer && { CUSTOMER: parseInt(customer) }),
             ...(subsidiary && {
                 SUBSIDIARY: parseInt(subsidiary)
@@ -379,20 +416,20 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
             label: " ",
             container: "navigation_group"
         }).defaultValue = `<p style='font-size:14px'>Viewing Page ${pageId + 1} of ${pageCount}</p><br><br>`;
-        const resultCountField = slForm.addField({
-            id: constants_1.SUITELET_FIELD_IDS.TRAN_COUNT,
-            label: "Total Transaction Count",
-            type: serverWidget.FieldType.INTEGER,
-            container: "navigation_group"
-        });
-        resultCountField.defaultValue = (pageCount *
-            PAGE_SIZE);
-        resultCountField.updateDisplayType({
-            displayType: serverWidget.FieldDisplayType.INLINE
-        });
-        resultCountField.updateBreakType({
-            breakType: serverWidget.FieldBreakType.STARTCOL
-        });
+        // const resultCountField = slForm.addField({
+        //     id: SUITELET_FIELD_IDS.TRAN_COUNT,
+        //     label: "Total Transaction Count",
+        //     type: serverWidget.FieldType.INTEGER,
+        //     container: "navigation_group"
+        // });
+        // resultCountField.defaultValue = (pageCount *
+        //     PAGE_SIZE) as unknown as string;
+        // resultCountField.updateDisplayType({
+        //     displayType: serverWidget.FieldDisplayType.INLINE
+        // });
+        // resultCountField.updateBreakType({
+        //     breakType: serverWidget.FieldBreakType.STARTCOL
+        // });
         const onlySelectedField = slForm.addField({
             type: serverWidget.FieldType.CHECKBOX,
             id: constants_1.SUITELET_FIELD_IDS.INCLUDE_SELECTED,
@@ -534,7 +571,10 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
             // run search for ids
             log.debug("find filters", postService.selectIndividual);
             const start = request.parameters[constants_1.SUITELET_FIELD_IDS.START_DATE];
-            const end = request.parameters[constants_1.SUITELET_FIELD_IDS.END_DATE];
+            const startObj = (0, util_module_1.stringToDateObj)(start);
+            log.debug("check start", startObj);
+            const end = (0, util_module_1.stringToDateObj)(request.parameters.end);
+            log.debug("check end", end);
             const customer = request.parameters[constants_1.SUITELET_FIELD_IDS.CUSTOMER];
             const subsidiary = request.parameters[constants_1.SUITELET_FIELD_IDS.SUBSIDIARY];
             const allTypesParam = request.parameters[constants_1.SUITELET_FIELD_IDS.ALL_TRAN_TYPES] === "false"
@@ -546,12 +586,12 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
             const tranTypesRaw = request.parameters[constants_1.SUITELET_FIELD_IDS.TRAN_TYPES];
             const tranStatusRaw = request.parameters[constants_1.SUITELET_FIELD_IDS.TRAN_STATUS];
             const searchService = new transaction_search_service_1.TransactionSearchService({
-                START_DATE: new Date(start),
+                START_OBJ: startObj,
                 ALL_STATUSES: allStatusParam,
                 ALL_TRAN_TYPES: allTypesParam,
                 TRAN_TYPES: tranTypesRaw,
                 TRAN_STATUS: tranStatusRaw,
-                ...(end && { END_DATE: new Date(end) }),
+                ...(end && { END_DATE: end }),
                 ...(customer && {
                     CUSTOMER: parseInt(customer)
                 }),
