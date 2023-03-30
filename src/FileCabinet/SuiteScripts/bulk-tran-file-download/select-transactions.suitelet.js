@@ -570,10 +570,10 @@ define(["require", "exports", "N/log", "N/format", "N/url", "N/redirect", "N/ui/
         else {
             // run search for ids
             log.debug("find filters", postService.selectIndividual);
-            const start = request.parameters[constants_1.SUITELET_FIELD_IDS.START_DATE];
+            const start = request.parameters[constants_1.SUITELET_FIELD_IDS.START_OBJ];
             const startObj = (0, util_module_1.stringToDateObj)(start);
             log.debug("check start", startObj);
-            const end = (0, util_module_1.stringToDateObj)(request.parameters.end);
+            const end = (0, util_module_1.stringToDateObj)(request.parameters[constants_1.SUITELET_FIELD_IDS.END_OBJ]);
             log.debug("check end", end);
             const customer = request.parameters[constants_1.SUITELET_FIELD_IDS.CUSTOMER];
             const subsidiary = request.parameters[constants_1.SUITELET_FIELD_IDS.SUBSIDIARY];

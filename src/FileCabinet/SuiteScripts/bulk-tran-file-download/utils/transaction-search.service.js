@@ -145,6 +145,10 @@ define(["require", "exports", "N/format", "N/log", "N/search", "./util.module"],
         searchAllIds() {
             const ids = [];
             this.buildSearchFilters();
+            log.debug({
+                title: "search all filters",
+                details: this.searchFilters
+            });
             const searchObj = search.create({
                 type: this.searchType,
                 filters: this.searchFilters,

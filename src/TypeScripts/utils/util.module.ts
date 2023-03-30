@@ -312,7 +312,15 @@ export function stringToDateObj(str: string): IDateObj {
         const year = parseInt(yyyy);
         const month = parseInt(mm);
         const day = parseInt(dd);
-
+        if (
+            !year ||
+            !month ||
+            !day ||
+            typeof year !== "number" ||
+            typeof month !== "number" ||
+            typeof day !== "number"
+        )
+            return null;
         return { year, month, day };
     } catch (e) {
         log.debug("invalid datestring", str);

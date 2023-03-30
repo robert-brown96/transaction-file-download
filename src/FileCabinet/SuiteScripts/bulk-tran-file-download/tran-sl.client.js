@@ -111,7 +111,7 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
                     value: newStart
                 });
                 console.log(`new start: ${params.start}`);
-                //refreshSuitelet = true;
+                refreshSuitelet = true;
                 break;
             }
             case constants_1.SUITELET_FIELD_IDS.END_DATE: {
@@ -124,7 +124,7 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
                     fieldId: constants_1.SUITELET_FIELD_IDS.END_OBJ,
                     value: newEnd
                 });
-                // refreshSuitelet = true;
+                refreshSuitelet = true;
                 break;
             }
             case constants_1.SUITELET_FIELD_IDS.CUSTOMER: {
@@ -144,7 +144,7 @@ define(["require", "exports", "N/url", "N/currentRecord", "./constants", "./util
                 break;
             }
             case constants_1.SUITELET_FIELD_IDS.INCLUDE_SELECTED: {
-                refreshSuitelet = false;
+                refreshSuitelet = true;
                 break;
             }
             default: {

@@ -743,12 +743,14 @@ const _post = ({
 
         const start =
             request.parameters[
-                SUITELET_FIELD_IDS.START_DATE
+                SUITELET_FIELD_IDS.START_OBJ
             ];
         const startObj = stringToDateObj(start);
         log.debug("check start", startObj);
 
-        const end = stringToDateObj(request.parameters.end);
+        const end = stringToDateObj(
+            request.parameters[SUITELET_FIELD_IDS.END_OBJ]
+        );
         log.debug("check end", end);
 
         const customer =

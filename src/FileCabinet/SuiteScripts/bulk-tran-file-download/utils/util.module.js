@@ -267,6 +267,13 @@ define(["require", "exports", "N/log", "N/query", "N/error", "N/search"], functi
             const year = parseInt(yyyy);
             const month = parseInt(mm);
             const day = parseInt(dd);
+            if (!year ||
+                !month ||
+                !day ||
+                typeof year !== "number" ||
+                typeof month !== "number" ||
+                typeof day !== "number")
+                return null;
             return { year, month, day };
         }
         catch (e) {

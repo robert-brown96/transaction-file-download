@@ -195,6 +195,10 @@ export class TransactionSearchService {
     public searchAllIds(): number[] {
         const ids: number[] = [];
         this.buildSearchFilters();
+        log.debug({
+            title: "search all filters",
+            details: this.searchFilters
+        });
         const searchObj = search.create({
             type: this.searchType,
             filters: this.searchFilters,

@@ -139,7 +139,7 @@ export function fieldChanged(
                 value: newStart
             });
             console.log(`new start: ${params.start}`);
-            //refreshSuitelet = true;
+            refreshSuitelet = true;
             break;
         }
         case SUITELET_FIELD_IDS.END_DATE: {
@@ -153,7 +153,7 @@ export function fieldChanged(
                 fieldId: SUITELET_FIELD_IDS.END_OBJ,
                 value: newEnd
             });
-            // refreshSuitelet = true;
+            refreshSuitelet = true;
             break;
         }
         case SUITELET_FIELD_IDS.CUSTOMER: {
@@ -173,7 +173,7 @@ export function fieldChanged(
             break;
         }
         case SUITELET_FIELD_IDS.INCLUDE_SELECTED: {
-            refreshSuitelet = false;
+            refreshSuitelet = true;
             break;
         }
         default: {

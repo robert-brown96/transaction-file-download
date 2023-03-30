@@ -56,9 +56,9 @@ define(["require", "exports"], function (require, exports) {
         tran_link: "tran_link"
     };
     exports.SUITELET_SUBLIST_ID = "custpage_tran_list";
-    exports.OUTPUT_FOLDER_ID = 1264907;
-    exports.INDVIDUAL_PDF_OUTPUT_FOLDER_ID = 1264908;
-    exports.CONSOL_PDF_OUTPUT_FOLDER_ID = 1265009;
+    exports.OUTPUT_FOLDER_ID = 1282243;
+    exports.INDVIDUAL_PDF_OUTPUT_FOLDER_ID = 1282244;
+    exports.CONSOL_PDF_OUTPUT_FOLDER_ID = 1282245;
     exports.PROCESS_FILE_NAME_PREFIX = "download_process_file";
     exports.CONSOL_FILE_NAME_PREFIX = "consolidated_pdf";
 });
